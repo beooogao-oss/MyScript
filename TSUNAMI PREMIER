@@ -1,0 +1,289 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local OWNER_ID = 123456789 -- ĐỔI THÀNH USER ID CỦA BẠN
+
+local function isOwner(player)
+	return player.UserId == OWNER_ID
+end
+
+local function createWave(player, color)
+	if not isOwner(player) then return end
+
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local oldWave = workspace:FindFirstChild("TSUNAMI")
+	if oldWave then
+		oldWave:Destroy()
+	end
+
+	local wave = Instance.new("Part")
+	wave.Name = "TSUNAMI"
+	wave.Anchored = true
+	wave.CanCollide = false
+	wave.Material = Enum.Material.Water
+	wave.Transparency = 0.12
+	wave.Color = color
+
+	-- Sóng thần
+	wave.Size = Vector3.new(500, 500, 100)
+	wave.CFrame = root.CFrame * CFrame.new(0, 250, -500)
+	wave.Parent = workspace
+
+	-- 50 km/h ≈ 13.89 studs/giây
+	local speed = 13.89
+	local distance = 10000
+	local duration = distance / speed
+
+	local tween = TweenService:Create(
+		wave,
+		TweenInfo.new(duration, Enum.EasingStyle.Linear),
+		{
+			CFrame = wave.CFrame
+				+ root.CFrame.LookVector * distance
+		}
+	)
+
+	tween:Play()
+
+	tween.Completed:Connect(function()
+		if wave.Parent then
+			wave:Destroy()
+		end
+	end)
+end
+
+local function makeGui(player)
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "TsunamiHUD"
+	gui.ResetOnSpawn = false
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	local menu = Instance.new("Frame")
+	menu.Size = UDim2.fromOffset(440, 500)
+	menu.Position = UDim2.new(0.5, -220, 0.5, -250)
+	menu.BackgroundColor3 = Color3.fromRGB(0, 75, 105)
+	menu.BorderSizePixel = 0
+	menu.Parent = gui
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 20)
+	corner.Parent = menu
+
+	-- Không có chữ xám / không có tiêu đề
+
+	local close = Instance.new("TextButton")
+	close.Size = UDim2.fromOffset(45, 45)
+	close.Position = UDim2.new(1, -55, 0, 10)
+	close.Text = "X"
+	close.TextSize = 22
+	close.TextColor3 = Color3.new(1, 1, 1)
+	close.BackgroundColor3 = Color3.fromRGB(0, 125, 165)
+	close.Parent = menu
+
+	local tabs = Instance.new("Frame")
+	tabs.Size = UDim2.new(1, -20, 0, 50)
+	tabs.Position = UDim2.fromOffset(10, 15)
+	tabs.BackgroundTransparency = 1
+	tabs.Parent = menu
+
+	local content = Instance.new("ScrollingFrame")
+	content.Size = UDim2.new(1, -20, 1, -80)
+	content.Position = UDim2.fromOffset(10, 70)
+	content.BackgroundTransparency = 1
+	content.BorderSizePixel = 0
+	content.ScrollBarThickness = 3
+	content.Parent = menu
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 8)
+	layout.Parent = content
+
+	local function clear()
+		for _, object in ipairs(content:GetChildren()) do
+			if not object:IsA("UIListLayout") then
+				object:Destroy()
+			end
+		end
+	end
+
+	local function button(text, callback)
+
+		local b = Instance.new("TextButton")
+		b.Size = UDim2.new(1, -5, 0, 50)
+		b.BackgroundColor3 = Color3.fromRGB(0, 120, 165)
+		b.TextColor3 = Color3.new(1, 1, 1)
+		b.Text = text
+		b.TextSize = 17
+		b.Font = Enum.Font.GothamBold
+		b.Parent = content
+
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, 13)
+		c.Parent = b
+
+		b.Activated:Connect(callback)
+
+		return b
+	end
+
+	local function tab(text, callback)
+
+		local b = Instance.new("TextButton")
+		b.Size = UDim2.new(0.24, -5, 1, 0)
+		b.BackgroundColor3 = Color3.fromRGB(0, 105, 140)
+		b.TextColor3 = Color3.new(1, 1, 1)
+		b.Text = text
+		b.TextSize = 13
+		b.Font = Enum.Font.GothamBold
+		b.Parent = tabs
+
+		b.Activated:Connect(callback)
+
+		return b
+	end
+
+	-- SÓNG THẦN
+	local function tsunamiPage()
+
+		clear()
+
+		button("🌊 TẠO SÓNG XANH", function()
+			createWave(
+				player,
+				Color3.fromRGB(0, 180, 255)
+			)
+		end)
+
+		button("🔴 TẠO SÓNG ĐỎ", function()
+			createWave(
+				player,
+				Color3.fromRGB(255, 45, 45)
+			)
+		end)
+
+		button("❌ XÓA SÓNG", function()
+
+			if not isOwner(player) then return end
+
+			for _, object in ipairs(workspace:GetChildren()) do
+				if object.Name == "TSUNAMI" then
+					object:Destroy()
+				end
+			end
+		end)
+
+		button("📏 BÁN KÍNH 500 MÉT", function() end)
+		button("↔ CHIỀU RỘNG 500 MÉT", function() end)
+		button("↕ CHIỀU CAO 500 MÉT", function() end)
+		button("⚡ TỐC ĐỘ 50 KM/H", function() end)
+	end
+
+	-- BẢO VỆ
+	local protection = false
+
+	local function protectionPage()
+
+		clear()
+
+		local b = button("🛡️ BẢO VỆ: TẮT", function()
+
+			protection = not protection
+
+			if protection then
+				b.Text = "🛡️ BẢO VỆ: BẬT"
+				b.BackgroundColor3 =
+					Color3.fromRGB(0, 180, 220)
+			else
+				b.Text = "🛡️ BẢO VỆ: TẮT"
+				b.BackgroundColor3 =
+					Color3.fromRGB(0, 120, 165)
+			end
+		end)
+
+		button("🛡️ CHỐNG BẮT", function() end)
+		button("🌀 CHỐNG HẤT VĂNG", function() end)
+		button("🚫 CHỐNG NGÃ", function() end)
+		button("💥 CHỐNG VỤ NỔ", function() end)
+		button("🔥 CHỐNG LỬA", function() end)
+		button("🚫 CHỐNG KICK", function() end)
+	end
+
+	-- OWNER
+	local function ownershipPage()
+
+		clear()
+
+		if not isOwner(player) then
+			button("🔒 CHỈ OWNER SỬ DỤNG", function() end)
+			return
+		end
+
+		for _, target in ipairs(Players:GetPlayers()) do
+
+			if target ~= player then
+
+				local name = target.Name
+
+				button("👑 KICK " .. name, function()
+
+					if isOwner(player) then
+						target:Kick(
+							"Bạn đã bị Owner kick khỏi máy chủ."
+						)
+					end
+
+				end)
+			end
+		end
+	end
+
+	-- BẦU TRỜI
+	local function skyPage()
+
+		clear()
+
+		button("🔵 BẦU TRỜI XANH", function()
+			game.Lighting.ClockTime = 14
+			game.Lighting.Brightness = 2
+		end)
+
+		button("🔴 BẦU TRỜI ĐỎ", function()
+			game.Lighting.ClockTime = 18
+			game.Lighting.Brightness = 1
+		end)
+
+		button("🟣 BẦU TRỜI TÍM TỐI", function()
+			game.Lighting.ClockTime = 0
+			game.Lighting.Brightness = 0.5
+		end)
+
+		button("🟩 BẦU TRỜI MINECRAFT", function()
+			game.Lighting.ClockTime = 12
+			game.Lighting.Brightness = 2
+		end)
+	end
+
+	tab("🌊 SÓNG", tsunamiPage)
+	tab("🛡️ BẢO VỆ", protectionPage)
+	tab("👑 OWNER", ownershipPage)
+	tab("🌌 TRỜI", skyPage)
+
+	close.Activated:Connect(function()
+		menu.Visible = false
+	end)
+
+	tsunamiPage()
+end
+
+Players.PlayerAdded:Connect(function(player)
+	task.wait(1)
+	makeGui(player)
+end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+	task.spawn(makeGui, player)
+end
