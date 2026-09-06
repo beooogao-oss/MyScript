@@ -1,0 +1,58 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "FTAP_Hub_V2"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(220, 260)
+frame.Position = UDim2.new(0, 20, 0.5, -130)
+frame.BackgroundTransparency = 0.15
+frame.Parent = gui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "🌀 FTAP HUB V2"
+title.TextScaled = true
+title.BackgroundTransparency = 1
+title.Parent = frame
+
+local power = 100
+
+local function button(text, y, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -20, 0, 40)
+    b.Position = UDim2.new(0, 10, 0, y)
+    b.Text = text
+    b.TextScaled = true
+    b.Parent = frame
+    b.MouseButton1Click:Connect(callback)
+end
+
+button("🌀 Fling gần nhất", 50, function()
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local nearest, distance = nil, math.huge
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character then
+            local r = p.Character:FindFirstChild("HumanoidRootPart")
+            if r then
+                local d = (r.Position - root.Position).Magnitude
+                if d < distance then
+                    distance = d
+                    nearest = r
+                end
+            end
+        end
+    end
+
+    if nearest and distance < 30 then
+        nearest.AssemblyLinearVelocity =
+            (nearest.Position - root.Position
