@@ -1,0 +1,158 @@
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Name = "RuHub_FTAP_V2"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(300, 420)
+frame.Position = UDim2.new(0.5, -150, 0.5, -210)
+frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 20)
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -55, 0, 45)
+title.Position = UDim2.fromOffset(15, 5)
+title.Text = "RuHub FTAP"
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(230, 240, 235)
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(40, 40)
+close.Position = UDim2.new(1, -45, 0, 7)
+close.Text = "×"
+close.TextSize = 30
+close.TextColor3 = Color3.fromRGB(210, 220, 215)
+close.BackgroundTransparency = 1
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+    frame.Visible = false
+end)
+
+local function makeButton(text, y, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -24, 0, 42)
+    b.Position = UDim2.fromOffset(12, y)
+    b.Text = text
+    b.TextSize = 16
+    b.TextColor3 = Color3.fromRGB(225, 235, 230)
+    b.BackgroundColor3 = Color3.fromRGB(31, 57, 46)
+    b.BorderSizePixel = 0
+    b.Parent = frame
+
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 14)
+    c.Parent = b
+
+    b.MouseButton1Click:Connect(callback)
+
+    return b
+end
+
+makeButton("🌀 Fling gần nhất", 55, function()
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local target
+    local distance = 30
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character then
+            local r = p.Character:FindFirstChild("HumanoidRootPart")
+            if r then
+                local d = (r.Position - root.Position).Magnitude
+                if d < distance then
+                    distance = d
+                    target = r
+                end
+            end
+        end
+    end
+
+    if target then
+        target.AssemblyLinearVelocity =
+            (target.Position - root.Position).Unit * 150
+            + Vector3.new(0, 80, 0)
+    end
+end)
+
+makeButton("💥 Fling mạnh", 103, function()
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+
+    if root then
+        root.AssemblyLinearVelocity =
+            root.CFrame.LookVector * 250
+            + Vector3.new(0, 120, 0)
+    end
+end)
+
+makeButton("☀️ Sky: Sáng", 151, function()
+    Lighting.ClockTime = 12
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(180, 180, 180)
+    Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
+end)
+
+makeButton("🌙 Sky: Tối", 199, function()
+    Lighting.ClockTime = 0
+    Lighting.Brightness = 1
+    Lighting.Ambient = Color3.fromRGB(55, 55, 80)
+    Lighting.OutdoorAmbient = Color3.fromRGB(40, 40, 65)
+end)
+
+makeButton("🌅 Hoàng hôn", 247, function()
+    Lighting.ClockTime = 17.8
+    Lighting.Brightness = 4
+    Lighting.Ambient = Color3.fromRGB(255, 170, 120)
+    Lighting.OutdoorAmbient = Color3.fromRGB(230, 130, 90)
+end)
+
+makeButton("🟣 Sky: Tím", 295, function()
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(150, 80, 200)
+    Lighting.OutdoorAmbient = Color3.fromRGB(100, 50, 150)
+end)
+
+makeButton("🟩 Sky: Minecraft", 343, function()
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(140, 180, 110)
+    Lighting.OutdoorAmbient = Color3.fromRGB(100, 150, 90)
+end)
+
+makeButton("🔴 Sky: Đỏ", 391, function()
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(180, 65, 65)
+    Lighting.OutdoorAmbient = Color3.fromRGB(130, 40, 40)
+end)
+
+local open = Instance.new("TextButton")
+open.Size = UDim2.fromOffset(50, 50)
+open.Position = UDim2.new(0, 15, 0.5, -25)
+open.Text = "🌀"
+open.TextSize = 24
+open.TextColor3 = Color3.fromRGB(230, 240, 235)
+open.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+open.BorderSizePixel = 0
+open.Parent = gui
+
+local openCorner = Instance.new("UICorner")
+openCorner.CornerRadius = UDim.new(1, 0)
+openCorner.Parent = open
+
+open.MouseButton1Click:Connect(function()
+    frame.Visible = true
+end)
