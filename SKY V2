@@ -118,7 +118,6 @@ makeButton("🌅 Hoàng hôn", 228, function()
     Lighting.Ambient = Color3.fromRGB(255,180,130)
     Lighting.OutdoorAmbient = Color3.fromRGB(240,140,100)
 end)
-
 makeButton("🟣 Sky: Tím", 272, function()
     Lighting.Brightness = 3
     Lighting.Ambient = Color3.fromRGB(150,80,200)
