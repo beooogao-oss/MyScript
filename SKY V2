@@ -2,10 +2,18 @@ local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
+
+local old = pg:FindFirstChild("RuHub_FTAP_V2")
+if old then
+    old:Destroy()
+end
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "RuHub_FTAP_V2"
 gui.ResetOnSpawn = false
-gui.Parent = player:WaitForChild("PlayerGui")
+gui.IgnoreGuiInset = true
+gui.Parent = pg
 
 local frame = Instance.new("Frame")
 frame.Size = UDim2.fromOffset(300, 390)
@@ -37,8 +45,29 @@ close.TextColor3 = Color3.fromRGB(210, 220, 215)
 close.BackgroundTransparency = 1
 close.Parent = frame
 
+local open = Instance.new("TextButton")
+open.Size = UDim2.fromOffset(50, 50)
+open.Position = UDim2.new(0, 15, 0.5, -25)
+open.Text = "🌀"
+open.TextSize = 24
+open.TextColor3 = Color3.fromRGB(230, 240, 235)
+open.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+open.BorderSizePixel = 0
+open.Visible = false
+open.Parent = gui
+
+local openCorner = Instance.new("UICorner")
+openCorner.CornerRadius = UDim.new(1, 0)
+openCorner.Parent = open
+
 close.MouseButton1Click:Connect(function()
     frame.Visible = false
+    open.Visible = true
+end)
+
+open.MouseButton1Click:Connect(function()
+    frame.Visible = true
+    open.Visible = false
 end)
 
 local function makeButton(text, y, callback)
@@ -57,6 +86,8 @@ local function makeButton(text, y, callback)
     c.Parent = b
 
     b.MouseButton1Click:Connect(callback)
+
+    return b
 end
 
 makeButton("🌀 Fling gần nhất", 52, function()
@@ -70,8 +101,10 @@ makeButton("🌀 Fling gần nhất", 52, function()
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and p.Character then
             local r = p.Character:FindFirstChild("HumanoidRootPart")
+
             if r then
                 local d = (r.Position - root.Position).Magnitude
+
                 if d < distance then
                     distance = d
                     target = r
@@ -101,29 +134,38 @@ end)
 makeButton("☀️ Sky: Sáng", 140, function()
     Lighting.ClockTime = 12
     Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(180,180,180)
-    Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
+    Lighting.Ambient = Color3.fromRGB(180, 180, 180)
+    Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
 end)
 
 makeButton("🌙 Sky: Tối", 184, function()
     Lighting.ClockTime = 0
     Lighting.Brightness = 1
-    Lighting.Ambient = Color3.fromRGB(55,55,80)
-    Lighting.OutdoorAmbient = Color3.fromRGB(40,40,65)
+    Lighting.Ambient = Color3.fromRGB(55, 55, 80)
+    Lighting.OutdoorAmbient = Color3.fromRGB(40, 40, 65)
 end)
 
 makeButton("🌅 Hoàng hôn", 228, function()
     Lighting.ClockTime = 17.8
     Lighting.Brightness = 4
-    Lighting.Ambient = Color3.fromRGB(255,180,130)
-    Lighting.OutdoorAmbient = Color3.fromRGB(240,140,100)
+    Lighting.Ambient = Color3.fromRGB(255, 190, 140)
+    Lighting.OutdoorAmbient = Color3.fromRGB(245, 150, 105)
 end)
+
 makeButton("🟣 Sky: Tím", 272, function()
     Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(150,80,200)
-    Lighting.OutdoorAmbient = Color3.fromRGB(100,50,150)
+    Lighting.Ambient = Color3.fromRGB(150, 80, 200)
+    Lighting.OutdoorAmbient = Color3.fromRGB(100, 50, 150)
 end)
 
 makeButton("🟩 Sky: Minecraft", 316, function()
     Lighting.Brightness = 3
-    Lighting.Amb
+    Lighting.Ambient = Color3.fromRGB(140, 180, 110)
+    Lighting.OutdoorAmbient = Color3.fromRGB(100, 150, 90)
+end)
+
+makeButton("🔴 Sky: Đỏ", 360, function()
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(180, 65, 65)
+    Lighting.OutdoorAmbient = Color3.fromRGB(130, 40, 40)
+end)
