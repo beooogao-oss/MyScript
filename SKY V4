@@ -1,0 +1,28 @@
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
+
+local player = Players.LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
+
+local old = pg:FindFirstChild("RuHub_FTAP_V4")
+if old then
+    old:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "RuHub_FTAP_V4"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = pg
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(250, 330)
+frame.Position = UDim2.new(0.5, -125, 0.5, -165)
+frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new
