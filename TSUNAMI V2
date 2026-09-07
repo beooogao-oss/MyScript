@@ -1,0 +1,193 @@
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+local old = PG:FindFirstChild("TsunamiPremier")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TsunamiPremier"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = PG
+
+local main = Instance.new("Frame")
+main.Size = UDim2.fromOffset(650, 430)
+main.Position = UDim2.new(.5,-325,.5,-215)
+main.BackgroundColor3 = Color3.fromRGB(8,25,48)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local mc = Instance.new("UICorner")
+mc.CornerRadius = UDim.new(0,22)
+mc.Parent = main
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(0,200,255)
+stroke.Thickness = 3
+stroke.Parent = main
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-70,0,65)
+title.Position = UDim2.fromOffset(20,5)
+title.BackgroundTransparency = 1
+title.Text = "🌊  TSUNAMI PREMIER"
+title.TextColor3 = Color3.fromRGB(220,250,255)
+title.TextSize = 27
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = main
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(50,50)
+close.Position = UDim2.new(1,-60,0,10)
+close.BackgroundTransparency = 1
+close.Text = "✕"
+close.TextColor3 = Color3.new(1,1,1)
+close.TextSize = 32
+close.Font = Enum.Font.GothamBold
+close.Parent = main
+
+local open = Instance.new("TextButton")
+open.Size = UDim2.fromOffset(180,48)
+open.Position = UDim2.new(.5,-90,1,-60)
+open.BackgroundColor3 = Color3.fromRGB(5,55,100)
+open.Text = "🌊  Mở lại menu"
+open.TextColor3 = Color3.new(1,1,1)
+open.TextSize = 17
+open.Font = Enum.Font.GothamBold
+open.Visible = false
+open.Parent = gui
+
+local oc = Instance.new("UICorner")
+oc.CornerRadius = UDim.new(0,18)
+oc.Parent = open
+
+local function button(text,x,y,w,callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.fromOffset(w or 185,43)
+    b.Position = UDim2.fromOffset(x,y)
+    b.BackgroundColor3 = Color3.fromRGB(8,55,92)
+    b.Text = text
+    b.TextColor3 = Color3.fromRGB(225,250,255)
+    b.TextSize = 16
+    b.Font = Enum.Font.GothamSemibold
+    b.BorderSizePixel = 0
+    b.Parent = main
+
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0,12)
+    c.Parent = b
+
+    local s = Instance.new("UIStroke")
+    s.Color = Color3.fromRGB(0,150,230)
+    s.Thickness = 1.5
+    s.Parent = b
+
+    b.MouseButton1Click:Connect(callback)
+    return b
+end
+
+local function notify(txt)
+    title.Text = "🌊  "..txt
+    task.delay(1.5,function()
+        if title.Parent then
+            title.Text = "🌊  TSUNAMI PREMIER"
+        end
+    end)
+end
+
+close.MouseButton1Click:Connect(function()
+    main.Visible = false
+    open.Visible = true
+end)
+
+open.MouseButton1Click:Connect(function()
+    main.Visible = true
+    open.Visible = false
+end)
+
+button("🌊 Blue Tsunami",20,80,185,function()
+    notify("BLUE TSUNAMI")
+end)
+
+button("🔴 Red Tsunami",20,130,185,function()
+    notify("RED TSUNAMI")
+end)
+
+button("📏 Radius 500m",20,180,185,function()
+    notify("Radius: 500m")
+end)
+
+button("↔ Width 500m",20,230,185,function()
+    notify("Width: 500m")
+end)
+
+button("↕ Height 500m",20,280,185,function()
+    notify("Height: 500m")
+end)
+
+button("⚡ Speed 50",20,330,185,function()
+    notify("Speed: 50")
+end)
+
+button("🛡️ Protection",225,80,185,function()
+    notify("Protection ON")
+end)
+
+button("✋ Anti Grab",225,130,185,function()
+    notify("Anti Grab ON")
+end)
+
+button("🌀 Anti Fling",225,180,185,function()
+    notify("Anti Fling ON")
+end)
+
+button("♾️ Anti Loop",225,230,185,function()
+    notify("Anti Loop ON")
+end)
+
+button("👤 WalkSpeed",225,280,185,function()
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.WalkSpeed = 50 end
+end)
+
+button("🏃 JumpPower",225,330,185,function()
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.UseJumpPower = true
+        hum.JumpPower = 50
+    end
+end)
+
+button("☀️ Sky: Day",430,80,185,function()
+    Lighting.ClockTime = 14
+    notify("DAY")
+end)
+
+button("🌙 Sky: Night",430,130,185,function()
+    Lighting.ClockTime = 0
+    notify("NIGHT")
+end)
+
+button("🌅 Sunset",430,180,185,function()
+    Lighting.ClockTime = 18
+    notify("SUNSET")
+end)
+
+button("☀️ Bright",430,230,185,function()
+    Lighting.Brightness = 3
+    Lighting.ClockTime = 14
+    notify("BRIGHT")
+end)
+
+button("♻️ Reset Character",430,280,185,function()
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.Health = 0 end
+end)
+
+button("∞ Infinite Jump",430,330,185,function()
+    notify("INFINITE JUMP")
+end)
