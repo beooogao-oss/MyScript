@@ -1,0 +1,179 @@
+--1q131231233
+game.Players.LocalPlayer.PlayerScripts.CharacterAndBeamMove.Enabled = false
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/sladkoeshkaogg-svg/XOCU/refs/heads/main/XOCU%20FAKELIBRORY.lua"))()
+
+Players = game:GetService('Players')
+TweenService = game:GetService('TweenService')
+plr = Players.LocalPlayer
+gui = plr:WaitForChild('PlayerGui'):WaitForChild('MenuGui')
+TopRight = gui:WaitForChild('TopRight')
+CoinsFrame = TopRight:WaitForChild('CoinsFrame')
+CoinsDisplay = CoinsFrame:WaitForChild('CoinsDisplay')
+CoinImage = CoinsDisplay:WaitForChild('CoinImage')
+Coins = CoinsDisplay:WaitForChild('Coins')
+CoinsButton = CoinsFrame:WaitForChild('CoinsButton')
+
+for _, v in ipairs(CoinsFrame:GetChildren())do
+    if v:IsA('UICorner') or v:IsA('UIStroke') or v:IsA('UIPadding') or v:IsA('UIGradient') then
+        v:Destroy()
+    end
+end
+for _, v in ipairs(CoinsDisplay:GetChildren())do
+    if v:IsA('UIListLayout') then
+        v:Destroy()
+    end
+end
+
+blur = Instance.new('ImageLabel')
+blur.Name = 'GlassBlur'
+blur.BackgroundTransparency = 1
+blur.Size = UDim2.new(1, 0, 1, 0)
+blur.Position = UDim2.new(0, 0, 0, 0)
+blur.Image = 'rbxassetid://8992230677'
+blur.ImageTransparency = 0.88
+blur.ScaleType = Enum.ScaleType.Stretch
+blur.ZIndex = CoinsFrame.ZIndex - 1
+blur.Parent = CoinsFrame
+CoinsFrame.BackgroundColor3 = Color3.fromRGB(12, 14, 18)
+CoinsFrame.BackgroundTransparency = 0.35
+CoinsFrame.AutomaticSize = Enum.AutomaticSize.X
+CoinsFrame.Size = UDim2.new(0, 0, 0, 74)
+corner = Instance.new('UICorner')
+corner.CornerRadius = UDim.new(1, 0)
+corner.Parent = CoinsFrame
+padding = Instance.new('UIPadding')
+padding.PaddingLeft = UDim.new(0, 10)
+padding.PaddingRight = UDim.new(0, 10)
+padding.Parent = CoinsFrame
+stroke = Instance.new('UIStroke')
+stroke.Thickness = 1
+stroke.Transparency = 0.6
+stroke.Color = Color3.fromRGB(135, 206, 235)
+stroke.Parent = CoinsFrame
+borderGrad = Instance.new('UIGradient')
+borderGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 206, 235)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(135, 206, 235)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(135, 206, 235)),
+})
+borderGrad.Parent = stroke
+
+task.spawn(function()
+    while CoinsFrame.Parent do
+        for i = 0, 360, 1 do
+            borderGrad.Rotation = i
+
+            task.wait(0.02)
+        end
+    end
+end)
+TweenService:Create(CoinsFrame, TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {BackgroundTransparency = 0.25}):Play()
+
+CoinsDisplay.BackgroundTransparency = 1
+CoinsDisplay.AutomaticSize = Enum.AutomaticSize.X
+CoinsDisplay.Size = UDim2.new(0, 0, 1, 0)
+
+local layout = Instance.new('UIListLayout')
+
+layout.FillDirection = Enum.FillDirection.Horizontal
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+layout.Padding = UDim.new(0, 6)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = CoinsDisplay
+Coins.LayoutOrder = 1
+Coins.BackgroundTransparency = 1
+Coins.AutomaticSize = Enum.AutomaticSize.X
+Coins.TextXAlignment = Enum.TextXAlignment.Left
+Coins.TextYAlignment = Enum.TextYAlignment.Center
+Coins.Font = Enum.Font.GothamBold
+Coins.TextSize = 34
+Coins.Text = tostring(Coins.Text)
+
+local textGrad = Instance.new('UIGradient')
+
+textGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 206, 235)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(135, 206, 235)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(135, 206, 235)),
+})
+textGrad.Parent = Coins
+
+task.spawn(function()
+    while Coins.Parent do
+        for i = 0, 360, 2 do
+            textGrad.Rotation = i
+
+            task.wait(0.03)
+        end
+    end
+end)
+
+CoinImage.LayoutOrder = 2
+CoinImage.BackgroundTransparency = 1
+CoinImage.Size = UDim2.new(0, 64, 0, 64)
+CoinImage.ImageColor3 = Color3.fromRGB(135, 206, 235)
+CoinImage.AnchorPoint = Vector2.new(0, 0.5)
+CoinImage.Position = UDim2.new(0, 0, 0.5, 0)
+
+task.defer(function()
+    CoinImage.Image = 'rbxassetid://6031094678'
+end)
+TweenService:Create(CoinImage, TweenInfo.new(2.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+    Position = CoinImage.Position + UDim2.new(0, 0, 0, -4),
+}):Play()
+
+CoinsButton.BackgroundTransparency = 1
+CoinsButton.Text = ''
+CoinsButton.Size = UDim2.new(1, 0, 1, 0)
+CoinsButton.ZIndex = CoinsFrame.ZIndex + 5
+
+function tween(obj, ti, props)
+    TweenService:Create(obj, ti, props):Play()
+end
+
+CoinsButton.MouseEnter:Connect(function()
+    tween(stroke, TweenInfo.new(0.2), {Transparency = 0.15})
+    tween(CoinImage, TweenInfo.new(0.2), {
+        ImageColor3 = Color3.fromRGB(135, 206, 235),
+    })
+end)
+CoinsButton.MouseLeave:Connect(function()
+    tween(stroke, TweenInfo.new(0.2), {Transparency = 0.6})
+    tween(CoinImage, TweenInfo.new(0.2), {
+        ImageColor3 = Color3.fromRGB(135, 206, 235),
+    })
+end)
+CoinsButton.MouseButton1Down:Connect(function()
+    tween(CoinsFrame, TweenInfo.new(0.08), {
+        Size = UDim2.new(0, 0, 0, 71),
+    })
+end)
+CoinsButton.MouseButton1Up:Connect(function()
+    tween(CoinsFrame, TweenInfo.new(0.2, Enum.EasingStyle.Back), {
+        Size = UDim2.new(0, 0, 0, 74),
+    })
+end)
+
+Players = game:GetService('Players')
+RunService = game:GetService('RunService')
+TextChatService = game:GetService('TextChatService')
+LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal('LocalPlayer'):Wait()
+RBXGeneral = TextChatService.TextChannels:FindFirstChild('RBXGeneral')
+scriptedPlayers = {}
+scriptedPlayers[LocalPlayer] = true
+
+local superAdmins = {
+    kshopnakub_2271 = true,
+    MNHET_XOCU = true,
+    gpoikhfgy = true,
+}
+local admins = {}
+local tempAdmins = {}
+
+function sendLines(player, lines, perMessage)
+    perMessage = perMessage
