@@ -5,13 +5,13 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "RuHub_FTAP_V3"
+gui.Name = "RuHub_FTAP_SKY"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(300, 430)
-frame.Position = UDim2.new(0.5, -150, 0.5, -215)
+frame.Size = UDim2.fromOffset(300, 365)
+frame.Position = UDim2.new(0.5, -150, 0.5, -182)
 frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 frame.BorderSizePixel = 0
 frame.Parent = gui
@@ -23,14 +23,14 @@ corner.Parent = frame
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -55, 0, 45)
 title.Position = UDim2.fromOffset(15, 5)
-title.Text = "RuHub FTAP V3"
+title.Text = "RuHub SKY"
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(230, 240, 235)
 title.BackgroundTransparency = 1
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
--- Kéo menu trên mobile/PC
+-- Kéo menu bằng tiêu đề, hỗ trợ mobile
 local dragging = false
 local dragStart
 local startPos
@@ -101,8 +101,72 @@ local function makeButton(text, y, callback)
     return b
 end
 
--- Hiệu ứng cầu vồng
-local rainbowEffect
+-- Cầu vồng
+local rainbowParts = {}
+
+local function removeRainbow()
+    for _, part in ipairs(rainbowParts) do
+        if part and part.Parent then
+            part:Destroy()
+        end
+    end
+
+    table.clear(rainbowParts)
+end
+
+local function createRainbow()
+    removeRainbow()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local center = root.Position
+        + root.CFrame.LookVector * 120
+        + Vector3.new(0, 70, 0)
+
+    local colors = {
+        Color3.fromRGB(255, 0, 0),
+        Color3.fromRGB(255, 127, 0),
+        Color3.fromRGB(255, 255, 0),
+        Color3.fromRGB(0, 255, 0),
+        Color3.fromRGB(0, 170, 255),
+        Color3.fromRGB(0, 0, 255),
+        Color3.fromRGB(170, 0, 255)
+    }
+
+    local radius = 75
+    local segments = 36
+
+    for colorIndex, color in ipairs(colors) do
+        local radiusOffset = (colorIndex - 1) * 3.2
+        local r = radius - radiusOffset
+
+        for i = 0, segments do
+            local angle = math.pi * (i / segments)
+
+            local x = math.cos(angle) * r
+            local y = math.sin(angle) * r
+
+            local part = Instance.new("Part")
+            part.Anchored = true
+            part.CanCollide = false
+            part.CanTouch = false
+            part.CanQuery = false
+            part.Material = Enum.Material.Neon
+            part.Color = color
+            part.Size = Vector3.new(4, 4, 1)
+            part.Transparency = 0.15
+
+            part.CFrame =
+                CFrame.new(center + Vector3.new(x, y, 0))
+                * CFrame.Angles(0, 0, -angle)
+
+            part.Parent = workspace
+            table.insert(rainbowParts, part)
+        end
+    end
+end
 
 makeButton("☀️ Sky: Sáng", 55, function()
     Lighting.ClockTime = 12
@@ -132,73 +196,12 @@ makeButton("🌅 Hoàng hôn", 199, function()
     Lighting.OutdoorAmbient = Color3.fromRGB(230, 130, 90)
 end)
 
-makeButton("🌈 Cầu vồng", 247, function()
-    if rainbowEffect then
-        rainbowEffect:Destroy()
-    end
-
-    rainbowEffect = Instance.new("ColorCorrectionEffect")
-    rainbowEffect.Name = "RainbowSky"
-    rainbowEffect.Parent = Lighting
-
-    task.spawn(function()
-        local hue = 0
-
-        while rainbowEffect and rainbowEffect.Parent do
-            hue = (hue + 0.01) % 1
-            rainbowEffect.TintColor = Color3.fromHSV(hue, 0.35, 1)
-            task.wait(0.05)
-        end
-    end)
+makeButton("🌈 Cầu vồng trên trời", 247, function()
+    createRainbow()
 end)
 
-makeButton("🌧️ Mưa", 295, function()
-    local rain = Instance.new("Part")
-    rain.Name = "RuHubRain"
-    rain.Size = Vector3.new(80, 1, 80)
-    rain.Transparency = 1
-    rain.CanCollide = false
-    rain.Anchored = true
-    rain.Parent = workspace
-
-    local particle = Instance.new("ParticleEmitter")
-    particle.Name = "Rain"
-    particle.Texture = "rbxassetid://48374994"
-    particle.Rate = 500
-    particle.Lifetime = NumberRange.new(1, 2)
-    particle.Speed = NumberRange.new(60, 80)
-    particle.Acceleration = Vector3.new(0, -20, 0)
-    particle.Size = NumberSequence.new(0.08)
-    particle.Transparency = NumberSequence.new(0.25)
-    particle.Parent = rain
-
-    local connection
-    connection = game:GetService("RunService").Heartbeat:Connect(function()
-        if not rain.Parent then
-            connection:Disconnect()
-            return
-        end
-
-        local char = player.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-
-        if root then
-            rain.Position = root.Position + Vector3.new(0, 35, 0)
-        end
-    end)
-end)
-
-makeButton("❌ Tắt hiệu ứng", 343, function()
-    if rainbowEffect then
-        rainbowEffect:Destroy()
-        rainbowEffect = nil
-    end
-
-    for _, obj in ipairs(workspace:GetChildren()) do
-        if obj.Name == "RuHubRain" then
-            obj:Destroy()
-        end
-    end
+makeButton("❌ Tắt cầu vồng", 295, function()
+    removeRainbow()
 end)
 
 local open = Instance.new("TextButton")
