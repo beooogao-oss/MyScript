@@ -6,13 +6,14 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "RuHub_FTAP_SKY_V4"
+gui.Name = "RuHub_SKY_V5"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- MENU
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(300, 365)
-frame.Position = UDim2.new(0.5, -150, 0.5, -182)
+frame.Size = UDim2.fromOffset(300, 500)
+frame.Position = UDim2.new(0.5, -150, 0.5, -250)
 frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 frame.BorderSizePixel = 0
 frame.Parent = gui
@@ -24,14 +25,14 @@ corner.Parent = frame
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -55, 0, 45)
 title.Position = UDim2.fromOffset(15, 5)
-title.Text = "RuHub SKY V4"
+title.Text = "RuHub SKY V5"
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(230, 240, 235)
 title.BackgroundTransparency = 1
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
--- Kéo menu trên mobile
+-- KÉO MENU MOBILE
 local dragging = false
 local dragStart
 local startPos
@@ -82,6 +83,7 @@ close.MouseButton1Click:Connect(function()
     frame.Visible = false
 end)
 
+-- BUTTON
 local function makeButton(text, y, callback)
     local b = Instance.new("TextButton")
     b.Size = UDim2.new(1, -24, 0, 42)
@@ -103,181 +105,234 @@ local function makeButton(text, y, callback)
 end
 
 -- =========================
--- MƯA SAO BĂNG
+-- XÓA EFFECT CŨ
 -- =========================
 
-local meteorRain = false
-local meteorObjects = {}
-
-local function clearMeteors()
-    for _, obj in ipairs(meteorObjects) do
-        if obj and obj.Parent then
+local function clearEffects()
+    for _, obj in ipairs(Lighting:GetChildren()) do
+        if obj.Name:match("^RuHub_") then
             obj:Destroy()
         end
     end
 
-    table.clear(meteorObjects)
-end
-
-local function createMeteor()
-    if not meteorRain then return end
-
-    local char = player.Character
-    local root = char and char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    -- Cách nhân vật khoảng 400 studs
-    local center =
-        root.Position
-        + root.CFrame.LookVector * 400
-        + Vector3.new(0, 180, 0)
-
-    local offset = Vector3.new(
-        math.random(-180, 180),
-        math.random(-30, 100),
-        math.random(-120, 120)
-    )
-
-    local startPos = center + offset
-    local endPos = startPos + Vector3.new(
-        math.random(-180, 180),
-        -math.random(100, 180),
-        math.random(-100, 100)
-    )
-
-    local meteor = Instance.new("Part")
-    meteor.Name = "RuHubMeteor"
-    meteor.Shape = Enum.PartType.Ball
-    meteor.Size = Vector3.new(5, 5, 5)
-    meteor.Material = Enum.Material.Neon
-    meteor.Color = Color3.fromRGB(255, 170, 60)
-    meteor.Anchored = true
-    meteor.CanCollide = false
-    meteor.CanTouch = false
-    meteor.CanQuery = false
-    meteor.Position = startPos
-    meteor.Parent = workspace
-
-    table.insert(meteorObjects, meteor)
-
-    local attachment0 = Instance.new("Attachment")
-    attachment0.Parent = meteor
-
-    local trail = Instance.new("Trail")
-    trail.Attachment0 = attachment0
-    trail.Attachment1 = attachment0
-    trail.Lifetime = 0.35
-    trail.LightEmission = 1
-    trail.Color = ColorSequence.new(
-        Color3.fromRGB(255, 230, 150),
-        Color3.fromRGB(255, 70, 20)
-    )
-    trail.Parent = meteor
-
-    local duration = 1.5
-    local startTime = tick()
-
-    local connection
-    connection = RunService.Heartbeat:Connect(function()
-        if not meteor.Parent or not meteorRain then
-            connection:Disconnect()
-
-            if meteor.Parent then
-                meteor:Destroy()
-            end
-
-            return
+    for _, obj in ipairs(workspace:GetChildren()) do
+        if obj.Name:match("^RuHub_") then
+            obj:Destroy()
         end
-
-        local alpha = math.clamp(
-            (tick() - startTime) / duration,
-            0,
-            1
-        )
-
-        meteor.Position = startPos:Lerp(endPos, alpha)
-
-        if alpha >= 1 then
-            connection:Disconnect()
-
-            if meteor.Parent then
-                meteor:Destroy()
-            end
-        end
-    end)
-end
-
-local function startMeteorRain()
-    if meteorRain then return end
-
-    meteorRain = true
-
-    task.spawn(function()
-        while meteorRain do
-            createMeteor()
-            task.wait(math.random(15, 40) / 100)
-        end
-    end)
-end
-
-local function stopMeteorRain()
-    meteorRain = false
-    clearMeteors()
+    end
 end
 
 -- =========================
--- SKY
+-- SKY CƠ BẢN
 -- =========================
 
 makeButton("☀️ Sky: Sáng", 55, function()
     Lighting.ClockTime = 12
     Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(180, 180, 180)
-    Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
+    Lighting.Ambient = Color3.fromRGB(180,180,180)
+    Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
 end)
 
-makeButton("🌄 Mặt trời mọc", 103, function()
+makeButton("🌄 Bình minh", 103, function()
     Lighting.ClockTime = 6
     Lighting.Brightness = 2.5
-    Lighting.Ambient = Color3.fromRGB(255, 180, 130)
-    Lighting.OutdoorAmbient = Color3.fromRGB(255, 150, 100)
+    Lighting.Ambient = Color3.fromRGB(255,180,130)
+    Lighting.OutdoorAmbient = Color3.fromRGB(255,150,100)
 end)
 
-makeButton("🌙 Sky: Tối", 151, function()
-    Lighting.ClockTime = 0
-    Lighting.Brightness = 1
-    Lighting.Ambient = Color3.fromRGB(55, 55, 80)
-    Lighting.OutdoorAmbient = Color3.fromRGB(40, 40, 65)
-end)
-
-makeButton("🌅 Hoàng hôn", 199, function()
+makeButton("🌅 Hoàng hôn", 151, function()
     Lighting.ClockTime = 17.8
-    Lighting.Brightness = 4
-    Lighting.Ambient = Color3.fromRGB(255, 170, 120)
-    Lighting.OutdoorAmbient = Color3.fromRGB(230, 130, 90)
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(255,150,100)
+    Lighting.OutdoorAmbient = Color3.fromRGB(230,100,70)
 end)
 
-makeButton("☄️ Bật mưa sao băng", 247, function()
-    startMeteorRain()
+makeButton("🌙 Sky: Tối", 199, function()
+    Lighting.ClockTime = 0
+    Lighting.Brightness = 0.7
+    Lighting.Ambient = Color3.fromRGB(30,30,55)
+    Lighting.OutdoorAmbient = Color3.fromRGB(20,20,40)
 end)
 
-makeButton("❌ Tắt sao băng", 295, function()
-    stopMeteorRain()
+-- =========================
+-- BẦU TRỜI SAO
+-- =========================
+
+makeButton("🌌 Bầu trời sao", 247, function()
+    clearEffects()
+
+    local sky = Instance.new("Sky")
+    sky.Name = "RuHub_StarSky"
+    sky.Parent = Lighting
+
+    sky.StarCount = 5000
+    sky.CelestialBodiesShown = true
+    sky.SunAngularSize = 8
+    sky.MoonAngularSize = 20
 end)
 
--- Nút mở
+-- =========================
+-- TRĂNG TO
+-- =========================
+
+makeButton("🌕 Trăng to", 295, function()
+    local sky = Lighting:FindFirstChild("RuHub_StarSky")
+
+    if not sky then
+        sky = Instance.new("Sky")
+        sky.Name = "RuHub_MoonSky"
+        sky.Parent = Lighting
+    end
+
+    sky.CelestialBodiesShown = true
+    sky.MoonAngularSize = 35
+end)
+
+-- =========================
+-- CẦU VỒNG ĐÔI
+-- =========================
+
+makeButton("🌈 Cầu vồng đôi", 343, function()
+
+    for _, obj in ipairs(workspace:GetChildren()) do
+        if obj.Name == "RuHub_Rainbow" then
+            obj:Destroy()
+        end
+    end
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+
+    if not root then return end
+
+    local center =
+        root.Position
+        + root.CFrame.LookVector * 150
+        + Vector3.new(0, 70, 0)
+
+    local colors = {
+        Color3.fromRGB(255,0,0),
+        Color3.fromRGB(255,140,0),
+        Color3.fromRGB(255,255,0),
+        Color3.fromRGB(0,255,0),
+        Color3.fromRGB(0,170,255),
+        Color3.fromRGB(0,0,255),
+        Color3.fromRGB(180,0,255)
+    }
+
+    for rainbow = 1,2 do
+
+        local radius = 70 + rainbow * 8
+
+        for cIndex,color in ipairs(colors) do
+
+            for i = 0,35 do
+
+                local angle = math.pi * (i / 35)
+
+                local x = math.cos(angle) * radius
+                local y = math.sin(angle) * radius
+
+                local part = Instance.new("Part")
+                part.Name = "RuHub_Rainbow"
+                part.Anchored = true
+                part.CanCollide = false
+                part.Material = Enum.Material.Neon
+                part.Color = color
+                part.Size = Vector3.new(4,4,2)
+
+                part.Position =
+                    center
+                    + Vector3.new(
+                        x,
+                        y,
+                        rainbow * 5
+                    )
+
+                part.Parent = workspace
+            end
+        end
+    end
+end)
+
+-- =========================
+-- MÂY
+-- =========================
+
+makeButton("☁️ Mây", 391, function()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+
+    if not root then return end
+
+    local cloudPart = Instance.new("Part")
+    cloudPart.Name = "RuHub_Cloud"
+    cloudPart.Anchored = true
+    cloudPart.CanCollide = false
+    cloudPart.Transparency = 1
+    cloudPart.Size = Vector3.new(100,1,100)
+
+    cloudPart.Position =
+        root.Position + Vector3.new(0,120,0)
+
+    cloudPart.Parent = workspace
+
+    local cloud = Instance.new("ParticleEmitter")
+    cloud.Texture = "rbxasset://textures/particles/smoke_main.dds"
+    cloud.Rate = 15
+    cloud.Lifetime = NumberRange.new(8,12)
+    cloud.Speed = NumberRange.new(1,3)
+    cloud.Size = NumberSequence.new(15)
+    cloud.Transparency =
+        NumberSequence.new(0.35)
+
+    cloud.Parent = cloudPart
+end)
+
+-- =========================
+-- LẤP LÁNH
+-- =========================
+
+makeButton("✨ Lấp lánh", 439, function()
+
+    local effect = Lighting:FindFirstChild("RuHub_Bloom")
+
+    if effect then
+        effect:Destroy()
+        return
+    end
+
+    effect = Instance.new("BloomEffect")
+    effect.Name = "RuHub_Bloom"
+    effect.Intensity = 1
+    effect.Size = 40
+    effect.Threshold = 1
+
+    effect.Parent = Lighting
+end)
+
+-- =========================
+-- TẮT HIỆU ỨNG
+-- =========================
+
+makeButton("❌ Tắt hiệu ứng", 487, function()
+    clearEffects()
+end)
+
+-- NÚT MỞ
 local open = Instance.new("TextButton")
-open.Size = UDim2.fromOffset(50, 50)
-open.Position = UDim2.new(0, 15, 0.5, -25)
-open.Text = "☄️"
+open.Size = UDim2.fromOffset(50,50)
+open.Position = UDim2.new(0,15,0.5,-25)
+open.Text = "🌌"
 open.TextSize = 24
-open.TextColor3 = Color3.fromRGB(230, 240, 235)
-open.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+open.TextColor3 = Color3.fromRGB(230,240,235)
+open.BackgroundColor3 = Color3.fromRGB(20,38,31)
 open.BorderSizePixel = 0
 open.Parent = gui
 
 local openCorner = Instance.new("UICorner")
-openCorner.CornerRadius = UDim.new(1, 0)
+openCorner.CornerRadius = UDim.new(1,0)
 openCorner.Parent = open
 
 open.MouseButton1Click:Connect(function()
