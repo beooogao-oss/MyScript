@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -43,7 +44,7 @@ title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
 -- =========================
--- KÉO MENU
+-- KÉO MENU MỌI HƯỚNG
 -- =========================
 
 local dragging = false
@@ -158,7 +159,7 @@ local function makeButton(text, callback)
 end
 
 -- =========================
--- SKY
+-- ☀️ SKY
 -- =========================
 
 makeButton("☀️ Sáng", function()
@@ -261,12 +262,15 @@ makeButton("🌈 Cầu vồng bên trái", createRainbow)
 makeButton("❌ Tắt cầu vồng", removeRainbow)
 
 -- =========================
--- 🌌 THIÊN HÀ KIỂU VŨ TRỤ
+-- 🌌 THIÊN HÀ
 -- =========================
 
 local galaxyFolder
+local galaxyRunning = false
 
 local function removeGalaxy()
+    galaxyRunning = false
+
     if galaxyFolder then
         galaxyFolder:Destroy()
         galaxyFolder = nil
@@ -280,6 +284,8 @@ local function createGalaxy()
     local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
+    galaxyRunning = true
+
     galaxyFolder = Instance.new("Folder")
     galaxyFolder.Name = "RuHub_Galaxy"
     galaxyFolder.Parent = workspace
@@ -291,16 +297,19 @@ local function createGalaxy()
         + root.CFrame.LookVector * 1000
         + Vector3.new(0, 450, 0)
 
-    -- =====================
-    -- ⭐ RẤT NHIỀU NGÔI SAO
-    -- =====================
+    local movingStars = {}
 
-    for i = 1, 600 do
+    -- =========================
+    -- ⭐ SAO DI CHUYỂN
+    -- =========================
+
+    for i = 1, 450 do
+
         local star = Instance.new("Part")
 
         star.Shape = Enum.PartType.Ball
 
-        local size = math.random(2, 8)
+        local size = math.random(2, 7)
         star.Size = Vector3.new(size, size, size)
 
         star.Material = Enum.Material.Neon
@@ -319,25 +328,36 @@ local function createGalaxy()
         local angle = math.random() * math.pi * 2
         local distance = math.random(100, 750)
 
+        local height = math.random(-220, 220)
+
         star.Position =
             center +
             Vector3.new(
                 math.cos(angle) * distance,
-                math.random(-180, 180),
+                height,
                 math.sin(angle) * distance
             )
 
         star.Parent = galaxyFolder
+
+        table.insert(movingStars, {
+            part = star,
+            angle = angle,
+            distance = distance,
+            height = height,
+            speed = math.random(2, 8) / 100
+        })
     end
 
-    -- =====================
-    -- 🌀 5 CÁNH THIÊN HÀ
-    -- =====================
+    -- =========================
+    -- 🌀 BỤI THIÊN HÀ
+    -- =========================
 
     for arm = 1, 5 do
-        for i = 1, 250 do
 
-            local t = i / 250
+        for i = 1, 230 do
+
+            local t = i / 230
 
             local angle =
                 t * math.pi * 7
@@ -349,15 +369,17 @@ local function createGalaxy()
             local z = math.sin(angle) * radius
 
             local y =
-                math.sin(t * math.pi) * 45
-                + math.random(-25, 25)
+                math.sin(t * math.pi) * 40
+                + math.random(-20, 20)
 
             local dust = Instance.new("Part")
 
             dust.Shape = Enum.PartType.Ball
 
-            local size = math.random(3, 10)
-            dust.Size = Vector3.new(size, size, size)
+            local size = math.random(3, 9)
+
+            dust.Size =
+                Vector3.new(size, size, size)
 
             dust.Material = Enum.Material.Neon
 
@@ -367,7 +389,7 @@ local function createGalaxy()
                 math.random(180, 255)
             )
 
-            dust.Transparency = 0.15
+            dust.Transparency = 0.2
 
             dust.Anchored = true
             dust.CanCollide = false
@@ -382,45 +404,167 @@ local function createGalaxy()
         end
     end
 
-    -- =====================
-    -- ☀️ LÕI THIÊN HÀ
-    -- =====================
+    -- =========================
+    -- 🪐 HÀNH TINH KHỔNG LỒ
+    -- =========================
 
-    local core = Instance.new("Part")
+    local planet = Instance.new("Part")
 
-    core.Shape = Enum.PartType.Ball
-    core.Size = Vector3.new(260, 260, 260)
+    planet.Shape = Enum.PartType.Ball
+    planet.Size = Vector3.new(430, 430, 430)
 
-    core.Material = Enum.Material.Neon
-    core.Color = Color3.fromRGB(255, 235, 190)
+    planet.Material = Enum.Material.SmoothPlastic
+    planet.Color = Color3.fromRGB(75, 80, 95)
 
-    core.Transparency = 0.15
+    planet.Anchored = true
+    planet.CanCollide = false
+    planet.CanTouch = false
+    planet.CanQuery = false
 
-    core.Anchored = true
-    core.CanCollide = false
-    core.CanTouch = false
-    core.CanQuery = false
+    planet.Position =
+        center
+        - root.CFrame.RightVector * 430
+        + Vector3.new(0, -80, 0)
 
-    core.Position = center
-    core.Parent = galaxyFolder
+    planet.Parent = galaxyFolder
 
-    local light = Instance.new("PointLight")
-    light.Brightness = 15
-    light.Range = 1000
-    light.Parent = core
+    -- =========================
+    -- 💍 VÒNG HÀNH TINH
+    -- =========================
+
+    for i = 1, 3 do
+
+        local ring = Instance.new("Part")
+
+        ring.Shape = Enum.PartType.Cylinder
+
+        ring.Size =
+            Vector3.new(
+                12,
+                650 + i * 80,
+                650 + i * 80
+            )
+
+        ring.Material = Enum.Material.Neon
+
+        ring.Color = Color3.fromRGB(
+            100 + i * 30,
+            100 + i * 20,
+            130 + i * 30
+        )
+
+        ring.Transparency = 0.45
+
+        ring.Anchored = true
+        ring.CanCollide = false
+        ring.CanTouch = false
+        ring.CanQuery = false
+
+        ring.CFrame =
+            CFrame.new(planet.Position)
+            * CFrame.Angles(
+                math.rad(65),
+                0,
+                math.rad(20)
+            )
+
+        ring.Parent = galaxyFolder
+    end
+
+    -- =========================
+    -- ☀️ MẶT TRỜI SIÊU SÁNG
+    -- =========================
+
+    local sun = Instance.new("Part")
+
+    sun.Shape = Enum.PartType.Ball
+
+    sun.Size =
+        Vector3.new(260, 260, 260)
+
+    sun.Material =
+        Enum.Material.Neon
+
+    sun.Color =
+        Color3.fromRGB(255, 245, 210)
+
+    sun.Anchored = true
+    sun.CanCollide = false
+    sun.CanTouch = false
+    sun.CanQuery = false
+
+    sun.Position =
+        center
+        + root.CFrame.RightVector * 500
+        + Vector3.new(0, 80, 0)
+
+    sun.Parent = galaxyFolder
+
+    local light =
+        Instance.new("PointLight")
+
+    light.Brightness = 20
+    light.Range = 1200
+
+    light.Parent = sun
+
+    -- =========================
+    -- ⭐ SAO DI CHUYỂN LIÊN TỤC
+    -- =========================
+
+    task.spawn(function()
+
+        while galaxyRunning
+            and galaxyFolder
+            and galaxyFolder.Parent do
+
+            for _, data in ipairs(movingStars) do
+
+                if data.part
+                    and data.part.Parent then
+
+                    data.angle += data.speed
+
+                    data.part.Position =
+                        center +
+                        Vector3.new(
+                            math.cos(data.angle)
+                                * data.distance,
+
+                            data.height,
+
+                            math.sin(data.angle)
+                                * data.distance
+                        )
+                end
+            end
+
+            task.wait(0.03)
+        end
+    end)
 end
 
-makeButton("🌌 Bật thiên hà lớn", createGalaxy)
-makeButton("❌ Tắt thiên hà", removeGalaxy)
+makeButton(
+    "🌌 Bật thiên hà lớn",
+    createGalaxy
+)
+
+makeButton(
+    "❌ Tắt thiên hà",
+    removeGalaxy
+)
 
 -- =========================
--- NÚT MỞ
+-- NÚT MỞ MENU
 -- =========================
 
 local open = Instance.new("TextButton")
 
-open.Size = UDim2.fromOffset(50, 50)
-open.Position = UDim2.new(0, 15, 0.5, -25)
+open.Size =
+    UDim2.fromOffset(50, 50)
+
+open.Position =
+    UDim2.new(0, 15, 0.5, -25)
 
 open.Text = "🌌"
 open.TextSize = 24
