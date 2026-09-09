@@ -1,6 +1,3 @@
--- RuHub SKY FULL
--- SKY + RAINBOW + GALAXY + CAT + DRAGON
-
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local UIS = game:GetService("UserInputService")
@@ -8,12 +5,12 @@ local UIS = game:GetService("UserInputService")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- Xóa bản cũ
+-- XÓA BẢN CŨ
 local old = PlayerGui:FindFirstChild("RuHub_SKY")
 if old then old:Destroy() end
 
-local oldFolder = workspace:FindFirstChild("RuHub_SKY_OBJECTS")
-if oldFolder then oldFolder:Destroy() end
+local oldWorld = workspace:FindFirstChild("RuHub_SKY_OBJECTS")
+if oldWorld then oldWorld:Destroy() end
 
 local Gui = Instance.new("ScreenGui")
 Gui.Name = "RuHub_SKY"
@@ -62,7 +59,7 @@ Close.MouseButton1Click:Connect(function()
     Frame.Visible = false
 end)
 
--- Kéo menu
+-- KÉO MENU
 local dragging = false
 local dragStart
 local startPos
@@ -81,6 +78,7 @@ UIS.InputChanged:Connect(function(input)
         input.UserInputType == Enum.UserInputType.MouseMovement
         or input.UserInputType == Enum.UserInputType.Touch
     ) then
+
         local delta = input.Position - dragStart
 
         Frame.Position = UDim2.new(
@@ -204,8 +202,9 @@ local function RainbowOn()
 
     OffRainbow()
 
-    local Character = Player.Character
-    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+    local Root =
+        Player.Character
+        and Player.Character:FindFirstChild("HumanoidRootPart")
 
     if not Root then return end
 
@@ -219,7 +218,6 @@ local function RainbowOn()
         + Vector3.new(0,80,0)
 
     local Colors = {
-
         Color3.fromRGB(255,0,0),
         Color3.fromRGB(255,140,0),
         Color3.fromRGB(255,255,0),
@@ -227,36 +225,35 @@ local function RainbowOn()
         Color3.fromRGB(0,170,255),
         Color3.fromRGB(0,0,255),
         Color3.fromRGB(180,0,255)
-
     }
 
-    for index,color in ipairs(Colors) do
+    for n,color in ipairs(Colors) do
 
-        local radius = 75-(index-1)*3
+        local radius = 75-(n-1)*3
 
         for i=0,40 do
 
             local angle = math.pi*i/40
 
-            local Part = Instance.new("Part")
+            local P = Instance.new("Part")
 
-            Part.Size = Vector3.new(3,3,2)
+            P.Size = Vector3.new(3,3,2)
 
-            Part.Position =
-                Center +
+            P.Position =
+                Center+
                 Vector3.new(
                     math.cos(angle)*radius,
                     math.sin(angle)*radius,
                     0
                 )
 
-            Part.Anchored = true
-            Part.CanCollide = false
-            Part.CanTouch = false
-            Part.CanQuery = false
-            Part.Material = Enum.Material.Neon
-            Part.Color = color
-            Part.Parent = Rainbow
+            P.Anchored = true
+            P.CanCollide = false
+            P.CanTouch = false
+            P.CanQuery = false
+            P.Material = Enum.Material.Neon
+            P.Color = color
+            P.Parent = Rainbow
 
         end
     end
@@ -288,8 +285,9 @@ local function GalaxyOn()
 
     OffGalaxy()
 
-    local Character = Player.Character
-    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+    local Root =
+        Player.Character
+        and Player.Character:FindFirstChild("HumanoidRootPart")
 
     if not Root then return end
 
@@ -300,8 +298,8 @@ local function GalaxyOn()
     Galaxy.Parent = World
 
     local Center =
-        Root.Position +
-        Root.CFrame.LookVector * 1000 +
+        Root.Position+
+        Root.CFrame.LookVector*1000+
         Vector3.new(0,450,0)
 
     local Stars = {}
@@ -312,10 +310,10 @@ local function GalaxyOn()
 
         Star.Shape = Enum.PartType.Ball
 
-        local Size = math.random(2,6)
+        local S = math.random(2,6)
 
         Star.Size =
-            Vector3.new(Size,Size,Size)
+            Vector3.new(S,S,S)
 
         Star.Material = Enum.Material.Neon
 
@@ -350,16 +348,13 @@ local function GalaxyOn()
 
         Star.Parent = Galaxy
 
-        table.insert(
-            Stars,
-            {
-                Part = Star,
-                Angle = Angle,
-                Radius = Radius,
-                Height = Height,
-                Speed = math.random(2,8)/100
-            }
-        )
+        table.insert(Stars,{
+            Part=Star,
+            Angle=Angle,
+            Radius=Radius,
+            Height=Height,
+            Speed=math.random(2,8)/100
+        })
 
     end
 
@@ -369,27 +364,21 @@ local function GalaxyOn()
         and Galaxy
         and Galaxy.Parent do
 
-            for _,Data in ipairs(Stars) do
+            for _,D in ipairs(Stars) do
 
-                if Data.Part
-                and Data.Part.Parent then
+                if D.Part and D.Part.Parent then
 
-                    Data.Angle += Data.Speed
+                    D.Angle += D.Speed
 
-                    Data.Part.Position =
+                    D.Part.Position =
                         Center+
                         Vector3.new(
-                            math.cos(Data.Angle)
-                            *Data.Radius,
-
-                            Data.Height,
-
-                            math.sin(Data.Angle)
-                            *Data.Radius
+                            math.cos(D.Angle)*D.Radius,
+                            D.Height,
+                            math.sin(D.Angle)*D.Radius
                         )
 
                 end
-
             end
 
             task.wait(.03)
@@ -404,161 +393,117 @@ Button("🌌 Bật thiên hà lớn",GalaxyOn)
 Button("❌ Tắt thiên hà",OffGalaxy)
 
 -- =========================
--- 😺 MÈO
+-- ❤️ TRÁI TIM VŨ TRỤ
 -- =========================
 
-local Cat
-local CatRunning = false
+local Heart
+local HeartRunning = false
 
-local function OffCat()
+local function OffHeart()
 
-    CatRunning = false
+    HeartRunning = false
 
-    if Cat then
-        Cat:Destroy()
-        Cat = nil
+    if Heart then
+        Heart:Destroy()
+        Heart = nil
     end
 
 end
 
-local function CatOn()
+local function HeartOn()
 
-    OffCat()
+    OffHeart()
 
-    local Character = Player.Character
-    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+    local Root =
+        Player.Character
+        and Player.Character:FindFirstChild("HumanoidRootPart")
 
     if not Root then return end
 
-    CatRunning = true
+    HeartRunning = true
 
-    Cat = Instance.new("Folder")
-    Cat.Name = "GiantCat"
-    Cat.Parent = World
+    Heart = Instance.new("Folder")
+    Heart.Name = "CosmicHeart"
+    Heart.Parent = World
 
-    local Base =
-        Root.Position +
-        Root.CFrame.RightVector*80 +
-        Vector3.new(0,35,0)
+    local Center =
+        Root.Position+
+        Root.CFrame.LookVector*110+
+        Vector3.new(0,60,0)
 
-    local BodyColor =
-        Color3.fromRGB(210,210,220)
+    -- ❤️ VIỀN TRÁI TIM
+    for i=0,180 do
 
-    local GlowColor =
-        Color3.fromRGB(0,255,190)
+        local T =
+            math.pi*2*i/180
 
-    local function Part(Size,Position,Color,Shape)
+        local X =
+            16*math.sin(T)^3
+
+        local Y =
+            13*math.cos(T)
+            -5*math.cos(2*T)
+            -2*math.cos(3*T)
+            -math.cos(4*T)
 
         local P = Instance.new("Part")
 
-        P.Size = Size
-        P.Position = Base+Position
+        P.Shape = Enum.PartType.Ball
+        P.Size = Vector3.new(5,5,5)
+        P.Material = Enum.Material.Neon
+        P.Color = Color3.fromRGB(255,60,190)
 
         P.Anchored = true
         P.CanCollide = false
         P.CanTouch = false
         P.CanQuery = false
 
-        P.Material =
-            Enum.Material.SmoothPlastic
+        P.Position =
+            Center+
+            Root.CFrame.RightVector*(X*3)+
+            Vector3.new(0,Y*3,0)
 
-        P.Color = Color
-
-        if Shape then
-            P.Shape = Shape
-        end
-
-        P.Parent = Cat
-
-        return P
+        P.Parent = Heart
 
     end
 
-    -- THÂN
-    Part(
-        Vector3.new(48,55,65),
-        Vector3.new(0,0,0),
-        BodyColor,
-        Enum.PartType.Ball
-    )
+    -- 🌌 QUẢ CẦU NĂNG LƯỢNG Ở GIỮA
+    local Core = Instance.new("Part")
 
-    -- ĐẦU
-    Part(
-        Vector3.new(62,58,58),
-        Vector3.new(0,42,-15),
-        BodyColor,
-        Enum.PartType.Ball
-    )
+    Core.Shape = Enum.PartType.Ball
+    Core.Size = Vector3.new(55,55,55)
+    Core.Material = Enum.Material.Neon
+    Core.Color = Color3.fromRGB(90,150,255)
 
-    -- TAI
-    Part(
-        Vector3.new(22,32,22),
-        Vector3.new(-23,72,-15),
-        BodyColor,
-        Enum.PartType.Wedge
-    )
+    Core.Anchored = true
+    Core.CanCollide = false
+    Core.CanTouch = false
+    Core.CanQuery = false
 
-    Part(
-        Vector3.new(22,32,22),
-        Vector3.new(23,72,-15),
-        BodyColor,
-        Enum.PartType.Wedge
-    )
+    Core.Position = Center
+    Core.Parent = Heart
 
-    -- MẮT
-    for _,X in ipairs({-13,13}) do
+    local CoreLight = Instance.new("PointLight")
 
-        local Eye =
-            Part(
-                Vector3.new(9,11,7),
-                Vector3.new(X,44,-43),
-                GlowColor,
-                Enum.PartType.Ball
-            )
+    CoreLight.Color =
+        Color3.fromRGB(120,180,255)
 
-        local Light =
-            Instance.new("PointLight")
+    CoreLight.Brightness = 20
+    CoreLight.Range = 180
+    CoreLight.Parent = Core
 
-        Light.Color = GlowColor
-        Light.Brightness = 4
-        Light.Range = 20
-        Light.Parent = Eye
-
-    end
-
-    -- CHÂN
-    for _,X in ipairs({-18,18}) do
-
-        Part(
-            Vector3.new(18,35,22),
-            Vector3.new(X,-38,-20),
-            BodyColor,
-            Enum.PartType.Ball
-        )
-
-        Part(
-            Vector3.new(18,35,22),
-            Vector3.new(X,-38,20),
-            BodyColor,
-            Enum.PartType.Ball
-        )
-
-    end
-
-    -- HẠT
+    -- ✨ HẠT BAO QUANH
     local Particles = {}
 
     local Colors = {
-
-        Color3.fromRGB(0,255,255),
-        Color3.fromRGB(80,150,255),
-        Color3.fromRGB(190,70,255),
-        Color3.fromRGB(255,80,220),
-        Color3.fromRGB(255,255,255)
-
+        Color3.fromRGB(255,255,255),
+        Color3.fromRGB(255,100,220),
+        Color3.fromRGB(190,80,255),
+        Color3.fromRGB(80,180,255),
+        Color3.fromRGB(100,255,255)
     }
 
-    for i=1,150 do
+    for i=1,500 do
 
         local P = Instance.new("Part")
 
@@ -570,7 +515,9 @@ local function CatOn()
             Vector3.new(S,S,S)
 
         P.Material = Enum.Material.Neon
-        P.Color = Colors[math.random(#Colors)]
+
+        P.Color =
+            Colors[math.random(1,#Colors)]
 
         P.Anchored = true
         P.CanCollide = false
@@ -581,63 +528,64 @@ local function CatOn()
             math.random()*math.pi*2
 
         local Radius =
-            math.random(45,100)
+            math.random(65,180)
 
         local Height =
-            math.random(-60,100)
+            math.random(-90,130)
 
         P.Position =
-            Base+
+            Center+
             Vector3.new(
                 math.cos(Angle)*Radius,
                 Height,
                 math.sin(Angle)*Radius
             )
 
-        P.Parent = Cat
+        P.Parent = Heart
 
-        table.insert(
-            Particles,
-            {
-                Part=P,
-                Angle=Angle,
-                Radius=Radius,
-                Height=Height,
-                Speed=math.random(5,15)/100
-            }
-        )
+        table.insert(Particles,{
+            Part=P,
+            Angle=Angle,
+            Radius=Radius,
+            Height=Height,
+            Speed=math.random(2,10)/100
+        })
 
     end
 
+    -- 🔄 HẠT XOAY
     task.spawn(function()
 
-        while CatRunning
-        and Cat
-        and Cat.Parent do
+        while HeartRunning
+        and Heart
+        and Heart.Parent do
 
-            for _,Data in ipairs(Particles) do
+            for _,D in ipairs(Particles) do
 
-                if Data.Part
-                and Data.Part.Parent then
+                if D.Part and D.Part.Parent then
 
-                    Data.Angle += Data.Speed
+                    D.Angle += D.Speed
 
-                    Data.Part.Position =
-                        Base+
+                    D.Part.Position =
+                        Center+
                         Vector3.new(
-                            math.cos(Data.Angle)
-                            *Data.Radius,
-
-                            Data.Height+
-                            math.sin(Data.Angle*2)*8,
-
-                            math.sin(Data.Angle)
-                            *Data.Radius
+                            math.cos(D.Angle)*D.Radius,
+                            D.Height+
+                                math.sin(D.Angle*2)*8,
+                            math.sin(D.Angle)*D.Radius
                         )
 
                 end
 
             end
+
+            -- Quả cầu hơi nhấp nháy
+            local pulse =
+                55+
+                math.sin(os.clock()*3)*6
+
+            Core.Size =
+                Vector3.new(pulse,pulse,pulse)
 
             task.wait(.03)
 
@@ -647,322 +595,34 @@ local function CatOn()
 
 end
 
-Button("😺 Bật mèo khổng lồ",CatOn)
-Button("✨ Tắt mèo + hạt",OffCat)
-
--- =========================
--- 🐉 RỒNG TÂY DÀI
--- =========================
-
-local Dragon
-local DragonRunning = false
-
-local function OffDragon()
-
-    DragonRunning = false
-
-    if Dragon then
-        Dragon:Destroy()
-        Dragon = nil
-    end
-
-end
-
-local function DragonOn()
-
-    OffDragon()
-
-    local Character = Player.Character
-    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
-
-    if not Root then return end
-
-    DragonRunning = true
-
-    Dragon = Instance.new("Folder")
-    Dragon.Name = "WesternDragon"
-    Dragon.Parent = World
-
-    local Base =
-        Root.Position+
-        Root.CFrame.LookVector*120+
-        Vector3.new(0,100,0)
-
-    local DragonColor =
-        Color3.fromRGB(55,65,85)
-
-    local Glow =
-        Color3.fromRGB(80,190,255)
-
-    local function Part(Size,Position,Color,Shape)
-
-        local P = Instance.new("Part")
-
-        P.Size = Size
-        P.Position = Base+Position
-
-        P.Anchored = true
-        P.CanCollide = false
-        P.CanTouch = false
-        P.CanQuery = false
-
-        P.Material =
-            Enum.Material.SmoothPlastic
-
-        P.Color = Color
-
-        if Shape then
-            P.Shape = Shape
-        end
-
-        P.Parent = Dragon
-
-        return P
-
-    end
-
-    -- 🐲 THÂN RỒNG DÀI
-    for i=0,20 do
-
-        local T=i/20
-
-        local X=T*360-180
-
-        local Y=
-            math.sin(T*math.pi*2)*25
-
-        local Z=
-            math.cos(T*math.pi*1.5)*35
-
-        local S=
-            42-T*18
-
-        Part(
-            Vector3.new(S,S,S),
-            Vector3.new(X,Y,Z),
-            DragonColor,
-            Enum.PartType.Ball
-        )
-
-    end
-
-    -- 🐲 ĐẦU
-    Part(
-        Vector3.new(80,70,95),
-        Vector3.new(195,25,0),
-        DragonColor,
-        Enum.PartType.Ball
-    )
-
-    -- 👁️ MẮT
-    for _,Z in ipairs({-28,28}) do
-
-        local Eye =
-            Part(
-                Vector3.new(11,11,7),
-                Vector3.new(210,42,Z),
-                Glow,
-                Enum.PartType.Ball
-            )
-
-        local Light =
-            Instance.new("PointLight")
-
-        Light.Color = Glow
-        Light.Brightness = 6
-        Light.Range = 30
-        Light.Parent = Eye
-
-    end
-
-    -- 🦴 SỪNG
-    for _,Z in ipairs({-30,30}) do
-
-        Part(
-            Vector3.new(12,50,12),
-            Vector3.new(180,75,Z),
-            Color3.fromRGB(25,30,40),
-            Enum.PartType.Cylinder
-        )
-
-    end
-
-    -- 🪽 CÁNH
-    for Side=-1,1,2 do
-
-        for i=0,5 do
-
-            Part(
-                Vector3.new(18,8,75),
-                Vector3.new(
-                    55-i*16,
-                    55+i*18,
-                    Side*(50+i*38)
-                ),
-                DragonColor
-            )
-
-        end
-
-    end
-
-    -- 🐉 ĐUÔI RẤT DÀI
-    for i=21,38 do
-
-        local T=(i-21)/17
-
-        local X=
-            175-T*380
-
-        local Y=
-            -20+
-            math.sin(T*math.pi*3)*35
-
-        local Z=
-            math.sin(T*math.pi*2)*65
-
-        local S=
-            25-T*18
-
-        Part(
-            Vector3.new(S,S,S),
-            Vector3.new(X,Y,Z),
-            DragonColor,
-            Enum.PartType.Ball
-        )
-
-    end
-
-    -- ✨ HẠT PHÁT SÁNG
-    local Particles={}
-
-    local Colors={
-
-        Color3.fromRGB(0,170,255),
-        Color3.fromRGB(80,220,255),
-        Color3.fromRGB(150,100,255),
-        Color3.fromRGB(255,255,255)
-
-    }
-
-    for i=1,220 do
-
-        local P=Instance.new("Part")
-
-        P.Shape=Enum.PartType.Ball
-
-        local S=math.random(1,4)
-
-        P.Size=Vector3.new(S,S,S)
-
-        P.Material=Enum.Material.Neon
-
-        P.Color=
-            Colors[math.random(#Colors)]
-
-        P.Anchored=true
-        P.CanCollide=false
-        P.CanTouch=false
-        P.CanQuery=false
-
-        local Angle=
-            math.random()*math.pi*2
-
-        local Radius=
-            math.random(40,140)
-
-        local Height=
-            math.random(-70,110)
-
-        P.Position=
-            Base+
-            Vector3.new(
-                math.cos(Angle)*Radius,
-                Height,
-                math.sin(Angle)*Radius
-            )
-
-        P.Parent=Dragon
-
-        table.insert(
-            Particles,
-            {
-                Part=P,
-                Angle=Angle,
-                Radius=Radius,
-                Height=Height,
-                Speed=math.random(3,10)/100
-            }
-        )
-
-    end
-
-    task.spawn(function()
-
-        while DragonRunning
-        and Dragon
-        and Dragon.Parent do
-
-            for _,Data in ipairs(Particles) do
-
-                if Data.Part
-                and Data.Part.Parent then
-
-                    Data.Angle += Data.Speed
-
-                    Data.Part.Position=
-                        Base+
-                        Vector3.new(
-                            math.cos(Data.Angle)
-                            *Data.Radius,
-
-                            Data.Height+
-                            math.sin(Data.Angle*2)*10,
-
-                            math.sin(Data.Angle)
-                            *Data.Radius
-                        )
-
-                end
-
-            end
-
-            task.wait(.03)
-
-        end
-
-    end)
-
-end
-
-Button("🐉 Bật rồng Tây dài",DragonOn)
-Button("❌ Tắt rồng Tây",OffDragon)
+Button("❤️ Bật trái tim vũ trụ",HeartOn)
+Button("❌ Tắt trái tim",OffHeart)
 
 -- =========================
 -- NÚT MỞ MENU
 -- =========================
 
-local Open=Instance.new("TextButton")
+local Open = Instance.new("TextButton")
 
-Open.Size=UDim2.fromOffset(50,50)
-Open.Position=UDim2.new(0,15,.5,-25)
+Open.Size = UDim2.fromOffset(50,50)
+Open.Position = UDim2.new(0,15,.5,-25)
 
-Open.Text="🌌"
-Open.TextSize=24
-Open.TextColor3=Color3.fromRGB(230,240,235)
+Open.Text = "🌌"
+Open.TextSize = 24
+Open.TextColor3 = Color3.fromRGB(230,240,235)
 
-Open.BackgroundColor3=
+Open.BackgroundColor3 =
     Color3.fromRGB(20,38,31)
 
-Open.BorderSizePixel=0
-Open.Parent=Gui
+Open.BorderSizePixel = 0
+Open.Parent = Gui
 
-local OC=Instance.new("UICorner")
-OC.CornerRadius=UDim.new(1,0)
-OC.Parent=Open
+local OC = Instance.new("UICorner")
+OC.CornerRadius = UDim.new(1,0)
+OC.Parent = Open
 
 Open.MouseButton1Click:Connect(function()
-    Frame.Visible=true
+    Frame.Visible = true
 end)
 
-print("RuHub SKY FULL loaded!")
+print("RuHub SKY + Cosmic Heart loaded!")
