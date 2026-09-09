@@ -6,21 +6,15 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- XÓA BẢN CŨ
 local old = playerGui:FindFirstChild("RuHub_SKY")
-if old then
-    old:Destroy()
-end
+if old then old:Destroy() end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "RuHub_SKY"
 gui.ResetOnSpawn = false
 gui.Parent = playerGui
 
--- =========================
 -- MENU
--- =========================
-
 local frame = Instance.new("Frame")
 frame.Size = UDim2.fromOffset(300, 430)
 frame.Position = UDim2.new(0.5, -150, 0.5, -215)
@@ -28,9 +22,7 @@ frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 20)
-corner.Parent = frame
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 20)
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -55, 0, 45)
@@ -42,10 +34,7 @@ title.BackgroundTransparency = 1
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
--- =========================
 -- KÉO MENU MOBILE
--- =========================
-
 local dragging = false
 local dragStart
 local startPos
@@ -71,7 +60,6 @@ UserInputService.InputChanged:Connect(function(input)
         input.UserInputType == Enum.UserInputType.Touch
         or input.UserInputType == Enum.UserInputType.MouseMovement
     ) then
-
         local delta = input.Position - dragStart
 
         frame.Position = UDim2.new(
@@ -83,10 +71,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- =========================
 -- ĐÓNG
--- =========================
-
 local close = Instance.new("TextButton")
 close.Size = UDim2.fromOffset(40, 40)
 close.Position = UDim2.new(1, -45, 0, 7)
@@ -100,37 +85,25 @@ close.MouseButton1Click:Connect(function()
     frame.Visible = false
 end)
 
--- =========================
 -- BUTTON
--- =========================
-
 local function makeButton(text, y, callback)
     local b = Instance.new("TextButton")
-
     b.Size = UDim2.new(1, -24, 0, 42)
     b.Position = UDim2.fromOffset(12, y)
-
     b.Text = text
     b.TextSize = 16
     b.TextColor3 = Color3.fromRGB(225, 235, 230)
     b.BackgroundColor3 = Color3.fromRGB(31, 57, 46)
-
     b.BorderSizePixel = 0
     b.Parent = frame
 
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, 14)
-    c.Parent = b
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 14)
 
     b.MouseButton1Click:Connect(callback)
-
     return b
 end
 
--- =========================
--- THỜI TIẾT / BẦU TRỜI
--- =========================
-
+-- SKY
 makeButton("☀️ Sáng", 55, function()
     Lighting.ClockTime = 12
     Lighting.Brightness = 3
@@ -159,10 +132,7 @@ makeButton("🌙 Tối", 199, function()
     Lighting.OutdoorAmbient = Color3.fromRGB(20,20,40)
 end)
 
--- =========================
 -- CẦU VỒNG ĐỨNG YÊN
--- =========================
-
 local rainbowFolder
 
 local function removeRainbow()
@@ -233,10 +203,7 @@ makeButton("❌ Tắt cầu vồng", 295, function()
     removeRainbow()
 end)
 
--- =========================
--- THIÊN THẠCH 1000 STUDS
--- =========================
-
+-- THIÊN THẠCH
 local meteor
 local meteorRunning = false
 
@@ -258,26 +225,26 @@ local function createMeteor()
 
     meteorRunning = true
 
+    -- CÁCH NGƯỜI CHƠI 1000 STUDS
     local startPos =
         root.Position
-        + root.CFrame.LookVector * 400
-        + Vector3.new(0,500,0)
+        + root.CFrame.LookVector * 1000
+        + Vector3.new(0, 500, 0)
 
     local endPos =
         root.Position
-        + root.CFrame.LookVector * 100
-        + Vector3.new(0,5,0)
+        + root.CFrame.LookVector * 1000
+        + Vector3.new(0, 0, 0)
 
     meteor = Instance.new("Part")
     meteor.Name = "RuHub_Meteor"
-
     meteor.Shape = Enum.PartType.Ball
 
-    -- 1000 STUDS
-    meteor.Size = Vector3.new(1000,1000,1000)
+    -- KÍCH THƯỚC 500 STUDS
+    meteor.Size = Vector3.new(500,500,500)
 
     meteor.Material = Enum.Material.Neon
-    meteor.Color = Color3.fromRGB(255,100,20)
+    meteor.Color = Color3.fromRGB(255,90,15)
 
     meteor.Anchored = true
     meteor.CanCollide = false
@@ -288,17 +255,15 @@ local function createMeteor()
     meteor.Parent = workspace
 
     local fire = Instance.new("Fire")
-    fire.Size = 500
+    fire.Size = 250
     fire.Heat = 30
     fire.Parent = meteor
 
     task.spawn(function()
-        local duration = 5
+        local duration = 6
         local startTime = tick()
 
-        while meteor
-            and meteor.Parent
-            and meteorRunning do
+        while meteor and meteor.Parent and meteorRunning do
 
             local alpha = math.clamp(
                 (tick() - startTime) / duration,
@@ -313,13 +278,9 @@ local function createMeteor()
 
                 meteorRunning = false
 
-                local explosion =
-                    Instance.new("Explosion")
-
-                explosion.Position =
-                    meteor.Position
-
-                explosion.BlastRadius = 50
+                local explosion = Instance.new("Explosion")
+                explosion.Position = meteor.Position
+                explosion.BlastRadius = 100
                 explosion.BlastPressure = 0
                 explosion.DestroyJointRadiusPercent = 0
                 explosion.Parent = workspace
@@ -335,7 +296,7 @@ local function createMeteor()
     end)
 end
 
-makeButton("☄️ Thiên thạch 1000m", 343, function()
+makeButton("☄️ Thiên thạch 500m", 343, function()
     createMeteor()
 end)
 
@@ -343,10 +304,7 @@ makeButton("❌ Tắt thiên thạch", 391, function()
     removeMeteor()
 end)
 
--- =========================
--- NÚT MỞ MENU
--- =========================
-
+-- NÚT MỞ
 local open = Instance.new("TextButton")
 open.Size = UDim2.fromOffset(50,50)
 open.Position = UDim2.new(0,15,0.5,-25)
@@ -357,9 +315,7 @@ open.BackgroundColor3 = Color3.fromRGB(20,38,31)
 open.BorderSizePixel = 0
 open.Parent = gui
 
-local openCorner = Instance.new("UICorner")
-openCorner.CornerRadius = UDim.new(1,0)
-openCorner.Parent = open
+Instance.new("UICorner", open).CornerRadius = UDim.new(1,0)
 
 open.MouseButton1Click:Connect(function()
     frame.Visible = true
