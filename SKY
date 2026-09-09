@@ -1,15 +1,16 @@
-local Players = game:GetService("Players")
+ local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "RuHub_FTAP_V2"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(300, 420)
-frame.Position = UDim2.new(0.5, -150, 0.5, -210)
+frame.Size = UDim2.fromOffset(300, 315)
+frame.Position = UDim2.new(0.5, -150, 0.5, -157)
 frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 frame.BorderSizePixel = 0
 frame.Parent = gui
@@ -107,36 +108,25 @@ makeButton("☀️ Sky: Sáng", 151, function()
     Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
 end)
 
-makeButton("🌙 Sky: Tối", 199, function()
+makeButton("🌄 Mặt trời mọc", 199, function()
+    Lighting.ClockTime = 6
+    Lighting.Brightness = 2.5
+    Lighting.Ambient = Color3.fromRGB(255, 180, 130)
+    Lighting.OutdoorAmbient = Color3.fromRGB(255, 150, 100)
+end)
+
+makeButton("🌙 Sky: Tối", 247, function()
     Lighting.ClockTime = 0
     Lighting.Brightness = 1
     Lighting.Ambient = Color3.fromRGB(55, 55, 80)
     Lighting.OutdoorAmbient = Color3.fromRGB(40, 40, 65)
 end)
 
-makeButton("🌅 Hoàng hôn", 247, function()
+makeButton("🌅 Hoàng hôn", 295, function()
     Lighting.ClockTime = 17.8
     Lighting.Brightness = 4
     Lighting.Ambient = Color3.fromRGB(255, 170, 120)
     Lighting.OutdoorAmbient = Color3.fromRGB(230, 130, 90)
-end)
-
-makeButton("🟣 Sky: Tím", 295, function()
-    Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(150, 80, 200)
-    Lighting.OutdoorAmbient = Color3.fromRGB(100, 50, 150)
-end)
-
-makeButton("🟩 Sky: Minecraft", 343, function()
-    Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(140, 180, 110)
-    Lighting.OutdoorAmbient = Color3.fromRGB(100, 150, 90)
-end)
-
-makeButton("🔴 Sky: Đỏ", 391, function()
-    Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(180, 65, 65)
-    Lighting.OutdoorAmbient = Color3.fromRGB(130, 40, 40)
 end)
 
 local open = Instance.new("TextButton")
