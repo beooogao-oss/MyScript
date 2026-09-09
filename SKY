@@ -1,67 +1,61 @@
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
-local UIS = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local pg = player:WaitForChild("PlayerGui")
+local playerGui = player:WaitForChild("PlayerGui")
 
 -- XÓA BẢN CŨ
-for _,name in ipairs({"RuHub_SKY","RuHub_Cosmic"}) do
-    local x = pg:FindFirstChild(name) or workspace:FindFirstChild(name)
-    if x then x:Destroy() end
-end
+local old = playerGui:FindFirstChild("RuHub_SKY")
+if old then old:Destroy() end
 
-local effects = Instance.new("Folder")
-effects.Name = "RuHub_Cosmic"
-effects.Parent = workspace
-
---================ MENU ================
+local oldFX = workspace:FindFirstChild("RuHub_SKY_FX")
+if oldFX then oldFX:Destroy() end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "RuHub_SKY"
 gui.ResetOnSpawn = false
-gui.Parent = pg
+gui.Parent = playerGui
+
+local fx = Instance.new("Folder")
+fx.Name = "RuHub_SKY_FX"
+fx.Parent = workspace
+
+--==================================================
+-- MENU SKY
+--==================================================
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(310,450)
-frame.Position = UDim2.new(.5,-155,.5,-225)
-frame.BackgroundColor3 = Color3.fromRGB(10,18,32)
+frame.Size = UDim2.fromOffset(310,460)
+frame.Position = UDim2.new(0.5,-155,0.5,-230)
+frame.BackgroundColor3 = Color3.fromRGB(12,24,40)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
-Instance.new("UICorner",frame).CornerRadius = UDim.new(0,18)
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,20)
+corner.Parent = frame
 
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(70,130,255)
+stroke.Color = Color3.fromRGB(80,130,255)
 stroke.Thickness = 1.5
 stroke.Parent = frame
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,-55,0,45)
-title.Position = UDim2.fromOffset(15,3)
+title.Position = UDim2.fromOffset(15,5)
 title.BackgroundTransparency = 1
 title.Text = "🌌 RuHub SKY"
-title.TextColor3 = Color3.new(1,1,1)
 title.TextSize = 21
+title.TextColor3 = Color3.fromRGB(235,245,255)
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
-local close = Instance.new("TextButton")
-close.Size = UDim2.fromOffset(42,42)
-close.Position = UDim2.new(1,-47,0,5)
-close.BackgroundTransparency = 1
-close.Text = "×"
-close.TextSize = 30
-close.TextColor3 = Color3.new(1,1,1)
-close.Parent = frame
-
-close.MouseButton1Click:Connect(function()
-    frame.Visible = false
-end)
-
 -- KÉO MENU
-local dragging,dragStart,startPos
+local dragging = false
+local dragStart
+local startPos
 
 title.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch
@@ -72,32 +66,51 @@ title.InputBegan:Connect(function(input)
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(input)
     if dragging and (
         input.UserInputType == Enum.UserInputType.Touch
         or input.UserInputType == Enum.UserInputType.MouseMovement
     ) then
-        local d = input.Position-dragStart
+        local delta = input.Position - dragStart
+
         frame.Position = UDim2.new(
-            startPos.X.Scale,startPos.X.Offset+d.X,
-            startPos.Y.Scale,startPos.Y.Offset+d.Y
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
         )
     end
 end)
 
-UIS.InputEnded:Connect(function(input)
+UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch
     or input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
 end)
 
+-- ĐÓNG
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(42,42)
+close.Position = UDim2.new(1,-47,0,5)
+close.Text = "×"
+close.TextSize = 30
+close.TextColor3 = Color3.fromRGB(230,235,245)
+close.BackgroundTransparency = 1
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+    frame.Visible = false
+end)
+
+-- SCROLL
 local scroll = Instance.new("ScrollingFrame")
 scroll.Size = UDim2.new(1,-10,1,-55)
 scroll.Position = UDim2.fromOffset(5,50)
 scroll.BackgroundTransparency = 1
 scroll.BorderSizePixel = 0
-scroll.ScrollBarThickness = 4
+scroll.ScrollBarThickness = 5
+scroll.CanvasSize = UDim2.new(0,0,0,0)
 scroll.Parent = frame
 
 local layout = Instance.new("UIListLayout")
@@ -105,415 +118,592 @@ layout.Padding = UDim.new(0,6)
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layout.Parent = scroll
 
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0,5)
+padding.PaddingBottom = UDim.new(0,10)
+padding.Parent = scroll
+
 layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y+15)
+    scroll.CanvasSize = UDim2.new(
+        0,0,0,
+        layout.AbsoluteContentSize.Y + 15
+    )
 end)
 
-local function button(text,callback)
+-- NÚT
+local function makeButton(text,callback)
     local b = Instance.new("TextButton")
+
     b.Size = UDim2.new(1,-14,0,42)
-    b.BackgroundColor3 = Color3.fromRGB(18,35,62)
-    b.BorderSizePixel = 0
     b.Text = text
     b.TextSize = 16
-    b.TextColor3 = Color3.new(1,1,1)
+    b.TextColor3 = Color3.fromRGB(235,240,250)
+    b.BackgroundColor3 = Color3.fromRGB(20,40,65)
+    b.BorderSizePixel = 0
     b.Parent = scroll
 
-    Instance.new("UICorner",b).CornerRadius = UDim.new(0,12)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0,14)
+    c.Parent = b
 
     b.MouseButton1Click:Connect(callback)
+
+    return b
 end
 
---================ ☀️ SKY ================
+--==================================================
+-- ☀️ SKY
+--==================================================
 
-button("☀️ Sáng",function()
+makeButton("☀️ Sáng",function()
     Lighting.ClockTime = 12
     Lighting.Brightness = 3
     Lighting.Ambient = Color3.fromRGB(180,180,180)
     Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
 end)
 
-button("🌄 Mặt trời mọc",function()
+makeButton("🌄 Mặt trời mọc",function()
     Lighting.ClockTime = 6
     Lighting.Brightness = 2.5
     Lighting.Ambient = Color3.fromRGB(255,180,130)
     Lighting.OutdoorAmbient = Color3.fromRGB(255,150,100)
 end)
 
-button("🌅 Hoàng hôn",function()
+makeButton("🌅 Hoàng hôn",function()
     Lighting.ClockTime = 17.8
     Lighting.Brightness = 3
     Lighting.Ambient = Color3.fromRGB(255,150,100)
     Lighting.OutdoorAmbient = Color3.fromRGB(230,100,70)
 end)
 
-button("🌙 Tối",function()
+makeButton("🌙 Tối",function()
     Lighting.ClockTime = 0
-    Lighting.Brightness = .7
+    Lighting.Brightness = 0.7
     Lighting.Ambient = Color3.fromRGB(30,30,55)
     Lighting.OutdoorAmbient = Color3.fromRGB(20,20,40)
 end)
 
---================ 🌈 CẦU VỒNG ================
+--==================================================
+-- 🌈 CẦU VỒNG
+--==================================================
 
-local rainbow
+local rainbowFolder
 
-local function stopRainbow()
-    if rainbow then
-        rainbow:Destroy()
-        rainbow = nil
+local function removeRainbow()
+    if rainbowFolder then
+        rainbowFolder:Destroy()
+        rainbowFolder = nil
     end
 end
 
-local function startRainbow()
-    stopRainbow()
+local function createRainbow()
+    removeRainbow()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    rainbow = Instance.new("Folder")
-    rainbow.Parent = effects
+    rainbowFolder = Instance.new("Folder")
+    rainbowFolder.Name = "Rainbow"
+    rainbowFolder.Parent = fx
 
     local center =
-        root.Position-root.CFrame.RightVector*150
-        +Vector3.new(0,70,0)
+        root.Position
+        - root.CFrame.RightVector * 180
+        + Vector3.new(0,75,0)
 
     local colors = {
         Color3.fromRGB(255,0,0),
-        Color3.fromRGB(255,140,0),
-        Color3.fromRGB(255,255,0),
+        Color3.fromRGB(255,130,0),
+        Color3.fromRGB(255,240,0),
         Color3.fromRGB(0,255,80),
-        Color3.fromRGB(0,180,255),
-        Color3.fromRGB(80,80,255),
-        Color3.fromRGB(210,0,255)
+        Color3.fromRGB(0,190,255),
+        Color3.fromRGB(50,80,255),
+        Color3.fromRGB(220,0,255)
     }
 
-    for n,c in ipairs(colors) do
-        local radius = 70-(n-1)*4
+    for n,color in ipairs(colors) do
+        local radius = 78 - (n-1)*4
 
-        for i=0,40 do
-            local a=math.pi*i/40
+        for i=0,55 do
+            local angle = math.pi*(i/55)
 
-            local p=Instance.new("Part")
-            p.Shape=Enum.PartType.Ball
-            p.Size=Vector3.new(3,3,3)
-            p.Material=Enum.Material.Neon
-            p.Color=c
-            p.Anchored=true
-            p.CanCollide=false
-            p.CanTouch=false
-            p.CanQuery=false
+            local p = Instance.new("Part")
+            p.Shape = Enum.PartType.Ball
+            p.Size = Vector3.new(4,4,4)
+            p.Material = Enum.Material.Neon
+            p.Color = color
+            p.Anchored = true
+            p.CanCollide = false
+            p.CanTouch = false
+            p.CanQuery = false
 
-            p.Position=center+Vector3.new(
-                math.cos(a)*radius,
-                math.sin(a)*radius,
-                0
-            )
+            p.Position =
+                center +
+                Vector3.new(
+                    math.cos(angle)*radius,
+                    math.sin(angle)*radius,
+                    0
+                )
 
-            p.Parent=rainbow
+            p.Parent = rainbowFolder
         end
     end
 end
 
-button("🌈 Bật cầu vồng",startRainbow)
-button("❌ Tắt cầu vồng",stopRainbow)
+makeButton("🌈 Bật cầu vồng",createRainbow)
+makeButton("❌ Tắt cầu vồng",removeRainbow)
 
---================ 🌌 THIÊN HÀ ================
+--==================================================
+-- 🌌 THIÊN HÀ GIỐNG ẢNH
+-- CẦU VỒNG TRÁI + HÌNH GIỮA + MẶT TRỜI PHẢI
+-- RẤT NHIỀU HẠT SÁNG
+--==================================================
 
-local galaxy
+local galaxyFolder
 local galaxyConnection
 
-local function stopGalaxy()
+local function removeGalaxy()
     if galaxyConnection then
         galaxyConnection:Disconnect()
-        galaxyConnection=nil
+        galaxyConnection = nil
     end
 
-    if galaxy then
-        galaxy:Destroy()
-        galaxy=nil
+    if galaxyFolder then
+        galaxyFolder:Destroy()
+        galaxyFolder = nil
     end
 end
 
-local function startGalaxy()
-    stopGalaxy()
+local function createStar(parent,pos,size,color,transparency)
+    local p = Instance.new("Part")
 
-    local char=player.Character
-    local root=char and char:FindFirstChild("HumanoidRootPart")
+    p.Shape = Enum.PartType.Ball
+    p.Size = Vector3.new(size,size,size)
+    p.Material = Enum.Material.Neon
+    p.Color = color
+    p.Transparency = transparency or 0
+
+    p.Anchored = true
+    p.CanCollide = false
+    p.CanTouch = false
+    p.CanQuery = false
+
+    p.Position = pos
+    p.Parent = parent
+
+    return p
+end
+
+local function createGalaxy()
+    removeGalaxy()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    galaxy=Instance.new("Folder")
-    galaxy.Name="Galaxy"
-    galaxy.Parent=effects
+    galaxyFolder = Instance.new("Folder")
+    galaxyFolder.Name = "Galaxy"
+    galaxyFolder.Parent = fx
 
     local center =
-        root.Position+
-        root.CFrame.LookVector*120+
-        Vector3.new(0,50,0)
+        root.Position
+        + root.CFrame.LookVector * 150
+        + Vector3.new(0,55,0)
 
-    local stars={}
+    local stars = {}
 
-    local colors={
+    local starColors = {
         Color3.fromRGB(255,255,255),
-        Color3.fromRGB(180,220,255),
-        Color3.fromRGB(150,80,255),
-        Color3.fromRGB(230,70,255),
-        Color3.fromRGB(255,100,220)
+        Color3.fromRGB(210,230,255),
+        Color3.fromRGB(180,130,255),
+        Color3.fromRGB(255,100,235),
+        Color3.fromRGB(130,190,255)
     }
 
-    local function star(pos,size,color,trans)
-        local p=Instance.new("Part")
-        p.Shape=Enum.PartType.Ball
-        p.Size=Vector3.new(size,size,size)
-        p.Material=Enum.Material.Neon
-        p.Color=color
-        p.Transparency=trans or 0
-        p.Anchored=true
-        p.CanCollide=false
-        p.CanTouch=false
-        p.CanQuery=false
-        p.Position=pos
-        p.Parent=galaxy
-        return p
-    end
+    -- ⭐ HẠT SAO KHẮP THIÊN HÀ
+    for i=1,1800 do
 
-    -- ⭐ HẠT SAO DÀY NHƯ ẢNH
-    for i=1,1200 do
-        local a=math.random()*math.pi*2
-        local r=math.random(20,280)
+        local angle = math.random()*math.pi*2
+        local radius = math.random(35,340)
 
-        local p=star(
-            center+Vector3.new(
-                math.cos(a)*r,
-                math.random(-100,110),
-                math.sin(a)*r
-            ),
+        local x = math.cos(angle)*radius
+        local z = math.sin(angle)*radius
+        local y = math.random(-125,125)
+
+        local p = createStar(
+            galaxyFolder,
+            center + Vector3.new(x,y,z),
             math.random(1,5),
-            colors[math.random(1,#colors)],
-            math.random(0,60)/100
+            starColors[math.random(1,#starColors)],
+            math.random(0,65)/100
         )
 
-        if math.random()<.25 then
+        if math.random() < 0.3 then
             table.insert(stars,{
-                part=p,
-                angle=a,
-                radius=r,
-                y=math.random(-100,110),
-                speed=math.random(1,8)/1000
+                part = p,
+                angle = angle,
+                radius = radius,
+                height = y,
+                speed = math.random(2,8)/1000
             })
         end
     end
 
-    -- 🌀 DẢI TÍM/XANH
-    for arm=1,6 do
-        for i=1,400 do
-            local t=i/400
-            local a=t*math.pi*8+(arm-1)*math.pi*2/6
-            local r=15+t*250
+    -- 🌀 DẢI TINH VÂN
+    for arm=1,7 do
 
-            star(
-                center+Vector3.new(
-                    math.cos(a)*r,
-                    math.sin(t*math.pi)*35+math.random(-15,15),
-                    math.sin(a)*r
-                ),
+        for i=1,400 do
+
+            local t = i/400
+
+            local angle =
+                t*math.pi*9
+                + (arm-1)*math.pi*2/7
+
+            local radius = 20+t*300
+
+            local x = math.cos(angle)*radius
+            local z = math.sin(angle)*radius
+
+            local y =
+                math.sin(t*math.pi)*35
+                + math.random(-20,20)
+
+            createStar(
+                galaxyFolder,
+                center+Vector3.new(x,y,z),
                 math.random(2,6),
-                colors[math.random(3,5)],
-                math.random(15,65)/100
+                Color3.fromRGB(
+                    math.random(120,220),
+                    math.random(60,150),
+                    255
+                ),
+                math.random(20,70)/100
             )
         end
     end
 
-    -- ☀️ MẶT TRỜI TRẮNG BÊN PHẢI
-    local sunPos=
-        center+
-        root.CFrame.RightVector*180+
-        Vector3.new(0,40,0)
+    --==================================================
+    -- 🌈 CẦU VỒNG TRONG CẢNH THIÊN HÀ
+    --==================================================
 
-    local sun=star(
-        sunPos,
-        75,
-        Color3.fromRGB(255,255,255)
+    local rainbowCenter =
+        center
+        - root.CFrame.RightVector*250
+        + Vector3.new(0,15,0)
+
+    local rainbowColors = {
+        Color3.fromRGB(255,0,0),
+        Color3.fromRGB(255,100,0),
+        Color3.fromRGB(255,230,0),
+        Color3.fromRGB(0,255,100),
+        Color3.fromRGB(0,190,255),
+        Color3.fromRGB(70,80,255),
+        Color3.fromRGB(220,0,255)
+    }
+
+    for n,color in ipairs(rainbowColors) do
+
+        local radius = 75-(n-1)*4
+
+        for i=0,55 do
+
+            local a = math.pi*i/55
+
+            createStar(
+                galaxyFolder,
+                rainbowCenter+
+                Vector3.new(
+                    math.cos(a)*radius,
+                    math.sin(a)*radius,
+                    0
+                ),
+                5,
+                color,
+                0
+            )
+        end
+    end
+
+    --==================================================
+    -- 💗 HÌNH GIỮA
+    --==================================================
+
+    local heartCenter =
+        center
+        - root.CFrame.RightVector*20
+        - Vector3.new(0,30,0)
+
+    for i=0,180 do
+
+        local t = math.pi*2*i/180
+
+        local x = 16*math.sin(t)^3
+
+        local y =
+            13*math.cos(t)
+            -5*math.cos(2*t)
+            -2*math.cos(3*t)
+            -math.cos(4*t)
+
+        createStar(
+            galaxyFolder,
+            heartCenter
+            + root.CFrame.RightVector*(x*3)
+            + Vector3.new(0,y*3,0),
+            5,
+            Color3.fromRGB(255,205,255),
+            0
+        )
+    end
+
+    -- ✨ HẠT BAO QUANH HÌNH
+    for i=1,600 do
+
+        local angle = math.random()*math.pi*2
+        local radius = math.random(45,175)
+
+        createStar(
+            galaxyFolder,
+            heartCenter+Vector3.new(
+                math.cos(angle)*radius,
+                math.random(-105,105),
+                math.sin(angle)*radius
+            ),
+            math.random(1,4),
+            Color3.fromRGB(
+                math.random(150,255),
+                math.random(80,220),
+                255
+            ),
+            math.random(20,80)/100
+        )
+    end
+
+    --==================================================
+    -- ☀️ MẶT TRỜI TRẮNG BÊN PHẢI
+    --==================================================
+
+    local sunPosition =
+        center
+        + root.CFrame.RightVector*215
+        + Vector3.new(0,40,0)
+
+    local sun = createStar(
+        galaxyFolder,
+        sunPosition,
+        90,
+        Color3.fromRGB(255,255,255),
+        0
     )
 
-    local light=Instance.new("PointLight")
-    light.Brightness=35
-    light.Range=800
-    light.Color=Color3.fromRGB(230,240,255)
-    light.Parent=sun
+    local sunLight = Instance.new("PointLight")
+    sunLight.Brightness = 40
+    sunLight.Range = 1000
+    sunLight.Color = Color3.fromRGB(240,245,255)
+    sunLight.Parent = sun
 
-    -- ✨ HẠT QUANH MẶT TRỜI
-    for i=1,220 do
-        local a=math.random()*math.pi*2
-        local r=math.random(45,130)
+    -- ✨ QUẦNG HẠT QUANH MẶT TRỜI
+    for i=1,300 do
 
-        star(
-            sunPos+Vector3.new(
-                math.cos(a)*r,
-                math.random(-45,45),
-                math.sin(a)*r
+        local angle = math.random()*math.pi*2
+        local radius = math.random(55,155)
+
+        createStar(
+            galaxyFolder,
+            sunPosition+Vector3.new(
+                math.cos(angle)*radius,
+                math.random(-55,55),
+                math.sin(angle)*radius
             ),
             math.random(1,5),
             Color3.fromRGB(255,255,255),
-            math.random(35,90)/100
+            math.random(40,90)/100
         )
     end
 
-    -- 🪐 HÀNH TINH BÊN TRÁI
-    local planet=Instance.new("Part")
-    planet.Shape=Enum.PartType.Ball
-    planet.Size=Vector3.new(400,400,400)
-    planet.Material=Enum.Material.SmoothPlastic
-    planet.Color=Color3.fromRGB(45,55,75)
-    planet.Anchored=true
-    planet.CanCollide=false
-    planet.CanTouch=false
-    planet.CanQuery=false
+    --==================================================
+    -- 🪐 VẬT THỂ LỚN BÊN TRÁI
+    --==================================================
 
-    planet.Position=
-        center-root.CFrame.RightVector*300
+    local planet = Instance.new("Part")
 
-    planet.Parent=galaxy
+    planet.Shape = Enum.PartType.Ball
+    planet.Size = Vector3.new(410,410,410)
 
-    -- 💫 VÀNH HÀNH TINH
+    planet.Material = Enum.Material.SmoothPlastic
+    planet.Color = Color3.fromRGB(48,58,78)
+
+    planet.Anchored = true
+    planet.CanCollide = false
+    planet.CanTouch = false
+    planet.CanQuery = false
+
+    planet.Position =
+        center
+        - root.CFrame.RightVector*330
+
+    planet.Parent = galaxyFolder
+
+    -- 💫 HẠT/VÀNH QUANH VẬT THỂ
     for i=1,500 do
-        local a=math.random()*math.pi*2
-        local r=math.random(220,370)
 
-        star(
+        local angle = math.random()*math.pi*2
+        local radius = math.random(210,375)
+
+        createStar(
+            galaxyFolder,
             planet.Position+Vector3.new(
-                math.cos(a)*r,
-                math.random(-12,12),
-                math.sin(a)*r
+                math.cos(angle)*radius,
+                math.random(-15,15),
+                math.sin(angle)*radius
             ),
             math.random(2,6),
-            Color3.fromRGB(150,160,190),
-            .2
+            Color3.fromRGB(150,165,195),
+            .25
         )
     end
 
-    -- 🔄 CHUYỂN ĐỘNG
-    galaxyConnection=RunService.Heartbeat:Connect(function()
-        for _,d in ipairs(stars) do
-            if d.part and d.part.Parent then
-                d.angle=d.angle+d.speed
+    --==================================================
+    -- 🔄 SAO CHUYỂN ĐỘNG
+    --==================================================
 
-                d.part.Position=
-                    center+Vector3.new(
-                        math.cos(d.angle)*d.radius,
-                        d.y+math.sin(d.angle*2)*5,
-                        math.sin(d.angle)*d.radius
+    galaxyConnection = RunService.Heartbeat:Connect(function()
+
+        for _,data in ipairs(stars) do
+
+            if data.part and data.part.Parent then
+
+                data.angle += data.speed
+
+                data.part.Position =
+                    center+
+                    Vector3.new(
+                        math.cos(data.angle)*data.radius,
+                        data.height+
+                            math.sin(data.angle*3)*5,
+                        math.sin(data.angle)*data.radius
                     )
             end
         end
     end)
 end
 
-button("🌌 BẬT THIÊN HÀ",startGalaxy)
-button("❌ TẮT THIÊN HÀ",stopGalaxy)
+makeButton(
+    "🌌 BẬT THIÊN HÀ GIỐNG ẢNH",
+    createGalaxy
+)
 
---================ ❤️ TRÁI TIM ================
+makeButton(
+    "❌ TẮT THIÊN HÀ",
+    removeGalaxy
+)
 
-local heart
+--==================================================
+-- ❤️ TRÁI TIM RIÊNG + HẠT PHÁT SÁNG
+--==================================================
 
-local function stopHeart()
-    if heart then
-        heart:Destroy()
-        heart=nil
+local heartFolder
+
+local function removeHeart()
+    if heartFolder then
+        heartFolder:Destroy()
+        heartFolder = nil
     end
 end
 
-local function startHeart()
-    stopHeart()
+local function createHeart()
 
-    local char=player.Character
-    local root=char and char:FindFirstChild("HumanoidRootPart")
+    removeHeart()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    heart=Instance.new("Folder")
-    heart.Parent=effects
+    heartFolder = Instance.new("Folder")
+    heartFolder.Name = "Heart"
+    heartFolder.Parent = fx
 
-    local center=
-        root.Position+
-        root.CFrame.LookVector*100+
-        Vector3.new(0,50,0)
+    local center =
+        root.Position
+        + root.CFrame.LookVector*100
+        + Vector3.new(0,55,0)
 
-    for i=0,180 do
-        local t=math.pi*2*i/180
+    -- 💗 TRÁI TIM
+    for i=0,200 do
 
-        local x=16*math.sin(t)^3
-        local y=13*math.cos(t)
+        local t = math.pi*2*i/200
+
+        local x = 16*math.sin(t)^3
+
+        local y =
+            13*math.cos(t)
             -5*math.cos(2*t)
             -2*math.cos(3*t)
             -math.cos(4*t)
 
-        local p=Instance.new("Part")
-        p.Shape=Enum.PartType.Ball
-        p.Size=Vector3.new(4,4,4)
-        p.Material=Enum.Material.Neon
-        p.Color=Color3.fromRGB(255,70,190)
-        p.Anchored=true
-        p.CanCollide=false
-        p.CanTouch=false
-        p.CanQuery=false
-
-        p.Position=
-            center+
-            root.CFrame.RightVector*(x*2.5)+
-            Vector3.new(0,y*2.5,0)
-
-        p.Parent=heart
+        createStar(
+            heartFolder,
+            center
+            + root.CFrame.RightVector*(x*2.8)
+            + Vector3.new(0,y*2.8,0),
+            4,
+            Color3.fromRGB(255,180,245),
+            0
+        )
     end
 
-    -- ✨ HẠT PHÁT SÁNG BAO QUANH
-    for i=1,400 do
-        local a=math.random()*math.pi*2
-        local r=math.random(50,150)
+    -- ✨ HẠT BAO QUANH
+    for i=1,500 do
 
-        local p=Instance.new("Part")
-        p.Shape=Enum.PartType.Ball
-        p.Size=Vector3.new(2,2,2)
-        p.Material=Enum.Material.Neon
-        p.Color=Color3.fromRGB(
-            math.random(100,255),
-            math.random(50,220),
-            255
+        local angle = math.random()*math.pi*2
+        local radius = math.random(50,160)
+
+        createStar(
+            heartFolder,
+            center+Vector3.new(
+                math.cos(angle)*radius,
+                math.random(-90,100),
+                math.sin(angle)*radius
+            ),
+            math.random(1,4),
+            Color3.fromRGB(
+                math.random(150,255),
+                math.random(60,220),
+                255
+            ),
+            math.random(20,80)/100
         )
-        p.Anchored=true
-        p.CanCollide=false
-        p.CanTouch=false
-        p.CanQuery=false
-
-        p.Position=center+Vector3.new(
-            math.cos(a)*r,
-            math.random(-70,90),
-            math.sin(a)*r
-        )
-
-        p.Parent=heart
     end
 end
 
-button("❤️ BẬT TRÁI TIM",startHeart)
-button("❌ TẮT TRÁI TIM",stopHeart)
+makeButton("❤️ BẬT TRÁI TIM + HẠT",createHeart)
+makeButton("❌ TẮT TRÁI TIM",removeHeart)
 
---================ NÚT MỞ ================
+--==================================================
+-- NÚT MỞ MENU
+--==================================================
 
-local open=Instance.new("TextButton")
-open.Size=UDim2.fromOffset(52,52)
-open.Position=UDim2.new(0,15,.5,-26)
-open.Text="🌌"
-open.TextSize=25
-open.BackgroundColor3=Color3.fromRGB(10,18,32)
-open.TextColor3=Color3.new(1,1,1)
-open.BorderSizePixel=0
-open.Parent=gui
+local open = Instance.new("TextButton")
 
-Instance.new("UICorner",open).CornerRadius=UDim.new(1,0)
+open.Size = UDim2.fromOffset(52,52)
+open.Position = UDim2.new(0,15,0.5,-26)
+
+open.Text = "🌌"
+open.TextSize = 25
+open.TextColor3 = Color3.fromRGB(235,245,255)
+
+open.BackgroundColor3 = Color3.fromRGB(12,24,40)
+open.BorderSizePixel = 0
+open.Parent = gui
+
+local openCorner = Instance.new("UICorner")
+openCorner.CornerRadius = UDim.new(1,0)
+openCorner.Parent = open
 
 open.MouseButton1Click:Connect(function()
-    frame.Visible=true
+    frame.Visible = true
 end)
 
-print("🌌 RuHub SKY + GALAXY LOADED")
+print("🌌 RuHub SKY LOADED")
