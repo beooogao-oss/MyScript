@@ -1,0 +1,271 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
+
+-- Xóa bản cũ
+local old = workspace:FindFirstChild("RuHub_Plane")
+if old then old:Destroy() end
+
+local oldGui = pg:FindFirstChild("RuHub_PlaneGUI")
+if oldGui then oldGui:Destroy() end
+
+local folder
+local flying = false
+local connection
+
+local function stopPlane()
+    flying = false
+
+    if connection then
+        connection:Disconnect()
+        connection = nil
+    end
+
+    if folder then
+        folder:Destroy()
+        folder = nil
+    end
+end
+
+local function createPlane()
+    stopPlane()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    flying = true
+
+    folder = Instance.new("Folder")
+    folder.Name = "RuHub_Plane"
+    folder.Parent = workspace
+
+    local start =
+        root.Position
+        + root.CFrame.RightVector * 500
+        + root.CFrame.LookVector * 300
+        + Vector3.new(0,220,0)
+
+    local direction = -root.CFrame.RightVector
+
+    local cf = CFrame.lookAt(start, start + direction)
+    local objects = {}
+
+    local function addPart(size, offset, color, material)
+        local p = Instance.new("Part")
+        p.Size = size
+        p.CFrame = cf * CFrame.new(offset)
+        p.Anchored = true
+        p.CanCollide = false
+        p.CanTouch = false
+        p.CanQuery = false
+        p.Color = color
+        p.Material = material or Enum.Material.WoodPlanks
+        p.Parent = folder
+        table.insert(objects, p)
+        return p
+    end
+
+    -- ✈️ THÂN
+    addPart(
+        Vector3.new(24,16,150),
+        Vector3.new(0,0,0),
+        Color3.fromRGB(170,135,90),
+        Enum.Material.WoodPlanks
+    )
+
+    -- MŨI
+    addPart(
+        Vector3.new(30,20,35),
+        Vector3.new(0,0,-90),
+        Color3.fromRGB(190,155,105),
+        Enum.Material.WoodPlanks
+    )
+
+    -- CÁNH
+    addPart(
+        Vector3.new(190,6,30),
+        Vector3.new(-85,0,-5),
+        Color3.fromRGB(170,135,90),
+        Enum.Material.WoodPlanks
+    )
+
+    addPart(
+        Vector3.new(190,6,30),
+        Vector3.new(85,0,-5),
+        Color3.fromRGB(170,135,90),
+        Enum.Material.WoodPlanks
+    )
+
+    -- ĐUÔI
+    addPart(
+        Vector3.new(80,5,22),
+        Vector3.new(0,0,65),
+        Color3.fromRGB(170,135,90),
+        Enum.Material.WoodPlanks
+    )
+
+    addPart(
+        Vector3.new(8,45,25),
+        Vector3.new(0,20,70),
+        Color3.fromRGB(170,135,90),
+        Enum.Material.WoodPlanks
+    )
+
+    -- ✨ QUE PHÁT SÁNG
+    local function neon(size, offset)
+        local p = addPart(
+            size,
+            offset,
+            Color3.fromRGB(0,255,255),
+            Enum.Material.Neon
+        )
+
+        local light = Instance.new("PointLight")
+        light.Color = Color3.fromRGB(0,255,255)
+        light.Brightness = 4
+        light.Range = 25
+        light.Parent = p
+    end
+
+    neon(Vector3.new(3,3,110), Vector3.new(0,10,-5))
+    neon(Vector3.new(3,3,80), Vector3.new(-75,5,-5))
+    neon(Vector3.new(3,3,80), Vector3.new(75,5,-5))
+
+    -- 🌈 MÀU HẠT
+    local particleColors = {
+        Color3.fromRGB(0,255,255),
+        Color3.fromRGB(80,150,255),
+        Color3.fromRGB(180,60,255),
+        Color3.fromRGB(255,70,220),
+        Color3.fromRGB(255,255,255)
+    }
+
+    -- ✨ HẠT XUNG QUANH
+    for i = 1,300 do
+        local p = Instance.new("Part")
+        p.Shape = Enum.PartType.Ball
+
+        local s = math.random(1,5)
+        p.Size = Vector3.new(s,s,s)
+
+        p.Material = Enum.Material.Neon
+        p.Color = particleColors[
+            math.random(1,#particleColors)
+        ]
+
+        p.Anchored = true
+        p.CanCollide = false
+        p.CanTouch = false
+        p.CanQuery = false
+
+        p.CFrame =
+            cf * CFrame.new(
+                math.random(-180,180),
+                math.random(-60,60),
+                math.random(-100,120)
+            )
+
+        p.Parent = folder
+        table.insert(objects,p)
+    end
+
+    -- 💨 VỆT HẠT PHÍA SAU
+    for i = 1,500 do
+        local p = Instance.new("Part")
+        p.Shape = Enum.PartType.Ball
+
+        local s = math.random(1,6)
+        p.Size = Vector3.new(s,s,s)
+
+        p.Material = Enum.Material.Neon
+        p.Color = particleColors[
+            math.random(1,#particleColors)
+        ]
+
+        p.Transparency = math.random(0,3)/10
+
+        p.Anchored = true
+        p.CanCollide = false
+        p.CanTouch = false
+        p.CanQuery = false
+
+        p.CFrame =
+            cf * CFrame.new(
+                math.random(-90,90),
+                math.random(-50,50),
+                math.random(70,550)
+            )
+
+        p.Parent = folder
+        table.insert(objects,p)
+    end
+
+    -- 🛫 BAY
+    local distance = 0
+    local speed = 110
+
+    connection = RunService.Heartbeat:Connect(function(dt)
+        if not flying or not folder or not folder.Parent then
+            stopPlane()
+            return
+        end
+
+        distance += speed * dt
+
+        local moveCF =
+            cf * CFrame.new(distance,0,0)
+
+        for _,obj in ipairs(objects) do
+            if obj and obj.Parent then
+                local localCF =
+                    cf:ToObjectSpace(obj.CFrame)
+
+                obj.CFrame =
+                    moveCF * localCF
+            end
+        end
+
+        if distance > 1100 then
+            stopPlane()
+        end
+    end)
+end
+
+-- =========================
+-- 📱 MENU RIÊNG
+-- =========================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "RuHub_PlaneGUI"
+gui.ResetOnSpawn = false
+gui.Parent = pg
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.fromOffset(160,50)
+button.Position = UDim2.new(0,20,0.5,-25)
+button.Text = "✈️ MÁY BAY"
+button.TextSize = 18
+button.TextColor3 = Color3.new(1,1,1)
+button.BackgroundColor3 = Color3.fromRGB(25,55,45)
+button.BorderSizePixel = 0
+button.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,14)
+corner.Parent = button
+
+button.MouseButton1Click:Connect(function()
+    if flying then
+        stopPlane()
+        button.Text = "✈️ MÁY BAY"
+    else
+        createPlane()
+        button.Text = "❌ TẮT MÁY BAY"
+    end
+end)
+
+print("✈️ RuHub Plane loaded!")
