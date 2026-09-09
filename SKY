@@ -1,11 +1,12 @@
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "RuHub_FTAP_SKY"
+gui.Name = "RuHub_FTAP_SKY_V4"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
@@ -23,14 +24,14 @@ corner.Parent = frame
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -55, 0, 45)
 title.Position = UDim2.fromOffset(15, 5)
-title.Text = "RuHub SKY"
+title.Text = "RuHub SKY V4"
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(230, 240, 235)
 title.BackgroundTransparency = 1
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
--- Kéo menu bằng tiêu đề, hỗ trợ mobile
+-- Kéo menu trên mobile
 local dragging = false
 local dragStart
 local startPos
@@ -101,72 +102,132 @@ local function makeButton(text, y, callback)
     return b
 end
 
--- Cầu vồng
-local rainbowParts = {}
+-- =========================
+-- MƯA SAO BĂNG
+-- =========================
 
-local function removeRainbow()
-    for _, part in ipairs(rainbowParts) do
-        if part and part.Parent then
-            part:Destroy()
+local meteorRain = false
+local meteorObjects = {}
+
+local function clearMeteors()
+    for _, obj in ipairs(meteorObjects) do
+        if obj and obj.Parent then
+            obj:Destroy()
         end
     end
 
-    table.clear(rainbowParts)
+    table.clear(meteorObjects)
 end
 
-local function createRainbow()
-    removeRainbow()
+local function createMeteor()
+    if not meteorRain then return end
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    local center = root.Position
-        + root.CFrame.LookVector * 120
-        + Vector3.new(0, 70, 0)
+    -- Cách nhân vật khoảng 400 studs
+    local center =
+        root.Position
+        + root.CFrame.LookVector * 400
+        + Vector3.new(0, 180, 0)
 
-    local colors = {
-        Color3.fromRGB(255, 0, 0),
-        Color3.fromRGB(255, 127, 0),
-        Color3.fromRGB(255, 255, 0),
-        Color3.fromRGB(0, 255, 0),
-        Color3.fromRGB(0, 170, 255),
-        Color3.fromRGB(0, 0, 255),
-        Color3.fromRGB(170, 0, 255)
-    }
+    local offset = Vector3.new(
+        math.random(-180, 180),
+        math.random(-30, 100),
+        math.random(-120, 120)
+    )
 
-    local radius = 75
-    local segments = 36
+    local startPos = center + offset
+    local endPos = startPos + Vector3.new(
+        math.random(-180, 180),
+        -math.random(100, 180),
+        math.random(-100, 100)
+    )
 
-    for colorIndex, color in ipairs(colors) do
-        local radiusOffset = (colorIndex - 1) * 3.2
-        local r = radius - radiusOffset
+    local meteor = Instance.new("Part")
+    meteor.Name = "RuHubMeteor"
+    meteor.Shape = Enum.PartType.Ball
+    meteor.Size = Vector3.new(5, 5, 5)
+    meteor.Material = Enum.Material.Neon
+    meteor.Color = Color3.fromRGB(255, 170, 60)
+    meteor.Anchored = true
+    meteor.CanCollide = false
+    meteor.CanTouch = false
+    meteor.CanQuery = false
+    meteor.Position = startPos
+    meteor.Parent = workspace
 
-        for i = 0, segments do
-            local angle = math.pi * (i / segments)
+    table.insert(meteorObjects, meteor)
 
-            local x = math.cos(angle) * r
-            local y = math.sin(angle) * r
+    local attachment0 = Instance.new("Attachment")
+    attachment0.Parent = meteor
 
-            local part = Instance.new("Part")
-            part.Anchored = true
-            part.CanCollide = false
-            part.CanTouch = false
-            part.CanQuery = false
-            part.Material = Enum.Material.Neon
-            part.Color = color
-            part.Size = Vector3.new(4, 4, 1)
-            part.Transparency = 0.15
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = attachment0
+    trail.Attachment1 = attachment0
+    trail.Lifetime = 0.35
+    trail.LightEmission = 1
+    trail.Color = ColorSequence.new(
+        Color3.fromRGB(255, 230, 150),
+        Color3.fromRGB(255, 70, 20)
+    )
+    trail.Parent = meteor
 
-            part.CFrame =
-                CFrame.new(center + Vector3.new(x, y, 0))
-                * CFrame.Angles(0, 0, -angle)
+    local duration = 1.5
+    local startTime = tick()
 
-            part.Parent = workspace
-            table.insert(rainbowParts, part)
+    local connection
+    connection = RunService.Heartbeat:Connect(function()
+        if not meteor.Parent or not meteorRain then
+            connection:Disconnect()
+
+            if meteor.Parent then
+                meteor:Destroy()
+            end
+
+            return
         end
-    end
+
+        local alpha = math.clamp(
+            (tick() - startTime) / duration,
+            0,
+            1
+        )
+
+        meteor.Position = startPos:Lerp(endPos, alpha)
+
+        if alpha >= 1 then
+            connection:Disconnect()
+
+            if meteor.Parent then
+                meteor:Destroy()
+            end
+        end
+    end)
 end
+
+local function startMeteorRain()
+    if meteorRain then return end
+
+    meteorRain = true
+
+    task.spawn(function()
+        while meteorRain do
+            createMeteor()
+            task.wait(math.random(15, 40) / 100)
+        end
+    end)
+end
+
+local function stopMeteorRain()
+    meteorRain = false
+    clearMeteors()
+end
+
+-- =========================
+-- SKY
+-- =========================
 
 makeButton("☀️ Sky: Sáng", 55, function()
     Lighting.ClockTime = 12
@@ -196,18 +257,19 @@ makeButton("🌅 Hoàng hôn", 199, function()
     Lighting.OutdoorAmbient = Color3.fromRGB(230, 130, 90)
 end)
 
-makeButton("🌈 Cầu vồng trên trời", 247, function()
-    createRainbow()
+makeButton("☄️ Bật mưa sao băng", 247, function()
+    startMeteorRain()
 end)
 
-makeButton("❌ Tắt cầu vồng", 295, function()
-    removeRainbow()
+makeButton("❌ Tắt sao băng", 295, function()
+    stopMeteorRain()
 end)
 
+-- Nút mở
 local open = Instance.new("TextButton")
 open.Size = UDim2.fromOffset(50, 50)
 open.Position = UDim2.new(0, 15, 0.5, -25)
-open.Text = "🌀"
+open.Text = "☄️"
 open.TextSize = 24
 open.TextColor3 = Color3.fromRGB(230, 240, 235)
 open.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
