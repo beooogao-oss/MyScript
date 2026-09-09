@@ -1,0 +1,461 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local gui = player:WaitForChild("PlayerGui")
+local camera = workspace.CurrentCamera
+
+-- XÓA BẢN CŨ
+local old = workspace:FindFirstChild("SKY_PlankPlane")
+if old then old:Destroy() end
+
+local oldGui = gui:FindFirstChild("PlaneControls")
+if oldGui then oldGui:Destroy() end
+
+-- =========================
+-- MÁY BAY
+-- =========================
+
+local folder = Instance.new("Folder")
+folder.Name = "SKY_PlankPlane"
+folder.Parent = workspace
+
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local base =
+    hrp.Position
+    + hrp.CFrame.LookVector * 70
+    + Vector3.new(0, 35, 0)
+
+local planeCF =
+    CFrame.new(base, base + hrp.CFrame.LookVector)
+
+local function makePart(name, size, offset, color, material)
+    local p = Instance.new("Part")
+
+    p.Name = name
+    p.Size = size
+    p.CFrame = planeCF * CFrame.new(offset)
+
+    p.Anchored = true
+    p.CanCollide = false
+    p.CanTouch = false
+    p.CanQuery = false
+
+    p.Color = color or Color3.fromRGB(190,160,115)
+    p.Material = material or Enum.Material.WoodPlanks
+
+    p.Parent = folder
+
+    return p
+end
+
+-- THÂN
+makePart(
+    "Than",
+    Vector3.new(10,6,70),
+    Vector3.new(0,0,0)
+)
+
+-- MŨI
+makePart(
+    "Mui",
+    Vector3.new(14,7,18),
+    Vector3.new(0,0,-43)
+)
+
+-- CÁNH
+makePart(
+    "CanhTrai",
+    Vector3.new(75,3,14),
+    Vector3.new(-38,0,-5)
+)
+
+makePart(
+    "CanhPhai",
+    Vector3.new(75,3,14),
+    Vector3.new(38,0,-5)
+)
+
+-- ĐUÔI
+makePart(
+    "DuoiNgang",
+    Vector3.new(40,3,10),
+    Vector3.new(0,1,29)
+)
+
+makePart(
+    "DuoiDoc",
+    Vector3.new(5,20,12),
+    Vector3.new(0,10,30)
+)
+
+-- =========================
+-- QUE CYAN PHÁT SÁNG
+-- =========================
+
+local function neonRod(name, size, offset)
+    local rod = Instance.new("Part")
+
+    rod.Name = name
+    rod.Size = size
+    rod.CFrame = planeCF * CFrame.new(offset)
+
+    rod.Anchored = true
+    rod.CanCollide = false
+    rod.CanTouch = false
+    rod.CanQuery = false
+
+    rod.Material = Enum.Material.Neon
+    rod.Color = Color3.fromRGB(0,255,255)
+
+    rod.Parent = folder
+
+    local light = Instance.new("PointLight")
+    light.Color = Color3.fromRGB(0,255,255)
+    light.Brightness = 3
+    light.Range = 18
+    light.Parent = rod
+
+    return rod
+end
+
+neonRod(
+    "NeonThan",
+    Vector3.new(1.5,1.5,58),
+    Vector3.new(0,4,0)
+)
+
+neonRod(
+    "NeonCanhTrai",
+    Vector3.new(1.5,1.5,55),
+    Vector3.new(-35,4,-5)
+)
+
+neonRod(
+    "NeonCanhPhai",
+    Vector3.new(1.5,1.5,55),
+    Vector3.new(35,4,-5)
+)
+
+neonRod(
+    "NeonMui",
+    Vector3.new(1.5,1.5,12),
+    Vector3.new(0,4,-35)
+)
+
+-- =========================
+-- ĐIỀU KHIỂN MÁY BAY
+-- =========================
+
+local speed = 1
+local yaw = 0
+local pitch = 0
+
+local flying = true
+
+local move = {
+    forward = false,
+    back = false,
+    left = false,
+    right = false,
+    up = false,
+    down = false
+}
+
+-- =========================
+-- GUI
+-- =========================
+
+local controlGui = Instance.new("ScreenGui")
+controlGui.Name = "PlaneControls"
+controlGui.ResetOnSpawn = false
+controlGui.Parent = gui
+
+local function button(text, pos, key)
+    local b = Instance.new("TextButton")
+
+    b.Size = UDim2.fromOffset(65,65)
+    b.Position = pos
+
+    b.Text = text
+    b.TextSize = 24
+
+    b.TextColor3 =
+        Color3.fromRGB(255,255,255)
+
+    b.BackgroundColor3 =
+        Color3.fromRGB(25,55,60)
+
+    b.BackgroundTransparency = 0.15
+    b.BorderSizePixel = 0
+
+    b.Parent = controlGui
+
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(1,0)
+    c.Parent = b
+
+    b.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+            or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+            move[key] = true
+        end
+    end)
+
+    b.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+            or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+            move[key] = false
+        end
+    end)
+
+    return b
+end
+
+-- TRÁI / PHẢI
+button(
+    "◀",
+    UDim2.new(0,25,1,-145),
+    "left"
+)
+
+button(
+    "▶",
+    UDim2.new(0,165,1,-145),
+    "right"
+)
+
+-- TIẾN / LÙI
+button(
+    "▲",
+    UDim2.new(0,95,1,-215),
+    "forward"
+)
+
+button(
+    "▼",
+    UDim2.new(0,95,1,-75),
+    "back"
+)
+
+-- LÊN / XUỐNG
+button(
+    "⬆",
+    UDim2.new(1,-165,1,-215),
+    "up"
+)
+
+button(
+    "⬇",
+    UDim2.new(1,-165,1,-75),
+    "down"
+)
+
+-- =========================
+-- CAM THỨ 3
+-- =========================
+
+local thirdPerson = false
+
+local camButton = Instance.new("TextButton")
+
+camButton.Size =
+    UDim2.fromOffset(130,45)
+
+camButton.Position =
+    UDim2.new(1,-145,0,25)
+
+camButton.Text =
+    "📷 CAM 3"
+
+camButton.TextSize = 17
+
+camButton.TextColor3 =
+    Color3.fromRGB(255,255,255)
+
+camButton.BackgroundColor3 =
+    Color3.fromRGB(25,55,60)
+
+camButton.BorderSizePixel = 0
+camButton.Parent = controlGui
+
+local camCorner = Instance.new("UICorner")
+camCorner.CornerRadius = UDim.new(0,12)
+camCorner.Parent = camButton
+
+camButton.MouseButton1Click:Connect(function()
+
+    thirdPerson = not thirdPerson
+
+    if not thirdPerson then
+        camera.CameraType = Enum.CameraType.Custom
+
+        local char = player.Character
+        local humanoid =
+            char and char:FindFirstChildOfClass("Humanoid")
+
+        if humanoid then
+            camera.CameraSubject = humanoid
+        end
+    end
+end)
+
+-- =========================
+-- TẮT MÁY BAY
+-- =========================
+
+local stopButton = Instance.new("TextButton")
+
+stopButton.Size =
+    UDim2.fromOffset(130,45)
+
+stopButton.Position =
+    UDim2.new(1,-145,0,80)
+
+stopButton.Text =
+    "❌ Tắt máy bay"
+
+stopButton.TextSize = 16
+
+stopButton.TextColor3 =
+    Color3.fromRGB(255,255,255)
+
+stopButton.BackgroundColor3 =
+    Color3.fromRGB(70,35,35)
+
+stopButton.BorderSizePixel = 0
+stopButton.Parent = controlGui
+
+local stopCorner = Instance.new("UICorner")
+stopCorner.CornerRadius = UDim.new(0,12)
+stopCorner.Parent = stopButton
+
+stopButton.MouseButton1Click:Connect(function()
+
+    flying = false
+    thirdPerson = false
+
+    camera.CameraType = Enum.CameraType.Custom
+
+    local char = player.Character
+    local humanoid =
+        char and char:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        camera.CameraSubject = humanoid
+    end
+
+    folder:Destroy()
+    controlGui:Destroy()
+end)
+
+-- =========================
+-- BAY
+-- =========================
+
+RunService.RenderStepped:Connect(function(dt)
+
+    if not flying then return end
+    if not folder.Parent then return end
+
+    local turn = 0
+    local vertical = 0
+    local forward = 0
+
+    if move.left then
+        turn -= 1
+    end
+
+    if move.right then
+        turn += 1
+    end
+
+    if move.up then
+        vertical += 1
+    end
+
+    if move.down then
+        vertical -= 1
+    end
+
+    if move.forward then
+        forward += 1
+    end
+
+    if move.back then
+        forward -= 1
+    end
+
+    yaw += turn * dt * 1.5
+    pitch += vertical * dt * 0.8
+
+    pitch = math.clamp(
+        pitch,
+        math.rad(-45),
+        math.rad(45)
+    )
+
+    local current =
+        folder:GetChildren()[1]
+
+    if not current then return end
+
+    local currentCF =
+        current.CFrame
+
+    local direction =
+        currentCF.LookVector
+
+    if forward ~= 0 then
+        base += direction * forward * speed
+    end
+
+    base += Vector3.new(
+        0,
+        vertical * speed * dt * 15,
+        0
+    )
+
+    planeCF =
+        CFrame.new(base)
+        * CFrame.Angles(0,yaw,pitch)
+
+    for _, obj in ipairs(folder:GetChildren()) do
+
+        if obj:IsA("BasePart") then
+
+            local offset =
+                planeCF:ToObjectSpace(
+                    obj.CFrame
+                )
+
+            obj.CFrame =
+                planeCF * offset
+        end
+    end
+
+    -- CAM THỨ 3
+    if thirdPerson then
+
+        camera.CameraType =
+            Enum.CameraType.Scriptable
+
+        local camPos =
+            base
+            - planeCF.LookVector * 45
+            + Vector3.new(0,18,0)
+
+        camera.CFrame =
+            CFrame.lookAt(
+                camPos,
+                base + planeCF.LookVector * 30
+            )
+    end
+end)
+
+print("✈️ SKY PLANK PLANE LOADED")
