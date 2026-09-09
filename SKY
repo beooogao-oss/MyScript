@@ -6,14 +6,14 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "RuHub_SKY_V5"
+gui.Name = "RuHub_SKY"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 -- MENU
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(300, 500)
-frame.Position = UDim2.new(0.5, -150, 0.5, -250)
+frame.Size = UDim2.fromOffset(300, 430)
+frame.Position = UDim2.new(0.5, -150, 0.5, -215)
 frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 frame.BorderSizePixel = 0
 frame.Parent = gui
@@ -22,54 +22,18 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 20)
 corner.Parent = frame
 
+-- TIÊU ĐỀ
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -55, 0, 45)
 title.Position = UDim2.fromOffset(15, 5)
-title.Text = "RuHub SKY V5"
+title.Text = "RuHub SKY"
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(230, 240, 235)
 title.BackgroundTransparency = 1
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
--- KÉO MENU MOBILE
-local dragging = false
-local dragStart
-local startPos
-
-title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and (
-        input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch
-    ) then
-
-        local delta = input.Position - dragStart
-
-        frame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
+-- NÚT ĐÓNG
 local close = Instance.new("TextButton")
 close.Size = UDim2.fromOffset(40, 40)
 close.Position = UDim2.new(1, -45, 0, 7)
@@ -81,6 +45,54 @@ close.Parent = frame
 
 close.MouseButton1Click:Connect(function()
     frame.Visible = false
+end)
+
+-- KÉO MENU: TRÁI / PHẢI / LÊN / XUỐNG
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function updateDrag(input)
+    local delta = input.Position - dragStart
+
+    frame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        dragInput = input
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        updateDrag(input)
+    end
 end)
 
 -- BUTTON
@@ -104,36 +116,15 @@ local function makeButton(text, y, callback)
     return b
 end
 
--- =========================
--- XÓA EFFECT CŨ
--- =========================
-
-local function clearEffects()
-    for _, obj in ipairs(Lighting:GetChildren()) do
-        if obj.Name:match("^RuHub_") then
-            obj:Destroy()
-        end
-    end
-
-    for _, obj in ipairs(workspace:GetChildren()) do
-        if obj.Name:match("^RuHub_") then
-            obj:Destroy()
-        end
-    end
-end
-
--- =========================
--- SKY CƠ BẢN
--- =========================
-
-makeButton("☀️ Sky: Sáng", 55, function()
+-- SKY
+makeButton("☀️ Sáng", 55, function()
     Lighting.ClockTime = 12
     Lighting.Brightness = 3
     Lighting.Ambient = Color3.fromRGB(180,180,180)
     Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
 end)
 
-makeButton("🌄 Bình minh", 103, function()
+makeButton("🌄 Mặt trời mọc", 103, function()
     Lighting.ClockTime = 6
     Lighting.Brightness = 2.5
     Lighting.Ambient = Color3.fromRGB(255,180,130)
@@ -147,68 +138,38 @@ makeButton("🌅 Hoàng hôn", 151, function()
     Lighting.OutdoorAmbient = Color3.fromRGB(230,100,70)
 end)
 
-makeButton("🌙 Sky: Tối", 199, function()
+makeButton("🌙 Tối", 199, function()
     Lighting.ClockTime = 0
     Lighting.Brightness = 0.7
     Lighting.Ambient = Color3.fromRGB(30,30,55)
     Lighting.OutdoorAmbient = Color3.fromRGB(20,20,40)
 end)
 
--- =========================
--- BẦU TRỜI SAO
--- =========================
+-- CẦU VỒNG
+local rainbowFolder
 
-makeButton("🌌 Bầu trời sao", 247, function()
-    clearEffects()
-
-    local sky = Instance.new("Sky")
-    sky.Name = "RuHub_StarSky"
-    sky.Parent = Lighting
-
-    sky.StarCount = 5000
-    sky.CelestialBodiesShown = true
-    sky.SunAngularSize = 8
-    sky.MoonAngularSize = 20
-end)
-
--- =========================
--- TRĂNG TO
--- =========================
-
-makeButton("🌕 Trăng to", 295, function()
-    local sky = Lighting:FindFirstChild("RuHub_StarSky")
-
-    if not sky then
-        sky = Instance.new("Sky")
-        sky.Name = "RuHub_MoonSky"
-        sky.Parent = Lighting
+local function removeRainbow()
+    if rainbowFolder then
+        rainbowFolder:Destroy()
+        rainbowFolder = nil
     end
+end
 
-    sky.CelestialBodiesShown = true
-    sky.MoonAngularSize = 35
-end)
-
--- =========================
--- CẦU VỒNG ĐÔI
--- =========================
-
-makeButton("🌈 Cầu vồng đôi", 343, function()
-
-    for _, obj in ipairs(workspace:GetChildren()) do
-        if obj.Name == "RuHub_Rainbow" then
-            obj:Destroy()
-        end
-    end
+local function createRainbow()
+    removeRainbow()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
-
     if not root then return end
+
+    rainbowFolder = Instance.new("Folder")
+    rainbowFolder.Name = "RuHub_Rainbow"
+    rainbowFolder.Parent = workspace
 
     local center =
         root.Position
-        + root.CFrame.LookVector * 150
-        + Vector3.new(0, 70, 0)
+        + root.CFrame.LookVector * 180
+        + Vector3.new(0,80,0)
 
     local colors = {
         Color3.fromRGB(255,0,0),
@@ -220,111 +181,117 @@ makeButton("🌈 Cầu vồng đôi", 343, function()
         Color3.fromRGB(180,0,255)
     }
 
-    for rainbow = 1,2 do
+    for colorIndex, color in ipairs(colors) do
+        local radius = 75 - (colorIndex - 1) * 3
 
-        local radius = 70 + rainbow * 8
+        for i = 0, 40 do
+            local angle = math.pi * (i / 40)
 
-        for cIndex,color in ipairs(colors) do
+            local part = Instance.new("Part")
+            part.Anchored = true
+            part.CanCollide = false
+            part.CanTouch = false
+            part.CanQuery = false
+            part.Material = Enum.Material.Neon
+            part.Color = color
+            part.Size = Vector3.new(3,3,2)
 
-            for i = 0,35 do
+            part.Position =
+                center + Vector3.new(
+                    math.cos(angle) * radius,
+                    math.sin(angle) * radius,
+                    0
+                )
 
-                local angle = math.pi * (i / 35)
-
-                local x = math.cos(angle) * radius
-                local y = math.sin(angle) * radius
-
-                local part = Instance.new("Part")
-                part.Name = "RuHub_Rainbow"
-                part.Anchored = true
-                part.CanCollide = false
-                part.Material = Enum.Material.Neon
-                part.Color = color
-                part.Size = Vector3.new(4,4,2)
-
-                part.Position =
-                    center
-                    + Vector3.new(
-                        x,
-                        y,
-                        rainbow * 5
-                    )
-
-                part.Parent = workspace
-            end
+            part.Parent = rainbowFolder
         end
     end
+end
+
+makeButton("🌈 Cầu vồng", 247, function()
+    createRainbow()
 end)
 
--- =========================
--- MÂY
--- =========================
+makeButton("❌ Tắt cầu vồng", 295, function()
+    removeRainbow()
+end)
 
-makeButton("☁️ Mây", 391, function()
+-- THIÊN THẠCH
+local meteor
+
+local function removeMeteor()
+    if meteor then
+        meteor:Destroy()
+        meteor = nil
+    end
+end
+
+local function createMeteor()
+    removeMeteor()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
-
     if not root then return end
 
-    local cloudPart = Instance.new("Part")
-    cloudPart.Name = "RuHub_Cloud"
-    cloudPart.Anchored = true
-    cloudPart.CanCollide = false
-    cloudPart.Transparency = 1
-    cloudPart.Size = Vector3.new(100,1,100)
+    local startPos =
+        root.Position
+        + root.CFrame.LookVector * 400
+        + Vector3.new(0,180,0)
 
-    cloudPart.Position =
-        root.Position + Vector3.new(0,120,0)
+    local endPos =
+        root.Position
+        + root.CFrame.LookVector * 120
+        + Vector3.new(0,5,0)
 
-    cloudPart.Parent = workspace
+    meteor = Instance.new("Part")
+    meteor.Name = "RuHub_Meteor"
+    meteor.Shape = Enum.PartType.Ball
+    meteor.Size = Vector3.new(12,12,12)
+    meteor.Material = Enum.Material.Neon
+    meteor.Color = Color3.fromRGB(255,100,20)
+    meteor.Anchored = true
+    meteor.CanCollide = false
+    meteor.Position = startPos
+    meteor.Parent = workspace
 
-    local cloud = Instance.new("ParticleEmitter")
-    cloud.Texture = "rbxasset://textures/particles/smoke_main.dds"
-    cloud.Rate = 15
-    cloud.Lifetime = NumberRange.new(8,12)
-    cloud.Speed = NumberRange.new(1,3)
-    cloud.Size = NumberSequence.new(15)
-    cloud.Transparency =
-        NumberSequence.new(0.35)
+    local fire = Instance.new("Fire")
+    fire.Size = 20
+    fire.Heat = 15
+    fire.Parent = meteor
 
-    cloud.Parent = cloudPart
-end)
+    task.spawn(function()
+        local duration = 4
+        local startTime = tick()
 
--- =========================
--- LẤP LÁNH
--- =========================
+        while meteor and meteor.Parent do
+            local alpha = math.clamp(
+                (tick() - startTime) / duration,
+                0,
+                1
+            )
 
-makeButton("✨ Lấp lánh", 439, function()
+            meteor.Position = startPos:Lerp(endPos, alpha)
 
-    local effect = Lighting:FindFirstChild("RuHub_Bloom")
+            if alpha >= 1 then
+                meteor:Destroy()
+                meteor = nil
+                break
+            end
 
-    if effect then
-        effect:Destroy()
-        return
-    end
+            RunService.Heartbeat:Wait()
+        end
+    end)
+end
 
-    effect = Instance.new("BloomEffect")
-    effect.Name = "RuHub_Bloom"
-    effect.Intensity = 1
-    effect.Size = 40
-    effect.Threshold = 1
-
-    effect.Parent = Lighting
-end)
-
--- =========================
--- TẮT HIỆU ỨNG
--- =========================
-
-makeButton("❌ Tắt hiệu ứng", 487, function()
-    clearEffects()
+makeButton("☄️ Thiên thạch", 343, function()
+    createMeteor()
 end)
 
 -- NÚT MỞ
 local open = Instance.new("TextButton")
 open.Size = UDim2.fromOffset(50,50)
 open.Position = UDim2.new(0,15,0.5,-25)
-open.Text = "🌌"
+open.Text = "🌈"
 open.TextSize = 24
 open.TextColor3 = Color3.fromRGB(230,240,235)
 open.BackgroundColor3 = Color3.fromRGB(20,38,31)
