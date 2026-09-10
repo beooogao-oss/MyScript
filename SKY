@@ -50,7 +50,8 @@ local startPos
 
 title.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
         dragging = true
         dragStart = input.Position
         startPos = frame.Position
@@ -76,7 +77,8 @@ end)
 
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
         dragging = false
     end
 end)
@@ -135,6 +137,7 @@ end)
 -- =========================
 
 local function makeButton(text, callback)
+
     local b = Instance.new("TextButton")
 
     b.Size = UDim2.new(1, -14, 0, 42)
@@ -159,31 +162,39 @@ end
 -- =========================
 
 makeButton("☀️ Sáng", function()
+
     Lighting.ClockTime = 12
     Lighting.Brightness = 3
     Lighting.Ambient = Color3.fromRGB(180, 180, 180)
     Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
+
 end)
 
 makeButton("🌄 Mặt trời mọc", function()
+
     Lighting.ClockTime = 6
     Lighting.Brightness = 2.5
     Lighting.Ambient = Color3.fromRGB(255, 180, 130)
     Lighting.OutdoorAmbient = Color3.fromRGB(255, 150, 100)
+
 end)
 
 makeButton("🌅 Hoàng hôn", function()
+
     Lighting.ClockTime = 17.8
     Lighting.Brightness = 3
     Lighting.Ambient = Color3.fromRGB(255, 150, 100)
     Lighting.OutdoorAmbient = Color3.fromRGB(230, 100, 70)
+
 end)
 
 makeButton("🌙 Tối", function()
+
     Lighting.ClockTime = 0
     Lighting.Brightness = 0.7
     Lighting.Ambient = Color3.fromRGB(30, 30, 55)
     Lighting.OutdoorAmbient = Color3.fromRGB(20, 20, 40)
+
 end)
 
 -- =========================
@@ -193,13 +204,16 @@ end)
 local rainbowFolder
 
 local function removeRainbow()
+
     if rainbowFolder then
         rainbowFolder:Destroy()
         rainbowFolder = nil
     end
+
 end
 
 local function createRainbow()
+
     removeRainbow()
 
     local char = player.Character
@@ -226,12 +240,15 @@ local function createRainbow()
     }
 
     for colorIndex, color in ipairs(colors) do
+
         local radius = 75 - (colorIndex - 1) * 3
 
         for i = 0, 40 do
+
             local angle = math.pi * (i / 40)
 
             local part = Instance.new("Part")
+
             part.Anchored = true
             part.CanCollide = false
             part.CanTouch = false
@@ -241,8 +258,8 @@ local function createRainbow()
             part.Size = Vector3.new(3, 3, 2)
 
             part.Position =
-                center +
-                Vector3.new(
+                center
+                + Vector3.new(
                     math.cos(angle) * radius,
                     math.sin(angle) * radius,
                     0
@@ -264,15 +281,18 @@ local galaxyFolder
 local galaxyRunning = false
 
 local function removeGalaxy()
+
     galaxyRunning = false
 
     if galaxyFolder then
         galaxyFolder:Destroy()
         galaxyFolder = nil
     end
+
 end
 
 local function createGalaxy()
+
     removeGalaxy()
 
     local char = player.Character
@@ -294,6 +314,7 @@ local function createGalaxy()
 
     -- ⭐ SAO
     for i = 1, 450 do
+
         local star = Instance.new("Part")
         star.Shape = Enum.PartType.Ball
 
@@ -318,8 +339,8 @@ local function createGalaxy()
         local height = math.random(-220, 220)
 
         star.Position =
-            center +
-            Vector3.new(
+            center
+            + Vector3.new(
                 math.cos(angle) * distance,
                 height,
                 math.sin(angle) * distance
@@ -338,6 +359,7 @@ local function createGalaxy()
 
     -- 🌀 BỤI THIÊN HÀ
     for arm = 1, 5 do
+
         for i = 1, 230 do
 
             local t = i / 230
@@ -370,15 +392,14 @@ local function createGalaxy()
             )
 
             dust.Transparency = 0.2
-
             dust.Anchored = true
             dust.CanCollide = false
             dust.CanTouch = false
             dust.CanQuery = false
 
             dust.Position =
-                center +
-                Vector3.new(x, y, z)
+                center
+                + Vector3.new(x, y, z)
 
             dust.Parent = galaxyFolder
         end
@@ -412,12 +433,11 @@ local function createGalaxy()
 
         ring.Shape = Enum.PartType.Cylinder
 
-        ring.Size =
-            Vector3.new(
-                12,
-                650 + i * 80,
-                650 + i * 80
-            )
+        ring.Size = Vector3.new(
+            12,
+            650 + i * 80,
+            650 + i * 80
+        )
 
         ring.Material = Enum.Material.Neon
 
@@ -428,7 +448,6 @@ local function createGalaxy()
         )
 
         ring.Transparency = 0.45
-
         ring.Anchored = true
         ring.CanCollide = false
         ring.CanTouch = false
@@ -471,22 +490,27 @@ local function createGalaxy()
     light.Range = 1200
     light.Parent = sun
 
+    -- ⭐ SAO DI CHUYỂN
     task.spawn(function()
+
         while galaxyRunning
             and galaxyFolder
             and galaxyFolder.Parent do
 
             for _, data in ipairs(movingStars) do
+
                 if data.part and data.part.Parent then
 
                     data.angle += data.speed
 
                     data.part.Position =
-                        center +
-                        Vector3.new(
-                            math.cos(data.angle) * data.distance,
+                        center
+                        + Vector3.new(
+                            math.cos(data.angle)
+                                * data.distance,
                             data.height,
-                            math.sin(data.angle) * data.distance
+                            math.sin(data.angle)
+                                * data.distance
                         )
                 end
             end
@@ -500,19 +524,22 @@ makeButton("🌌 Bật thiên hà lớn", createGalaxy)
 makeButton("❌ Tắt thiên hà", removeGalaxy)
 
 -- =========================
--- ❤️ TRÁI TIM + HẠT
+-- ❤️ TRÁI TIM
 -- =========================
 
 local heartFolder
 
 local function removeHeart()
+
     if heartFolder then
         heartFolder:Destroy()
         heartFolder = nil
     end
+
 end
 
 local function createHeart()
+
     removeHeart()
 
     local char = player.Character
@@ -566,7 +593,7 @@ local function createHeart()
         p.Parent = heartFolder
     end
 
-    -- ✨ HẠT
+    -- ✨ HẠT BAO QUANH
     for i = 1, 650 do
 
         local angle = math.random() * math.pi * 2
@@ -595,8 +622,8 @@ local function createHeart()
         p.CanQuery = false
 
         p.Position =
-            center +
-            Vector3.new(
+            center
+            + Vector3.new(
                 math.cos(angle) * radius,
                 math.random(-120, 120),
                 math.sin(angle) * radius
@@ -610,22 +637,25 @@ makeButton("❤️ Bật trái tim + hạt", createHeart)
 makeButton("❌ Tắt trái tim", removeHeart)
 
 -- =========================
--- 🕳️ HỐ ĐEN + VÀNH ĐAI XOAY
+-- 🕳️ HỐ ĐEN ULTRA
 -- =========================
 
 local blackHoleFolder
 local blackHoleRunning = false
 
 local function removeBlackHole()
+
     blackHoleRunning = false
 
     if blackHoleFolder then
         blackHoleFolder:Destroy()
         blackHoleFolder = nil
     end
+
 end
 
 local function createBlackHole()
+
     removeBlackHole()
 
     local char = player.Character
@@ -635,7 +665,7 @@ local function createBlackHole()
     blackHoleRunning = true
 
     blackHoleFolder = Instance.new("Folder")
-    blackHoleFolder.Name = "RuHub_BlackHole"
+    blackHoleFolder.Name = "RuHub_BlackHole_ULTRA"
     blackHoleFolder.Parent = workspace
 
     local center =
@@ -647,7 +677,7 @@ local function createBlackHole()
     local hole = Instance.new("Part")
 
     hole.Shape = Enum.PartType.Ball
-    hole.Size = Vector3.new(300, 300, 300)
+    hole.Size = Vector3.new(420, 420, 420)
     hole.Material = Enum.Material.SmoothPlastic
     hole.Color = Color3.fromRGB(0, 0, 0)
 
@@ -658,114 +688,146 @@ local function createBlackHole()
     hole.Position = center
     hole.Parent = blackHoleFolder
 
-    -- 🔥 CÁC VÒNG XOAY
+    -- 🌑 QUẦNG TỐI
+    local aura = Instance.new("Part")
+
+    aura.Shape = Enum.PartType.Ball
+    aura.Size = Vector3.new(470, 470, 470)
+    aura.Material = Enum.Material.ForceField
+    aura.Transparency = 0.75
+    aura.Color = Color3.fromRGB(50, 0, 70)
+
+    aura.Anchored = true
+    aura.CanCollide = false
+    aura.CanTouch = false
+    aura.CanQuery = false
+    aura.Position = center
+    aura.Parent = blackHoleFolder
+
+    -- 🔥 10 VÒNG ĐAI
     local rings = {}
 
-    for ringIndex = 1, 7 do
+    for ringIndex = 1, 10 do
 
         local folder = Instance.new("Folder")
         folder.Name = "Ring_" .. ringIndex
         folder.Parent = blackHoleFolder
 
-        local radius = 175 + ringIndex * 20
+        local radius = 240 + ringIndex * 30
+        local parts = {}
 
-        for i = 1, 120 do
-
-            local angle = math.pi * 2 * (i / 120)
+        for i = 1, 160 do
 
             local p = Instance.new("Part")
-
             p.Shape = Enum.PartType.Ball
 
-            local size = math.random(5, 11)
+            local size = math.random(5, 13)
             p.Size = Vector3.new(size, size, size)
 
             p.Material = Enum.Material.Neon
 
             if ringIndex <= 2 then
-                p.Color = Color3.fromRGB(255, 255, 230)
+                p.Color = Color3.fromRGB(255, 255, 240)
             elseif ringIndex <= 4 then
-                p.Color = Color3.fromRGB(255, 190, 60)
+                p.Color = Color3.fromRGB(255, 220, 80)
+            elseif ringIndex <= 7 then
+                p.Color = Color3.fromRGB(255, 110, 20)
             else
-                p.Color = Color3.fromRGB(255, 70, 10)
+                p.Color = Color3.fromRGB(210, 30, 255)
             end
 
             p.Anchored = true
             p.CanCollide = false
             p.CanTouch = false
             p.CanQuery = false
-
-            p.Position =
-                center +
-                Vector3.new(
-                    math.cos(angle) * radius,
-                    math.sin(angle * 2) * (8 + ringIndex * 2),
-                    math.sin(angle) * radius
-                )
-
             p.Parent = folder
+
+            table.insert(parts, p)
         end
 
         table.insert(rings, {
-            folder = folder,
+            parts = parts,
             radius = radius
         })
     end
 
-    -- ✨ HẠT LỬA
+    -- ✨ 600 HẠT LẤP LÁNH
     local sparks = {}
+
+    for i = 1, 600 do
+
+        local p = Instance.new("Part")
+        p.Shape = Enum.PartType.Ball
+
+        local size = math.random(2, 7)
+        p.Size = Vector3.new(size, size, size)
+
+        p.Material = Enum.Material.Neon
+
+        local c = math.random(1, 5)
+
+        if c == 1 then
+            p.Color = Color3.fromRGB(255, 255, 255)
+        elseif c == 2 then
+            p.Color = Color3.fromRGB(255, 240, 120)
+        elseif c == 3 then
+            p.Color = Color3.fromRGB(255, 120, 20)
+        elseif c == 4 then
+            p.Color = Color3.fromRGB(255, 40, 80)
+        else
+            p.Color = Color3.fromRGB(210, 80, 255)
+        end
+
+        p.Anchored = true
+        p.CanCollide = false
+        p.CanTouch = false
+        p.CanQuery = false
+        p.Parent = blackHoleFolder
+
+        table.insert(sparks, {
+            part = p,
+            angle = math.random() * math.pi * 2,
+            radius = math.random(280, 600),
+            height = math.random(-120, 120),
+            speed = math.random(3, 15) / 100,
+            phase = math.random() * 10
+        })
+    end
+
+    -- 💫 250 HẠT TRẮNG NHẤP NHÁY
+    local glitter = {}
 
     for i = 1, 250 do
 
         local p = Instance.new("Part")
 
         p.Shape = Enum.PartType.Ball
-
-        local size = math.random(2, 6)
-        p.Size = Vector3.new(size, size, size)
-
+        p.Size = Vector3.new(3, 3, 3)
         p.Material = Enum.Material.Neon
-
-        p.Color = Color3.fromRGB(
-            255,
-            math.random(80, 220),
-            math.random(10, 70)
-        )
+        p.Color = Color3.fromRGB(255, 255, 255)
 
         p.Anchored = true
         p.CanCollide = false
         p.CanTouch = false
         p.CanQuery = false
-
-        local angle = math.random() * math.pi * 2
-        local distance = math.random(190, 430)
-        local height = math.random(-45, 45)
-
-        p.Position =
-            center +
-            Vector3.new(
-                math.cos(angle) * distance,
-                height,
-                math.sin(angle) * distance
-            )
-
         p.Parent = blackHoleFolder
 
-        table.insert(sparks, {
+        table.insert(glitter, {
             part = p,
-            angle = angle,
-            distance = distance,
-            height = height,
-            speed = math.random(3, 12) / 100
+            angle = math.random() * math.pi * 2,
+            radius = math.random(260, 500),
+            height = math.random(-100, 100),
+            speed = math.random(5, 20) / 100,
+            phase = math.random() * 20
         })
     end
 
     -- 💡 ÁNH SÁNG
     local light = Instance.new("PointLight")
 
-    light.Color = Color3.fromRGB(255, 120, 30)
-    light.Brightness = 15
-    light.Range = 1000
+    light.Color = Color3.fromRGB(255, 100, 20)
+    light.Brightness = 25
+    light.Range = 1400
     light.Parent = hole
 
     -- 🌀 ANIMATION
@@ -777,53 +839,120 @@ local function createBlackHole()
             and blackHoleFolder
             and blackHoleFolder.Parent do
 
-            rotation += 0.04
+            rotation += 0.035
 
-            -- VÒNG XOAY
+            -- 🔥 VÀNH ĐAI
             for ringIndex, data in ipairs(rings) do
 
-                if data.folder and data.folder.Parent then
+                for i, part in ipairs(data.parts) do
 
-                    local parts = data.folder:GetChildren()
-
-                    for i, part in ipairs(parts) do
+                    if part.Parent then
 
                         local angle =
-                            math.pi * 2 * (i / #parts)
-                            + rotation * (1 + ringIndex * 0.12)
+                            math.pi * 2 * (i / #data.parts)
+                            + rotation
+                            * (1 + ringIndex * 0.13)
 
                         local x =
-                            math.cos(angle) * data.radius
+                            math.cos(angle)
+                            * data.radius
 
                         local z =
-                            math.sin(angle) * data.radius
+                            math.sin(angle)
+                            * data.radius
 
                         local y =
-                            math.sin(angle * 2)
-                            * (8 + ringIndex * 2)
+                            math.sin(
+                                angle * 2
+                                + rotation * 2
+                            )
+                            * (10 + ringIndex * 3)
 
                         part.Position =
-                            center +
-                            Vector3.new(x, y, z)
+                            center
+                            + Vector3.new(x, y, z)
                     end
                 end
             end
 
-            -- HẠT BAY
+            -- ✨ HẠT LẤP LÁNH
             for _, data in ipairs(sparks) do
 
-                if data.part and data.part.Parent then
+                if data.part.Parent then
 
                     data.angle += data.speed
 
-                    data.part.Position =
-                        center +
+                    local twinkle =
+                        0.5
+                        + math.abs(
+                            math.sin(
+                                os.clock() * 5
+                                + data.phase
+                            )
+                        )
+
+                    data.part.Size =
                         Vector3.new(
+                            twinkle * 6,
+                            twinkle * 6,
+                            twinkle * 6
+                        )
+
+                    data.part.Position =
+                        center
+                        + Vector3.new(
                             math.cos(data.angle)
-                                * data.distance,
-                            data.height,
+                                * data.radius,
+
+                            data.height
+                                + math.sin(
+                                    os.clock() * 2
+                                    + data.phase
+                                ) * 20,
+
                             math.sin(data.angle)
-                                * data.distance
+                                * data.radius
+                        )
+                end
+            end
+
+            -- 💫 HẠT NHẤP NHÁY
+            for _, data in ipairs(glitter) do
+
+                if data.part.Parent then
+
+                    data.angle += data.speed
+
+                    local pulse =
+                        1
+                        + math.abs(
+                            math.sin(
+                                os.clock() * 8
+                                + data.phase
+                            )
+                        ) * 4
+
+                    data.part.Size =
+                        Vector3.new(
+                            pulse,
+                            pulse,
+                            pulse
+                        )
+
+                    data.part.Position =
+                        center
+                        + Vector3.new(
+                            math.cos(data.angle)
+                                * data.radius,
+
+                            data.height
+                                + math.sin(
+                                    os.clock() * 3
+                                    + data.phase
+                                ) * 15,
+
+                            math.sin(data.angle)
+                                * data.radius
                         )
                 end
             end
@@ -833,7 +962,7 @@ local function createBlackHole()
     end)
 end
 
-makeButton("🕳️ Bật hố đen", createBlackHole)
+makeButton("🕳️ Bật hố đen ULTRA", createBlackHole)
 makeButton("❌ Tắt hố đen", removeBlackHole)
 
 -- =========================
@@ -843,19 +972,11 @@ makeButton("❌ Tắt hố đen", removeBlackHole)
 local open = Instance.new("TextButton")
 
 open.Size = UDim2.fromOffset(50, 50)
-
-open.Position =
-    UDim2.new(0, 15, 0.5, -25)
-
+open.Position = UDim2.new(0, 15, 0.5, -25)
 open.Text = "🌌"
 open.TextSize = 24
-
-open.TextColor3 =
-    Color3.fromRGB(230, 240, 235)
-
-open.BackgroundColor3 =
-    Color3.fromRGB(20, 38, 31)
-
+open.TextColor3 = Color3.fromRGB(230, 240, 235)
+open.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 open.BorderSizePixel = 0
 open.Parent = gui
 
@@ -866,3 +987,5 @@ openCorner.Parent = open
 open.MouseButton1Click:Connect(function()
     frame.Visible = true
 end)
+
+print("🌌 RuHub SKY + HỐ ĐEN ULTRA LOADED")
