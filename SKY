@@ -1,14 +1,18 @@
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
+-- =========================
 -- XÓA BẢN CŨ
+-- =========================
+
 local old = playerGui:FindFirstChild("RuHub_SKY")
-if old then old:Destroy() end
+if old then
+    old:Destroy()
+end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "RuHub_SKY"
@@ -218,7 +222,10 @@ local function createRainbow()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
+
+    if not root then
+        return
+    end
 
     rainbowFolder = Instance.new("Folder")
     rainbowFolder.Name = "RuHub_Rainbow"
@@ -268,6 +275,7 @@ local function createRainbow()
             part.Parent = rainbowFolder
         end
     end
+
 end
 
 makeButton("🌈 Cầu vồng bên trái", createRainbow)
@@ -297,7 +305,10 @@ local function createGalaxy()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
+
+    if not root then
+        return
+    end
 
     galaxyRunning = true
 
@@ -316,6 +327,7 @@ local function createGalaxy()
     for i = 1, 450 do
 
         local star = Instance.new("Part")
+
         star.Shape = Enum.PartType.Ball
 
         local size = math.random(2, 7)
@@ -378,6 +390,7 @@ local function createGalaxy()
                 + math.random(-20, 20)
 
             local dust = Instance.new("Part")
+
             dust.Shape = Enum.PartType.Ball
 
             local size = math.random(3, 9)
@@ -410,7 +423,6 @@ local function createGalaxy()
 
     planet.Shape = Enum.PartType.Ball
     planet.Size = Vector3.new(430, 430, 430)
-
     planet.Material = Enum.Material.SmoothPlastic
     planet.Color = Color3.fromRGB(75, 80, 95)
 
@@ -469,7 +481,6 @@ local function createGalaxy()
 
     sun.Shape = Enum.PartType.Ball
     sun.Size = Vector3.new(260, 260, 260)
-
     sun.Material = Enum.Material.Neon
     sun.Color = Color3.fromRGB(255, 245, 210)
 
@@ -508,7 +519,9 @@ local function createGalaxy()
                         + Vector3.new(
                             math.cos(data.angle)
                                 * data.distance,
+
                             data.height,
+
                             math.sin(data.angle)
                                 * data.distance
                         )
@@ -518,6 +531,7 @@ local function createGalaxy()
             task.wait(0.03)
         end
     end)
+
 end
 
 makeButton("🌌 Bật thiên hà lớn", createGalaxy)
@@ -544,7 +558,10 @@ local function createHeart()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
+
+    if not root then
+        return
+    end
 
     heartFolder = Instance.new("Folder")
     heartFolder.Name = "RuHub_Heart"
@@ -631,10 +648,137 @@ local function createHeart()
 
         p.Parent = heartFolder
     end
+
 end
 
 makeButton("❤️ Bật trái tim + hạt", createHeart)
 makeButton("❌ Tắt trái tim", removeHeart)
+
+-- =========================
+-- 🪲 ĐOM ĐÓM ✨
+-- =========================
+
+local fireflyFolder
+local fireflyRunning = false
+
+local function removeFireflies()
+
+    fireflyRunning = false
+
+    if fireflyFolder then
+        fireflyFolder:Destroy()
+        fireflyFolder = nil
+    end
+
+end
+
+local function createFireflies()
+
+    removeFireflies()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+
+    if not root then
+        return
+    end
+
+    fireflyRunning = true
+
+    fireflyFolder = Instance.new("Folder")
+    fireflyFolder.Name = "RuHub_Fireflies"
+    fireflyFolder.Parent = workspace
+
+    local fireflies = {}
+
+    -- ✨ 250 ĐOM ĐÓM
+    for i = 1, 250 do
+
+        local p = Instance.new("Part")
+
+        p.Shape = Enum.PartType.Ball
+        p.Size = Vector3.new(2, 2, 2)
+        p.Material = Enum.Material.Neon
+        p.Color = Color3.fromRGB(255, 240, 100)
+
+        p.Anchored = true
+        p.CanCollide = false
+        p.CanTouch = false
+        p.CanQuery = false
+
+        p.Parent = fireflyFolder
+
+        table.insert(fireflies, {
+            part = p,
+            angle = math.random() * math.pi * 2,
+            radius = math.random(40, 300),
+            height = math.random(10, 180),
+            speed = math.random(2, 8) / 100,
+            phase = math.random() * 20
+        })
+    end
+
+    -- 🪲 ANIMATION
+    task.spawn(function()
+
+        while fireflyRunning
+            and fireflyFolder
+            and fireflyFolder.Parent do
+
+            local now = os.clock()
+
+            for _, data in ipairs(fireflies) do
+
+                if data.part and data.part.Parent then
+
+                    data.angle += data.speed
+
+                    -- 💡 NHẤP NHÁY
+                    local pulse =
+                        0.5
+                        + math.abs(
+                            math.sin(
+                                now * 4
+                                + data.phase
+                            )
+                        )
+
+                    local size = 1.5 + pulse * 2.5
+
+                    data.part.Size =
+                        Vector3.new(
+                            size,
+                            size,
+                            size
+                        )
+
+                    -- 🪲 BAY LƯỢN
+                    data.part.Position =
+                        root.Position
+                        + Vector3.new(
+                            math.cos(data.angle)
+                                * data.radius,
+
+                            data.height
+                                + math.sin(
+                                    now * 1.5
+                                    + data.phase
+                                ) * 25,
+
+                            math.sin(data.angle)
+                                * data.radius
+                        )
+                end
+            end
+
+            task.wait(0.03)
+        end
+    end)
+
+end
+
+makeButton("🪲 Bật đom đóm ✨", createFireflies)
+makeButton("❌ Tắt đom đóm", removeFireflies)
 
 -- =========================
 -- 🕳️ HỐ ĐEN ULTRA
@@ -660,7 +804,10 @@ local function createBlackHole()
 
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
+
+    if not root then
+        return
+    end
 
     blackHoleRunning = true
 
@@ -719,6 +866,7 @@ local function createBlackHole()
         for i = 1, 160 do
 
             local p = Instance.new("Part")
+
             p.Shape = Enum.PartType.Ball
 
             local size = math.random(5, 13)
@@ -757,6 +905,7 @@ local function createBlackHole()
     for i = 1, 600 do
 
         local p = Instance.new("Part")
+
         p.Shape = Enum.PartType.Ball
 
         local size = math.random(2, 7)
@@ -960,6 +1109,7 @@ local function createBlackHole()
             task.wait(0.03)
         end
     end)
+
 end
 
 makeButton("🕳️ Bật hố đen ULTRA", createBlackHole)
@@ -988,4 +1138,4 @@ open.MouseButton1Click:Connect(function()
     frame.Visible = true
 end)
 
-print("🌌 RuHub SKY + HỐ ĐEN ULTRA LOADED")
+print("🌌 RuHub SKY + HỐ ĐEN ULTRA + ĐOM ĐÓM LOADED")
