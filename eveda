@@ -1,0 +1,36 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local enabled = true
+
+local function getCharacter()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function dodge()
+    local char = getCharacter()
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not root or not humanoid then return end
+
+    -- Tìm vật thể nguy hiểm trong Workspace
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and obj:GetAttribute("Danger") == true then
+            local distance = (obj.Position - root.Position).Magnitude
+
+            if distance < 25 then
+                -- Né sang bên
+                local side = math.random(0, 1) == 0 and -1 or 1
+                humanoid:MoveTo(root.Position + root.CFrame.RightVector * side * 20)
+                break
+            end
+        end
+    end
+end
+
+RunService.Heartbeat:Connect(function()
+    if enabled then
+        dodge()
+    end
+end)
