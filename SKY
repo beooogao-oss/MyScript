@@ -1,11 +1,13 @@
 -- =========================================================
--- 🌊 SKY - FULL
+-- 🌊 SKY FULL
 -- ☀️ SKY
 -- 🌈 RAINBOW
 -- 🌌 GALAXY
 -- ❤️ HEART PARTICLES
 -- 🪲 FIREFLIES
--- 🌊 WATER + FLOAT + SWIM
+-- 🌊 WATER
+-- 📦 FLOATING OBJECTS
+-- 🏊 SWIM
 -- =========================================================
 
 local Players = game:GetService("Players")
@@ -20,14 +22,11 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- 🧹 XÓA MENU CŨ
 -- =========================================================
 
-local old = playerGui:FindFirstChild("SKY")
-if old then
-    old:Destroy()
-end
-
-local old2 = playerGui:FindFirstChild("RuHub_SKY")
-if old2 then
-    old2:Destroy()
+for _,name in ipairs({"SKY","RuHub_SKY"}) do
+    local old = playerGui:FindFirstChild(name)
+    if old then
+        old:Destroy()
+    end
 end
 
 -- =========================================================
@@ -80,7 +79,7 @@ close.Font = Enum.Font.GothamBold
 close.Parent = main
 
 -- =========================================================
--- 🖐️ KÉO MENU
+-- 🖐️ DRAG MENU
 -- =========================================================
 
 local dragging = false
@@ -88,7 +87,6 @@ local dragStart
 local startPos
 
 title.InputBegan:Connect(function(input)
-
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
 
@@ -99,7 +97,6 @@ title.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-
     if dragging and (
         input.UserInputType == Enum.UserInputType.MouseMovement
         or input.UserInputType == Enum.UserInputType.Touch
@@ -117,7 +114,6 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
 
@@ -144,11 +140,8 @@ layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layout.Parent = scroll
 
 layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-
     scroll.CanvasSize = UDim2.new(
-        0,
-        0,
-        0,
+        0,0,0,
         layout.AbsoluteContentSize.Y + 15
     )
 end)
@@ -175,9 +168,7 @@ local function makeButton(text,callback)
 
     button.Parent = scroll
 
-    button.MouseButton1Click:Connect(function()
-        callback()
-    end)
+    button.MouseButton1Click:Connect(callback)
 
     return button
 end
@@ -187,35 +178,27 @@ end
 -- =========================================================
 
 makeButton("☀️ Sáng",function()
-
     Lighting.ClockTime = 14
     Lighting.Brightness = 3
-
 end)
 
 makeButton("🌄 Mặt trời mọc",function()
-
     Lighting.ClockTime = 6
     Lighting.Brightness = 2
-
 end)
 
 makeButton("🌅 Hoàng hôn",function()
-
     Lighting.ClockTime = 18
     Lighting.Brightness = 2
-
 end)
 
 makeButton("🌙 Tối",function()
-
     Lighting.ClockTime = 0
     Lighting.Brightness = 0.5
-
 end)
 
 -- =========================================================
--- 🌈 CẦU VỒNG
+-- 🌈 RAINBOW
 -- =========================================================
 
 local rainbowFolder
@@ -238,9 +221,7 @@ local function createRainbow()
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
 
-    if not root then
-        return
-    end
+    if not root then return end
 
     rainbowRunning = true
 
@@ -249,7 +230,6 @@ local function createRainbow()
     rainbowFolder.Parent = workspace
 
     local colors = {
-
         Color3.fromRGB(255,0,0),
         Color3.fromRGB(255,150,0),
         Color3.fromRGB(255,255,0),
@@ -257,7 +237,6 @@ local function createRainbow()
         Color3.fromRGB(0,200,255),
         Color3.fromRGB(0,80,255),
         Color3.fromRGB(180,0,255)
-
     }
 
     local center =
@@ -266,7 +245,6 @@ local function createRainbow()
         + Vector3.new(0,80,0)
 
     for colorIndex,color in ipairs(colors) do
-
         for i = 1,41 do
 
             local p = Instance.new("Part")
@@ -275,7 +253,6 @@ local function createRainbow()
             p.CanCollide = false
             p.CanTouch = false
             p.CanQuery = false
-
             p.Material = Enum.Material.Neon
             p.Color = color
             p.Size = Vector3.new(8,8,8)
@@ -284,26 +261,17 @@ local function createRainbow()
             local y = ((i-21)^2)*0.055
             local z = colorIndex*9
 
-            p.Position =
-                center + Vector3.new(x,y,z)
-
+            p.Position = center + Vector3.new(x,y,z)
             p.Parent = rainbowFolder
         end
     end
 end
 
-makeButton(
-    "🌈 Bật cầu vồng bên trái",
-    createRainbow
-)
-
-makeButton(
-    "❌ Tắt cầu vồng",
-    removeRainbow
-)
+makeButton("🌈 Bật cầu vồng bên trái",createRainbow)
+makeButton("❌ Tắt cầu vồng",removeRainbow)
 
 -- =========================================================
--- 🌌 THIÊN HÀ
+-- 🌌 GALAXY
 -- =========================================================
 
 local galaxyFolder
@@ -326,9 +294,7 @@ local function createGalaxy()
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
 
-    if not root then
-        return
-    end
+    if not root then return end
 
     galaxyRunning = true
 
@@ -341,7 +307,6 @@ local function createGalaxy()
         + root.CFrame.LookVector * 1000
         + Vector3.new(0,450,0)
 
-    -- ⭐ SAO
     for i = 1,300 do
 
         local star = Instance.new("Part")
@@ -349,7 +314,6 @@ local function createGalaxy()
         star.Shape = Enum.PartType.Ball
         star.Material = Enum.Material.Neon
         star.Color = Color3.new(1,1,1)
-
         star.Anchored = true
         star.CanCollide = false
         star.CanTouch = false
@@ -360,8 +324,7 @@ local function createGalaxy()
         star.Size = Vector3.new(s,s,s)
 
         star.Position =
-            center
-            + Vector3.new(
+            center + Vector3.new(
                 math.random(-1000,1000),
                 math.random(-500,500),
                 math.random(-1000,1000)
@@ -370,30 +333,22 @@ local function createGalaxy()
         star.Parent = galaxyFolder
     end
 
-    -- 🪐 HÀNH TINH
     local planet = Instance.new("Part")
 
     planet.Shape = Enum.PartType.Ball
     planet.Size = Vector3.new(430,430,430)
     planet.Position = center
-
     planet.Anchored = true
     planet.CanCollide = false
-    planet.CanTouch = false
-    planet.CanQuery = false
-
     planet.Material = Enum.Material.Neon
     planet.Color = Color3.fromRGB(80,30,180)
-
     planet.Parent = galaxyFolder
 
-    -- 💍 VÒNG
     for i = 1,3 do
 
         local ring = Instance.new("Part")
 
         ring.Shape = Enum.PartType.Cylinder
-
         ring.Size = Vector3.new(
             10,
             650+i*80,
@@ -410,37 +365,27 @@ local function createGalaxy()
 
         ring.Anchored = true
         ring.CanCollide = false
-
         ring.Material = Enum.Material.Neon
         ring.Color = Color3.fromRGB(130,60,255)
         ring.Transparency = 0.35
-
         ring.Parent = galaxyFolder
     end
 
-    -- ☀️ MẶT TRỜI
     local sun = Instance.new("Part")
 
     sun.Shape = Enum.PartType.Ball
     sun.Size = Vector3.new(260,260,260)
-
-    sun.Position =
-        center + Vector3.new(0,700,0)
-
+    sun.Position = center + Vector3.new(0,700,0)
     sun.Anchored = true
     sun.CanCollide = false
-
     sun.Material = Enum.Material.Neon
     sun.Color = Color3.fromRGB(255,220,80)
-
     sun.Parent = galaxyFolder
 
     local light = Instance.new("PointLight")
-
     light.Brightness = 15
     light.Range = 1000
     light.Color = Color3.fromRGB(255,200,100)
-
     light.Parent = sun
 
     task.spawn(function()
@@ -449,13 +394,11 @@ local function createGalaxy()
             and galaxyFolder
             and galaxyFolder.Parent do
 
-            local t = os.clock()
-
             planet.CFrame =
                 CFrame.new(center)
                 * CFrame.Angles(
                     0,
-                    t*0.15,
+                    os.clock()*0.15,
                     0
                 )
 
@@ -464,18 +407,11 @@ local function createGalaxy()
     end)
 end
 
-makeButton(
-    "🌌 Bật thiên hà",
-    createGalaxy
-)
-
-makeButton(
-    "❌ Tắt thiên hà",
-    removeGalaxy
-)
+makeButton("🌌 Bật thiên hà",createGalaxy)
+makeButton("❌ Tắt thiên hà",removeGalaxy)
 
 -- =========================================================
--- ❤️ TRÁI TIM HẠT DI CHUYỂN
+-- ❤️ HEART PARTICLES
 -- =========================================================
 
 local heartFolder
@@ -504,9 +440,7 @@ local function createHeart()
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
 
-    if not root then
-        return
-    end
+    if not root then return end
 
     heartRunning = true
 
@@ -514,21 +448,14 @@ local function createHeart()
     heartFolder.Name = "SKY_Heart"
     heartFolder.Parent = workspace
 
-    local center =
-        root.Position
-        + root.CFrame.LookVector * 120
-        + Vector3.new(0,70,0)
-
     local particles = {}
 
-    -- ❤️ HẠT TẠO TIM
-    for i = 1,160 do
+    for i = 1,120 do
 
         local p = Instance.new("Part")
 
         p.Shape = Enum.PartType.Ball
         p.Size = Vector3.new(2.5,2.5,2.5)
-
         p.Material = Enum.Material.Neon
         p.Color = Color3.fromRGB(255,45,110)
 
@@ -539,19 +466,17 @@ local function createHeart()
 
         p.Parent = heartFolder
 
-        table.insert(particles,p)
+        particles[i] = p
     end
 
-    -- ✨ HẠT XUNG QUANH
     local sparkles = {}
 
-    for i = 1,60 do
+    for i = 1,50 do
 
         local p = Instance.new("Part")
 
         p.Shape = Enum.PartType.Ball
         p.Size = Vector3.new(1.5,1.5,1.5)
-
         p.Material = Enum.Material.Neon
         p.Color = Color3.fromRGB(255,150,200)
 
@@ -562,7 +487,7 @@ local function createHeart()
 
         p.Parent = heartFolder
 
-        table.insert(sparkles,p)
+        sparkles[i] = p
     end
 
     heartConnection =
@@ -571,7 +496,6 @@ local function createHeart()
             if not heartRunning
                 or not heartFolder
                 or not heartFolder.Parent then
-
                 return
             end
 
@@ -583,26 +507,23 @@ local function createHeart()
                     "HumanoidRootPart"
                 )
 
-            if not currentRoot then
-                return
-            end
+            if not currentRoot then return end
 
-            center =
+            local center =
                 currentRoot.Position
-                + currentRoot.CFrame.LookVector * 120
+                + currentRoot.CFrame.LookVector*120
                 + Vector3.new(0,70,0)
 
             local now = os.clock()
 
-            -- ❤️ TIM CHUYỂN ĐỘNG
             for i,p in ipairs(particles) do
 
-                local progress =
-                    ((i/#particles)
-                    + now*0.08) % 1
-
                 local t =
-                    progress*math.pi*2
+                    (
+                        i/#particles
+                        +now*0.08
+                    )%1
+                    *math.pi*2
 
                 local x =
                     16*math.sin(t)^3
@@ -613,92 +534,41 @@ local function createHeart()
                     -2*math.cos(3*t)
                     -math.cos(4*t)
 
-                local glow =
-                    math.sin(
-                        now*5+i*0.25
-                    )*0.8
-
                 p.Position =
                     center
-                    + currentRoot.CFrame.RightVector
+                    +currentRoot.CFrame.RightVector
                         *(x*5)
-                    + Vector3.new(
+                    +Vector3.new(
                         0,
-                        y*5+glow,
+                        y*5,
                         0
-                    )
-
-                local size =
-                    1.8
-                    +(
-                        math.sin(
-                            now*6+i
-                        )+1
-                    )*0.7
-
-                p.Size =
-                    Vector3.new(
-                        size,
-                        size,
-                        size
                     )
             end
 
-            -- ✨ HẠT BAY XUNG QUANH
             for i,p in ipairs(sparkles) do
 
                 local angle =
                     now*0.5+i*0.8
 
                 local radius =
-                    70
-                    +math.sin(
-                        now*1.5+i
-                    )*30
-
-                local height =
-                    math.sin(
-                        now*1.2+i*0.7
-                    )*60
+                    70+math.sin(now*1.5+i)*30
 
                 p.Position =
                     center
                     +Vector3.new(
                         math.cos(angle)*radius,
-                        height,
+                        math.sin(now*1.2+i)*60,
                         math.sin(angle)*radius
-                    )
-
-                local size =
-                    0.8
-                    +math.abs(
-                        math.sin(
-                            now*4+i
-                        )
-                    )*1.5
-
-                p.Size =
-                    Vector3.new(
-                        size,
-                        size,
-                        size
                     )
             end
         end)
 end
 
-makeButton(
-    "❤️ Bật trái tim hạt",
-    createHeart
-)
-
-makeButton(
-    "❌ Tắt trái tim",
-    removeHeart
-)
+makeButton("❤️ Bật trái tim hạt",createHeart)
+makeButton("❌ Tắt trái tim",removeHeart)
 
 -- =========================================================
--- 🪲 ĐOM ĐÓM
+-- 🪲 FIREFLIES
 -- =========================================================
 
 local fireflyFolder
@@ -721,9 +591,7 @@ local function createFireflies()
     local char = player.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
 
-    if not root then
-        return
-    end
+    if not root then return end
 
     fireflyRunning = true
 
@@ -739,7 +607,6 @@ local function createFireflies()
 
         p.Shape = Enum.PartType.Ball
         p.Size = Vector3.new(2,2,2)
-
         p.Material = Enum.Material.Neon
         p.Color = Color3.fromRGB(255,240,100)
 
@@ -750,17 +617,14 @@ local function createFireflies()
 
         p.Parent = fireflyFolder
 
-        table.insert(
-            fireflies,
-            {
-                part = p,
-                angle = math.random()*math.pi*2,
-                radius = math.random(40,250),
-                height = math.random(10,160),
-                speed = math.random(2,8)/100,
-                phase = math.random()*20
-            }
-        )
+        fireflies[i] = {
+            part = p,
+            angle = math.random()*math.pi*2,
+            radius = math.random(40,250),
+            height = math.random(10,160),
+            speed = math.random(2,8)/100,
+            phase = math.random()*20
+        }
     end
 
     task.spawn(function()
@@ -786,45 +650,23 @@ local function createFireflies()
 
                 for _,data in ipairs(fireflies) do
 
-                    if data.part.Parent then
+                    data.angle += data.speed
 
-                        data.angle += data.speed
+                    data.part.Position =
+                        center
+                        +Vector3.new(
+                            math.cos(data.angle)
+                                *data.radius,
 
-                        local pulse =
-                            0.5
-                            +math.abs(
-                                math.sin(
-                                    now*4
+                            data.height
+                                +math.sin(
+                                    now*1.5
                                     +data.phase
-                                )
-                            )
+                                )*25,
 
-                        local size =
-                            1.5+ pulse*2
-
-                        data.part.Size =
-                            Vector3.new(
-                                size,
-                                size,
-                                size
-                            )
-
-                        data.part.Position =
-                            center
-                            +Vector3.new(
-                                math.cos(data.angle)
-                                    *data.radius,
-
-                                data.height
-                                    +math.sin(
-                                        now*1.5
-                                        +data.phase
-                                    )*25,
-
-                                math.sin(data.angle)
-                                    *data.radius
-                            )
-                    end
+                            math.sin(data.angle)
+                                *data.radius
+                        )
                 end
             end
 
@@ -833,32 +675,22 @@ local function createFireflies()
     end)
 end
 
-makeButton(
-    "🪲 Bật đom đóm ✨",
-    createFireflies
-)
-
-makeButton(
-    "❌ Tắt đom đóm",
-    removeFireflies
-)
+makeButton("🪲 Bật đom đóm ✨",createFireflies)
+makeButton("❌ Tắt đom đóm",removeFireflies)
 
 -- =========================================================
--- 🌊 NƯỚC + ĐỒ VẬT NỔI + BƠI
+-- 🌊 WATER + 📦 FLOATING OBJECTS
 -- =========================================================
 
 local waterFolder
 local waterPart
 local waterEnabled = false
-
-local floatObjects = {}
 local waterConnection
+local floatObjects = {}
 
 local function clearFloatForce(part)
 
-    local force =
-        part:FindFirstChild("SKY_FloatForce")
-
+    local force = part:FindFirstChild("SKY_FloatForce")
     if force then
         force:Destroy()
     end
@@ -906,9 +738,7 @@ local function createWater()
         char
         and char:FindFirstChild("HumanoidRootPart")
 
-    if not root then
-        return
-    end
+    if not root then return end
 
     waterEnabled = true
 
@@ -920,13 +750,7 @@ local function createWater()
     waterPart = Instance.new("Part")
 
     waterPart.Name = "SKY_Ocean"
-
-    waterPart.Size =
-        Vector3.new(
-            2000,
-            1,
-            2000
-        )
+    waterPart.Size = Vector3.new(2000,1,2000)
 
     waterPart.Position =
         root.Position
@@ -937,25 +761,17 @@ local function createWater()
     waterPart.CanTouch = false
     waterPart.CanQuery = false
 
-    waterPart.Material =
-        Enum.Material.Glass
-
-    waterPart.Color =
-        Color3.fromRGB(
-            25,
-            145,
-            210
-        )
-
+    waterPart.Material = Enum.Material.Glass
+    waterPart.Color = Color3.fromRGB(25,145,210)
     waterPart.Transparency = 0.28
     waterPart.Reflectance = 0.25
 
     waterPart.Parent = waterFolder
 
-    -- 🌊 SÓNG NHẸ
+    -- 🌊 SÓNG
     local waves = {}
 
-    for i = 1,25 do
+    for i = 1,20 do
 
         local wave = Instance.new("Part")
 
@@ -966,7 +782,6 @@ local function createWater()
 
         wave.Material = Enum.Material.Neon
         wave.Color = Color3.fromRGB(100,210,255)
-
         wave.Transparency = 0.65
 
         wave.Size =
@@ -980,16 +795,15 @@ local function createWater()
             root.Position
             +Vector3.new(
                 math.random(-100,100),
-                -4.45,
+                0.55,
                 math.random(-100,100)
             )
 
         wave.Parent = waterFolder
 
-        table.insert(waves,wave)
+        waves[i] = wave
     end
 
-    -- 🌊 XỬ LÝ NƯỚC
     waterConnection =
         RunService.Heartbeat:Connect(function()
 
@@ -1001,51 +815,33 @@ local function createWater()
             local waterY =
                 waterPart.Position.Y
 
-            -- 💧 SÓNG
             local now = os.clock()
 
+            -- 🌊 SÓNG
             for i,wave in ipairs(waves) do
 
                 if wave.Parent then
 
-                    local x =
-                        wave.Position.X
-
-                    local z =
-                        wave.Position.Z
-
                     wave.Position =
                         Vector3.new(
-                            x,
+                            wave.Position.X,
                             waterY+0.55
                                 +math.sin(
                                     now*1.5+i
                                 )*0.15,
-                            z
-                        )
-
-                    wave.Orientation =
-                        Vector3.new(
-                            0,
-                            now*10+i*20,
-                            0
+                            wave.Position.Z
                         )
                 end
             end
 
-            -- 📦 CHỈ XỬ LÝ ĐỒ VẬT GẦN MẶT NƯỚC
-            for _,part in ipairs(
+            -- 📦 ĐỒ VẬT
+            local parts =
                 workspace:GetPartBoundsInBox(
-                    CFrame.new(
-                        waterPart.Position
-                    ),
-                    Vector3.new(
-                        500,
-                        25,
-                        500
-                    )
+                    CFrame.new(waterPart.Position),
+                    Vector3.new(500,30,500)
                 )
-            ) do
+
+            for _,part in ipairs(parts) do
 
                 if part:IsA("BasePart")
                     and not part.Anchored
@@ -1058,20 +854,19 @@ local function createWater()
                     ) then
 
                     local depth =
-                        waterY
-                        - part.Position.Y
+                        waterY-part.Position.Y
 
-                    if depth > -2
-                        and depth < 7 then
+                    if depth > -3
+                        and depth < 12 then
 
-                        local force =
+                        local attachment =
                             part:FindFirstChild(
-                                "SKY_FloatForce"
+                                "SKY_FloatAttachment"
                             )
 
-                        if not force then
+                        if not attachment then
 
-                            local attachment =
+                            attachment =
                                 Instance.new(
                                     "Attachment"
                                 )
@@ -1079,8 +874,15 @@ local function createWater()
                             attachment.Name =
                                 "SKY_FloatAttachment"
 
-                            attachment.Parent =
-                                part
+                            attachment.Parent = part
+                        end
+
+                        local force =
+                            part:FindFirstChild(
+                                "SKY_FloatForce"
+                            )
+
+                        if not force then
 
                             force =
                                 Instance.new(
@@ -1099,23 +901,17 @@ local function createWater()
                             force.ApplyAtCenterOfMass =
                                 true
 
-                            force.Parent =
-                                part
-
-                            floatObjects[part] =
-                                true
+                            force.Parent = part
                         end
 
-                        -- ⬆️ LỰC NỔI NHẸ
                         local mass =
                             part.AssemblyMass
 
                         local buoyancy =
                             math.clamp(
-                                0.8
-                                +depth*0.12,
-                                0.65,
-                                1.15
+                                1.05+depth*0.10,
+                                1.0,
+                                1.5
                             )
 
                         force.Force =
@@ -1127,10 +923,7 @@ local function createWater()
                                 0
                             )
 
-                    elseif depth <= -2 then
-
-                        clearFloatForce(part)
-                        floatObjects[part] = nil
+                        floatObjects[part] = true
                     end
                 end
             end
@@ -1138,7 +931,7 @@ local function createWater()
 end
 
 makeButton(
-    "🌊 Bật nước + vật nổi + bơi",
+    "🌊 Bật nước + vật nổi",
     createWater
 )
 
@@ -1148,17 +941,17 @@ makeButton(
 )
 
 -- =========================================================
--- 🏊 BƠI
+-- 🏊 SWIM
 -- =========================================================
 
 local swimConnection
+local swimForce
+local swimAttachment
 local swimming = false
 
 local function startSwim()
 
-    if swimming then
-        return
-    end
+    if swimming then return end
 
     swimming = true
 
@@ -1194,13 +987,75 @@ local function startSwim()
             local y =
                 root.Position.Y
 
-            -- 🏊 Khi ở trong nước
-            if y < waterY + 2
-                and y > waterY - 10 then
+            if y < waterY+3
+                and y > waterY-12 then
 
                 humanoid:ChangeState(
                     Enum.HumanoidStateType.Swimming
                 )
+
+                if not swimAttachment then
+
+                    swimAttachment =
+                        Instance.new("Attachment")
+
+                    swimAttachment.Name =
+                        "SKY_SwimAttachment"
+
+                    swimAttachment.Parent =
+                        root
+                end
+
+                if not swimForce then
+
+                    swimForce =
+                        Instance.new(
+                            "VectorForce"
+                        )
+
+                    swimForce.Name =
+                        "SKY_SwimForce"
+
+                    swimForce.Attachment0 =
+                        swimAttachment
+
+                    swimForce.RelativeTo =
+                        Enum.ActuatorRelativeTo.World
+
+                    swimForce.ApplyAtCenterOfMass =
+                        true
+
+                    swimForce.Parent = root
+                end
+
+                local mass =
+                    root.AssemblyMass
+
+                local depth =
+                    waterY-root.Position.Y
+
+                local lift =
+                    math.clamp(
+                        1.05+depth*0.08,
+                        1.0,
+                        1.35
+                    )
+
+                swimForce.Force =
+                    Vector3.new(
+                        0,
+                        mass
+                        *workspace.Gravity
+                        *lift,
+                        0
+                    )
+
+            else
+
+                if swimForce then
+                    swimForce.Force =
+                        Vector3.zero
+                end
             end
         end)
 end
@@ -1213,15 +1068,25 @@ local function stopSwim()
         swimConnection:Disconnect()
         swimConnection = nil
     end
+
+    if swimForce then
+        swimForce:Destroy()
+        swimForce = nil
+    end
+
+    if swimAttachment then
+        swimAttachment:Destroy()
+        swimAttachment = nil
+    end
 end
 
 makeButton(
-    "🏊 Bật chế độ bơi",
+    "🏊 Bật bơi + nổi",
     startSwim
 )
 
 makeButton(
-    "🚶 Tắt chế độ bơi",
+    "🚶 Tắt bơi",
     stopSwim
 )
 
@@ -1239,21 +1104,12 @@ openButton.Position =
     UDim2.new(0,20,0.5,-30)
 
 openButton.BackgroundColor3 =
-    Color3.fromRGB(
-        20,
-        100,
-        70
-    )
+    Color3.fromRGB(20,100,70)
 
 openButton.Text = "☁️"
 openButton.TextSize = 25
-
-openButton.TextColor3 =
-    Color3.new(1,1,1)
-
-openButton.Font =
-    Enum.Font.GothamBold
-
+openButton.TextColor3 = Color3.new(1,1,1)
+openButton.Font = Enum.Font.GothamBold
 openButton.Visible = false
 openButton.Parent = gui
 
@@ -1263,12 +1119,7 @@ local openCorner =
 openCorner.CornerRadius =
     UDim.new(1,0)
 
-openCorner.Parent =
-    openButton
-
--- =========================================================
--- ❌ ĐÓNG / MỞ
--- =========================================================
+openCorner.Parent = openButton
 
 close.MouseButton1Click:Connect(function()
 
@@ -1285,15 +1136,15 @@ openButton.MouseButton1Click:Connect(function()
 end)
 
 -- =========================================================
--- ✅ HOÀN THÀNH
+-- ✅ LOADED
 -- =========================================================
 
-print("🌊 SKY LOADED")
-print("☀️ Sky: OK")
-print("🌈 Rainbow: OK")
-print("🌌 Galaxy: OK")
-print("❤️ Heart Particles: OK")
-print("🪲 Fireflies: OK")
-print("🌊 Water: OK")
-print("📦 Floating Objects: OK")
-print("🏊 Swim: OK")
+print("🌊 SKY FULL LOADED")
+print("☀️ Sky OK")
+print("🌈 Rainbow OK")
+print("🌌 Galaxy OK")
+print("❤️ Heart OK")
+print("🪲 Fireflies OK")
+print("🌊 Water OK")
+print("📦 Floating Objects OK")
+print("🏊 Swim OK")
