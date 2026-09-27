@@ -1,5 +1,7 @@
 -- =========================================================
--- 🌌 SKY FULL - GALAXY STYLE
+-- 🌌 SKY FULL
+-- 🌊 CHỈ TỐI ƯU NƯỚC
+-- 🌾 CHỈ TỐI ƯU LÚA
 -- =========================================================
 
 local Players = game:GetService("Players")
@@ -14,9 +16,14 @@ local pg = player:WaitForChild("PlayerGui")
 -- 🧹 DỌN SKY CŨ
 -- =========================================================
 
-for _,v in ipairs({"SKY","RuHub_SKY"}) do
+for _,v in ipairs({
+    "SKY",
+    "RuHub_SKY"
+}) do
     local x = pg:FindFirstChild(v)
-    if x then x:Destroy() end
+    if x then
+        x:Destroy()
+    end
 end
 
 for _,v in ipairs({
@@ -28,7 +35,9 @@ for _,v in ipairs({
     "SKY_Rice"
 }) do
     local x = workspace:FindFirstChild(v)
-    if x then x:Destroy() end
+    if x then
+        x:Destroy()
+    end
 end
 
 -- =========================================================
@@ -71,7 +80,7 @@ close.Font = Enum.Font.GothamBold
 close.Parent = main
 
 -- =========================================================
--- 🖐️ KÉO MENU
+-- 🖐️ KÉO MENU MOBILE
 -- =========================================================
 
 local dragging = false
@@ -135,13 +144,12 @@ layout.Parent = scroll
 
 layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 
-    scroll.CanvasSize =
-        UDim2.new(
-            0,
-            0,
-            0,
-            layout.AbsoluteContentSize.Y + 10
-        )
+    scroll.CanvasSize = UDim2.new(
+        0,
+        0,
+        0,
+        layout.AbsoluteContentSize.Y + 10
+    )
 end)
 
 local function button(text,callback)
@@ -161,17 +169,24 @@ local function button(text,callback)
 
     b.Parent = scroll
 
-    b.MouseButton1Click:Connect(callback)
+    b.Activated:Connect(callback)
 
     return b
 end
 
 -- =========================================================
--- ⚡ GLOBAL LOW LAG
+-- 🔧 QUẢN LÝ TỪNG HIỆU ỨNG
 -- =========================================================
 
-local effectsOff = false
 local connections = {}
+
+local function stopConnection(name)
+
+    if connections[name] then
+        connections[name]:Disconnect()
+        connections[name] = nil
+    end
+end
 
 local function destroyEffect(name)
 
@@ -182,129 +197,36 @@ local function destroyEffect(name)
     end
 end
 
-local function disconnectAll()
-
-    for _,connection in ipairs(connections) do
-
-        if connection then
-            connection:Disconnect()
-        end
-    end
-
-    table.clear(connections)
-end
-
-local function cleanupForces()
-
-    local character = player.Character
-    local root =
-        character and character:FindFirstChild("HumanoidRootPart")
-
-    if root then
-
-        for _,name in ipairs({
-            "SKY_SwimForce",
-            "SKY_SwimAttachment",
-            "SKY_WindForce",
-            "SKY_WindAttachment"
-        }) do
-
-            local x = root:FindFirstChild(name)
-
-            if x then
-                x:Destroy()
-            end
-        end
-    end
-
-    for _,v in ipairs(workspace:GetDescendants()) do
-
-        if v:IsA("VectorForce")
-        and (
-            v.Name == "SKY_FloatForce"
-            or v.Name == "SKY_LightWind"
-        ) then
-
-            v:Destroy()
-
-        elseif v:IsA("Attachment")
-        and (
-            v.Name == "SKY_FloatAttachment"
-            or v.Name == "SKY_WindAttachment"
-        ) then
-
-            v:Destroy()
-        end
-    end
-end
-
-local function stopAllEffects()
-
-    effectsOff = true
-
-    disconnectAll()
-
-    for _,name in ipairs({
-        "SKY_Rainbow",
-        "SKY_Galaxy",
-        "SKY_Heart",
-        "SKY_Fireflies",
-        "SKY_Water",
-        "SKY_Rice"
-    }) do
-
-        destroyEffect(name)
-    end
-
-    cleanupForces()
-
-    print("⚡ SKY: TẤT CẢ HIỆU ỨNG ĐÃ TẮT")
-end
-
-local function enableAll()
-
-    effectsOff = false
-
-    print("✨ SKY: HIỆU ỨNG ĐÃ BẬT LẠI")
-end
-
-button("⚡ TẮT TẤT CẢ HIỆU ỨNG",stopAllEffects)
-button("✨ BẬT LẠI HIỆU ỨNG",enableAll)
-
 -- =========================================================
--- ☀️ SKY / THỜI GIAN
+-- ☀️ THỜI GIAN
 -- =========================================================
 
 button("☀️ Sáng",function()
 
-    if effectsOff then return end
-
     Lighting.ClockTime = 14
     Lighting.Brightness = 3
+
 end)
 
 button("🌄 Mặt trời mọc",function()
 
-    if effectsOff then return end
-
     Lighting.ClockTime = 6
     Lighting.Brightness = 2
+
 end)
 
 button("🌅 Hoàng hôn",function()
 
-    if effectsOff then return end
-
     Lighting.ClockTime = 18
     Lighting.Brightness = 2
+
 end)
 
 button("🌙 Tối",function()
 
-    if effectsOff then return end
-
     Lighting.ClockTime = 0
     Lighting.Brightness = .5
+
 end)
 
 -- =========================================================
@@ -312,8 +234,6 @@ end)
 -- =========================================================
 
 local function rainbow()
-
-    if effectsOff then return end
 
     destroyEffect("SKY_Rainbow")
 
@@ -339,18 +259,20 @@ local function rainbow()
 
     for c,color in ipairs(colors) do
 
-        for i=1,21 do
+        for i = 1,21 do
 
             local p = Instance.new("Part")
+
+            p.Shape = Enum.PartType.Ball
+            p.Size = Vector3.new(9,9,9)
+
+            p.Material = Enum.Material.Neon
+            p.Color = color
 
             p.Anchored = true
             p.CanCollide = false
             p.CanTouch = false
             p.CanQuery = false
-
-            p.Material = Enum.Material.Neon
-            p.Color = color
-            p.Size = Vector3.new(9,9,9)
 
             local x = (i-11)*18
             local y = ((i-11)^2)*.08
@@ -372,18 +294,19 @@ end
 button("🌈 Bật cầu vồng bên trái",rainbow)
 
 button("❌ Tắt cầu vồng",function()
+
     destroyEffect("SKY_Rainbow")
+
 end)
 
 -- =========================================================
--- 🌌 GALAXY - KIỂU ẢNH
+-- 🌌 GALAXY
 -- =========================================================
 
 local function galaxy()
 
-    if effectsOff then return end
-
     destroyEffect("SKY_Galaxy")
+    stopConnection("Galaxy")
 
     local root =
         player.Character
@@ -397,7 +320,7 @@ local function galaxy()
 
     local center =
         root.Position
-        + root.CFrame.LookVector * 180
+        + root.CFrame.LookVector*180
         + Vector3.new(0,45,0)
 
     -- ⭐ HẠT SAO
@@ -411,7 +334,7 @@ local function galaxy()
         Color3.fromRGB(120,180,255)
     }
 
-    for i=1,260 do
+    for i = 1,260 do
 
         local p = Instance.new("Part")
 
@@ -419,23 +342,32 @@ local function galaxy()
 
         local size = math.random(1,4)
 
-        p.Size = Vector3.new(size,size,size)
+        p.Size = Vector3.new(
+            size,
+            size,
+            size
+        )
 
         p.Material = Enum.Material.Neon
-        p.Color = colors[
-            math.random(1,#colors)
-        ]
+
+        p.Color =
+            colors[
+                math.random(1,#colors)
+            ]
 
         p.Anchored = true
         p.CanCollide = false
         p.CanTouch = false
         p.CanQuery = false
 
-        local angle = math.random()*math.pi*2
-        local radius = math.random(30,420)
+        local angle =
+            math.random()*math.pi*2
+
+        local radius =
+            math.random(30,420)
 
         p.Position =
-            center +
+            center+
             Vector3.new(
                 math.cos(angle)*radius,
                 math.random(-130,130),
@@ -454,7 +386,7 @@ local function galaxy()
     end
 
     -- =====================================================
-    -- 💗 TIM NEON
+    -- 💗 TIM
     -- =====================================================
 
     local heartFolder = Instance.new("Folder")
@@ -463,7 +395,7 @@ local function galaxy()
 
     local heartParts = {}
 
-    for i=1,65 do
+    for i = 1,65 do
 
         local p = Instance.new("Part")
 
@@ -484,7 +416,7 @@ local function galaxy()
     end
 
     -- =====================================================
-    -- 🪐 3 VÒNG MỎNG
+    -- 🪐 VÒNG HÀNH TINH
     -- =====================================================
 
     local ringFolder = Instance.new("Folder")
@@ -493,7 +425,7 @@ local function galaxy()
 
     local rings = {}
 
-    for i=1,3 do
+    for i = 1,3 do
 
         local ring = Instance.new("Part")
 
@@ -512,11 +444,9 @@ local function galaxy()
         if i == 1 then
             ring.Color =
                 Color3.fromRGB(255,255,255)
-
         elseif i == 2 then
             ring.Color =
                 Color3.fromRGB(230,150,255)
-
         else
             ring.Color =
                 Color3.fromRGB(255,210,255)
@@ -535,7 +465,7 @@ local function galaxy()
     end
 
     -- =====================================================
-    -- 🪐 LÕI HÀNH TINH
+    -- 🪐 HÀNH TINH
     -- =====================================================
 
     local planet = Instance.new("Part")
@@ -544,7 +474,8 @@ local function galaxy()
     planet.Size = Vector3.new(115,115,115)
 
     planet.Position =
-        center + Vector3.new(0,-15,0)
+        center+
+        Vector3.new(0,-15,0)
 
     planet.Material = Enum.Material.Neon
     planet.Color =
@@ -568,7 +499,7 @@ local function galaxy()
     planetLight.Parent = planet
 
     -- =====================================================
-    -- ☀️ CẦU SÁNG
+    -- ☀️ MẶT TRỜI
     -- =====================================================
 
     local sun = Instance.new("Part")
@@ -577,7 +508,8 @@ local function galaxy()
     sun.Size = Vector3.new(55,55,55)
 
     sun.Position =
-        center + Vector3.new(230,70,0)
+        center+
+        Vector3.new(230,70,0)
 
     sun.Material = Enum.Material.Neon
     sun.Color =
@@ -601,35 +533,32 @@ local function galaxy()
     sunLight.Parent = sun
 
     -- =====================================================
-    -- 🔄 GALAXY CHUYỂN ĐỘNG
+    -- 🔄 CHUYỂN ĐỘNG
     -- =====================================================
 
-    local connection
+    connections.Galaxy =
+        RunService.Heartbeat:Connect(function()
 
-    connection = RunService.Heartbeat:Connect(function()
+        if not folder.Parent then
 
-        if effectsOff or not folder.Parent then
-
-            if connection then
-                connection:Disconnect()
-            end
-
+            stopConnection("Galaxy")
             return
+
         end
 
         local t = os.clock()
 
-        -- 🌠 HẠT BAY
+        -- ⭐ SAO
         for _,d in ipairs(particles) do
 
             d.angle += d.speed
 
             d.part.Position =
-                center +
+                center+
                 Vector3.new(
                     math.cos(d.angle)*d.radius,
                     d.height+
-                        math.sin(t*2+d.angle)*12,
+                    math.sin(t*2+d.angle)*12,
                     math.sin(d.angle)*d.radius
                 )
         end
@@ -666,8 +595,7 @@ local function galaxy()
                 CFrame.new(
                     center+
                     Vector3.new(0,-15,0)
-                )
-                *
+                )*
                 CFrame.Angles(
                     math.rad(68),
                     t*(.12+i*.025),
@@ -680,15 +608,14 @@ local function galaxy()
             CFrame.new(
                 center+
                 Vector3.new(0,-15,0)
-            )
-            *
+            )*
             CFrame.Angles(
                 0,
                 t*.2,
                 0
             )
 
-        -- ☀️ CẦU SÁNG
+        -- ☀️ MẶT TRỜI
         sun.Position =
             center+
             Vector3.new(
@@ -697,14 +624,15 @@ local function galaxy()
                 math.sin(t*.3)*100
             )
     end)
-
-    table.insert(connections,connection)
 end
 
 button("🌌 Bật thiên hà",galaxy)
 
 button("❌ Tắt thiên hà",function()
+
+    stopConnection("Galaxy")
     destroyEffect("SKY_Galaxy")
+
 end)
 
 -- =========================================================
@@ -713,9 +641,8 @@ end)
 
 local function heart()
 
-    if effectsOff then return end
-
     destroyEffect("SKY_Heart")
+    stopConnection("Heart")
 
     local root =
         player.Character
@@ -729,7 +656,7 @@ local function heart()
 
     local parts = {}
 
-    for i=1,60 do
+    for i = 1,60 do
 
         local p = Instance.new("Part")
 
@@ -737,8 +664,7 @@ local function heart()
         p.Size = Vector3.new(2,2,2)
 
         p.Material = Enum.Material.Neon
-        p.Color =
-            Color3.fromRGB(255,40,100)
+        p.Color = Color3.fromRGB(255,40,100)
 
         p.Anchored = true
         p.CanCollide = false
@@ -750,10 +676,11 @@ local function heart()
         parts[i] = p
     end
 
-    local connection =
+    connections.Heart =
         RunService.Heartbeat:Connect(function()
 
-        if effectsOff or not folder.Parent then
+        if not folder.Parent then
+            stopConnection("Heart")
             return
         end
 
@@ -793,14 +720,15 @@ local function heart()
                 Vector3.new(0,y*3,0)
         end
     end)
-
-    table.insert(connections,connection)
 end
 
 button("❤️ Bật tim",heart)
 
 button("❌ Tắt tim",function()
+
+    stopConnection("Heart")
     destroyEffect("SKY_Heart")
+
 end)
 
 -- =========================================================
@@ -809,9 +737,8 @@ end)
 
 local function fireflies()
 
-    if effectsOff then return end
-
     destroyEffect("SKY_Fireflies")
+    stopConnection("Fireflies")
 
     local folder = Instance.new("Folder")
     folder.Name = "SKY_Fireflies"
@@ -819,7 +746,7 @@ local function fireflies()
 
     local data = {}
 
-    for i=1,50 do
+    for i = 1,50 do
 
         local p = Instance.new("Part")
 
@@ -827,8 +754,7 @@ local function fireflies()
         p.Size = Vector3.new(2,2,2)
 
         p.Material = Enum.Material.Neon
-        p.Color =
-            Color3.fromRGB(255,240,100)
+        p.Color = Color3.fromRGB(255,240,100)
 
         p.Anchored = true
         p.CanCollide = false
@@ -845,10 +771,11 @@ local function fireflies()
         }
     end
 
-    local connection =
+    connections.Fireflies =
         RunService.Heartbeat:Connect(function()
 
-        if effectsOff or not folder.Parent then
+        if not folder.Parent then
+            stopConnection("Fireflies")
             return
         end
 
@@ -871,30 +798,43 @@ local function fireflies()
                 Vector3.new(
                     math.cos(d.angle)*d.radius,
                     d.height+
-                        math.sin(t)*10,
+                    math.sin(t)*10,
                     math.sin(d.angle)*d.radius
                 )
         end
     end)
-
-    table.insert(connections,connection)
 end
 
 button("🪲 Bật đom đóm",fireflies)
 
 button("❌ Tắt đom đóm",function()
+
+    stopConnection("Fireflies")
     destroyEffect("SKY_Fireflies")
+
 end)
 
 -- =========================================================
 -- 🌊 NƯỚC + VẬT NỔI
+-- CHỈ PHẦN NÀY ĐƯỢC TỐI ƯU
 -- =========================================================
+
+local function removeFloatForces()
+
+    for _,v in ipairs(workspace:GetDescendants()) do
+
+        if v.Name == "SKY_FloatForce"
+        or v.Name == "SKY_FloatAttachment" then
+
+            v:Destroy()
+        end
+    end
+end
 
 local function water()
 
-    if effectsOff then return end
-
     destroyEffect("SKY_Water")
+    stopConnection("Water")
 
     local root =
         player.Character
@@ -911,8 +851,13 @@ local function water()
     local water = Instance.new("Part")
 
     water.Name = "Ocean"
+
     water.Size =
-        Vector3.new(1500,1,1500)
+        Vector3.new(
+            1500,
+            1,
+            1500
+        )
 
     water.Position =
         root.Position-
@@ -932,30 +877,29 @@ local function water()
 
     water.Parent = folder
 
+    -- 🌊 CHỈ QUÉT 4 LẦN / GIÂY
     local scanTimer = 0
 
-    local connection =
+    connections.Water =
         RunService.Heartbeat:Connect(function(dt)
 
-        if effectsOff or not folder.Parent then
+        if not folder.Parent then
+            stopConnection("Water")
             return
         end
 
         scanTimer += dt
 
-        -- Không quét mỗi frame để giảm lag
-        if scanTimer < .15 then
+        if scanTimer < .25 then
             return
         end
 
         scanTimer = 0
 
-        local waterY = water.Position.Y
-
         local parts =
             workspace:GetPartBoundsInBox(
                 CFrame.new(water.Position),
-                Vector3.new(300,25,300)
+                Vector3.new(250,25,250)
             )
 
         for _,p in ipairs(parts) do
@@ -971,7 +915,7 @@ local function water()
             ) then
 
                 local depth =
-                    waterY-p.Position.Y
+                    water.Position.Y-p.Position.Y
 
                 if depth > -2 and depth < 8 then
 
@@ -1021,47 +965,65 @@ local function water()
                             0,
                             p.AssemblyMass*
                             workspace.Gravity*
-                            1.1,
+                            1.05,
                             0
                         )
                 end
             end
         end
     end)
-
-    table.insert(connections,connection)
 end
 
 button("🌊 Bật nước + vật nổi",water)
 
 button("❌ Tắt nước",function()
 
+    stopConnection("Water")
     destroyEffect("SKY_Water")
+    removeFloatForces()
 
-    for _,v in ipairs(workspace:GetDescendants()) do
-
-        if v.Name == "SKY_FloatForce"
-        or v.Name == "SKY_FloatAttachment" then
-
-            v:Destroy()
-        end
-    end
 end)
 
 -- =========================================================
--- 🏊 BƠI / NỔI
+-- 🏊 BƠI
 -- =========================================================
 
 local swimOn = false
+
+local function removeSwimForce()
+
+    local character = player.Character
+    local root =
+        character
+        and character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not root then return end
+
+    for _,n in ipairs({
+        "SKY_SwimForce",
+        "SKY_SwimAttachment"
+    }) do
+
+        local x = root:FindFirstChild(n)
+
+        if x then
+            x:Destroy()
+        end
+    end
+end
 
 local function swim()
 
     swimOn = true
 
-    local connection =
+    stopConnection("Swim")
+
+    connections.Swim =
         RunService.Heartbeat:Connect(function()
 
-        if effectsOff or not swimOn then
+        if not swimOn then
             return
         end
 
@@ -1165,27 +1127,10 @@ local function swim()
 
         else
 
-            local force =
-                root:FindFirstChild(
-                    "SKY_SwimForce"
-                )
+            removeSwimForce()
 
-            local attachment =
-                root:FindFirstChild(
-                    "SKY_SwimAttachment"
-                )
-
-            if force then
-                force:Destroy()
-            end
-
-            if attachment then
-                attachment:Destroy()
-            end
         end
     end)
-
-    table.insert(connections,connection)
 end
 
 button("🏊 Bật bơi",swim)
@@ -1193,52 +1138,59 @@ button("🏊 Bật bơi",swim)
 button("🛑 Tắt bơi",function()
 
     swimOn = false
+    stopConnection("Swim")
+    removeSwimForce()
 
-    local character = player.Character
-    local root =
-        character and
-        character:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
-    if root then
-
-        for _,n in ipairs({
-            "SKY_SwimForce",
-            "SKY_SwimAttachment"
-        }) do
-
-            local x = root:FindFirstChild(n)
-
-            if x then
-                x:Destroy()
-            end
-        end
-    end
 end)
 
 -- =========================================================
--- 🌬️ GIÓ NHẸ
+-- 🌬️ GIÓ NHẸ - CHỈ NGƯỜI CHƠI
 -- =========================================================
 
 local windOn = false
+
+local function removeWindForce()
+
+    local character = player.Character
+    local root =
+        character
+        and character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not root then return end
+
+    for _,n in ipairs({
+        "SKY_WindForce",
+        "SKY_WindAttachment"
+    }) do
+
+        local x = root:FindFirstChild(n)
+
+        if x then
+            x:Destroy()
+        end
+    end
+end
 
 local function wind()
 
     windOn = true
 
-    local connection =
+    stopConnection("Wind")
+
+    connections.Wind =
         RunService.Heartbeat:Connect(function()
 
-        if effectsOff or not windOn then
+        if not windOn then
             return
         end
 
         local character = player.Character
 
         local root =
-            character and
-            character:FindFirstChild(
+            character
+            and character:FindFirstChild(
                 "HumanoidRootPart"
             )
 
@@ -1285,15 +1237,12 @@ local function wind()
             force.Parent = root
         end
 
-        -- 🌬️ GIÓ CHỈ 10%
         force.Force =
             root.CFrame.LookVector*
             root.AssemblyMass*
             workspace.Gravity*
             .10
     end)
-
-    table.insert(connections,connection)
 end
 
 button("🌬️ Bật gió nhẹ",wind)
@@ -1301,52 +1250,36 @@ button("🌬️ Bật gió nhẹ",wind)
 button("🛑 Tắt gió",function()
 
     windOn = false
+    stopConnection("Wind")
+    removeWindForce()
 
-    local character = player.Character
-
-    local root =
-        character and
-        character:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
-    if root then
-
-        for _,n in ipairs({
-            "SKY_WindForce",
-            "SKY_WindAttachment"
-        }) do
-
-            local x = root:FindFirstChild(n)
-
-            if x then
-                x:Destroy()
-            end
-        end
-    end
 end)
 
 -- =========================================================
 -- 🌾 LÚA CHỈ TRÊN CỎ
+-- CHỈ PHẦN NÀY ĐƯỢC TỐI ƯU
 -- =========================================================
 
 local function rice()
 
-    if effectsOff then return end
-
     destroyEffect("SKY_Rice")
+    stopConnection("Rice")
 
     local folder = Instance.new("Folder")
     folder.Name = "SKY_Rice"
     folder.Parent = workspace
 
     local stalks = {}
+
     local count = 0
 
-    -- Chỉ quét 1 lần khi bật
+    -- 🌾 GIỚI HẠN LÚA
+    local MAX_RICE = 220
+
+    -- Chỉ quét workspace 1 lần
     for _,part in ipairs(workspace:GetDescendants()) do
 
-        if count >= 300 then
+        if count >= MAX_RICE then
             break
         end
 
@@ -1365,9 +1298,9 @@ local function rice()
                     )
                 )
 
-            for i=1,amount do
+            for i = 1,amount do
 
-                if count >= 300 then
+                if count >= MAX_RICE then
                     break
                 end
 
@@ -1385,7 +1318,9 @@ local function rice()
 
                 p.Color =
                     Color3.fromRGB(
-                        110,180,50
+                        110,
+                        180,
+                        50
                     )
 
                 p.Anchored = true
@@ -1425,12 +1360,24 @@ local function rice()
         end
     end
 
-    local connection =
-        RunService.Heartbeat:Connect(function()
+    -- 🌾 CHỈ CẬP NHẬT 10 LẦN/GIÂY
+    local riceTimer = 0
 
-        if effectsOff or not folder.Parent then
+    connections.Rice =
+        RunService.Heartbeat:Connect(function(dt)
+
+        if not folder.Parent then
+            stopConnection("Rice")
             return
         end
+
+        riceTimer += dt
+
+        if riceTimer < .1 then
+            return
+        end
+
+        riceTimer = 0
 
         local t = os.clock()
 
@@ -1450,25 +1397,88 @@ local function rice()
                 )
         end
     end)
-
-    table.insert(connections,connection)
 end
 
 button("🌾 Bật lúa trên cỏ",rice)
 
 button("❌ Tắt lúa",function()
+
+    stopConnection("Rice")
     destroyEffect("SKY_Rice")
+
 end)
 
 -- =========================================================
--- 🔘 ĐÓNG / MỞ MENU
+-- ❌ ĐÓNG MENU
 -- =========================================================
 
-local open = Instance.new("TextButton")
+local reopen = Instance.new("TextButton")
 
-open.Size = UDim2.new(0,55,0,55)
-open.Position =
-    UDim2.new(0,20,.5,-30)
+reopen.Size =
+    UDim2.new(
+        0,
+        55,
+        0,
+        55
+    )
 
-open.BackgroundColor3 =
-   
+reopen.Position =
+    UDim2.new(
+        0,
+        15,
+        .5,
+        -25
+    )
+
+reopen.BackgroundColor3 =
+    Color3.fromRGB(
+        20,
+        38,
+        31
+    )
+
+reopen.Text = "SKY"
+reopen.TextColor3 = Color3.new(1,1,1)
+reopen.TextSize = 15
+reopen.Font = Enum.Font.GothamBold
+reopen.Visible = false
+
+reopen.Parent = gui
+
+Instance.new("UICorner",reopen).CornerRadius =
+    UDim.new(1,0)
+
+close.Activated:Connect(function()
+
+    main.Visible = false
+    reopen.Visible = true
+
+end)
+
+reopen.Activated:Connect(function()
+
+    main.Visible = true
+    reopen.Visible = false
+
+end)
+
+-- =========================================================
+-- 🔄 NHÂN VẬT RESPAWN
+-- =========================================================
+
+player.CharacterAdded:Connect(function()
+
+    task.wait(1)
+
+    swimOn = false
+    windOn = false
+
+    stopConnection("Swim")
+    stopConnection("Wind")
+
+end)
+
+print("🌌 SKY FULL LOADED")
+print("🌊 Water optimization: ON")
+print("🌾 Rice optimization: ON")
+print("⚡ Global low-lag: OFF")
