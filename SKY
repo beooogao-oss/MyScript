@@ -1,113 +1,69 @@
--- =========================================================
--- 🌌 SKY FULL
--- 🌊 CHỈ TỐI ƯU NƯỚC
--- 🌾 CHỈ TỐI ƯU LÚA
--- =========================================================
-
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
-local UIS = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local pg = player:WaitForChild("PlayerGui")
+local playerGui = player:WaitForChild("PlayerGui")
 
--- =========================================================
--- 🧹 DỌN SKY CŨ
--- =========================================================
-
-for _,v in ipairs({
-    "SKY",
-    "RuHub_SKY"
-}) do
-    local x = pg:FindFirstChild(v)
-    if x then
-        x:Destroy()
-    end
-end
-
-for _,v in ipairs({
-    "SKY_Rainbow",
-    "SKY_Galaxy",
-    "SKY_Heart",
-    "SKY_Fireflies",
-    "SKY_Water",
-    "SKY_Rice"
-}) do
-    local x = workspace:FindFirstChild(v)
-    if x then
-        x:Destroy()
-    end
-end
-
--- =========================================================
--- 📱 GUI
--- =========================================================
+local old = playerGui:FindFirstChild("SKY")
+if old then old:Destroy() end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "SKY"
 gui.ResetOnSpawn = false
-gui.Parent = pg
+gui.Parent = playerGui
 
-local main = Instance.new("Frame")
-main.Size = UDim2.new(0,300,0,520)
-main.Position = UDim2.new(.5,-150,.5,-260)
-main.BackgroundColor3 = Color3.fromRGB(20,38,31)
-main.BorderSizePixel = 0
-main.Parent = gui
+-- =========================
+-- MENU
+-- =========================
 
-Instance.new("UICorner",main).CornerRadius = UDim.new(0,15)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(300,420)
+frame.Position = UDim2.new(.5,-150,.5,-210)
+frame.BackgroundColor3 = Color3.fromRGB(20,38,31)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,20)
+corner.Parent = frame
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,-55,0,45)
-title.Position = UDim2.new(0,15,0,0)
-title.BackgroundTransparency = 1
+title.Position = UDim2.fromOffset(15,5)
 title.Text = "SKY"
-title.TextColor3 = Color3.new(1,1,1)
-title.TextSize = 22
-title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(230,240,235)
+title.BackgroundTransparency = 1
 title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = main
+title.Parent = frame
 
-local close = Instance.new("TextButton")
-close.Size = UDim2.new(0,40,0,40)
-close.Position = UDim2.new(1,-45,0,3)
-close.BackgroundTransparency = 1
-close.Text = "×"
-close.TextColor3 = Color3.new(1,1,1)
-close.TextSize = 28
-close.Font = Enum.Font.GothamBold
-close.Parent = main
-
--- =========================================================
--- 🖐️ KÉO MENU MOBILE
--- =========================================================
+-- =========================
+-- KÉO MENU
+-- =========================
 
 local dragging = false
 local dragStart
 local startPos
 
 title.InputBegan:Connect(function(input)
-
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-
+    if input.UserInputType == Enum.UserInputType.Touch
+    or input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
-        startPos = main.Position
+        startPos = frame.Position
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
-
+UserInputService.InputChanged:Connect(function(input)
     if dragging and (
-        input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch
+        input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseMovement
     ) then
-
         local delta = input.Position - dragStart
 
-        main.Position = UDim2.new(
+        frame.Position = UDim2.new(
             startPos.X.Scale,
             startPos.X.Offset + delta.X,
             startPos.Y.Scale,
@@ -116,1369 +72,914 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
-UIS.InputEnded:Connect(function(input)
-
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch
+    or input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
 end)
 
--- =========================================================
--- 📜 SCROLL
--- =========================================================
+-- =========================
+-- ĐÓNG
+-- =========================
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(40,40)
+close.Position = UDim2.new(1,-45,0,7)
+close.Text = "×"
+close.TextSize = 30
+close.TextColor3 = Color3.fromRGB(210,220,215)
+close.BackgroundTransparency = 1
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+    frame.Visible = false
+end)
+
+-- =========================
+-- SCROLL
+-- =========================
 
 local scroll = Instance.new("ScrollingFrame")
-scroll.Size = UDim2.new(1,-20,1,-60)
-scroll.Position = UDim2.new(0,10,0,50)
+scroll.Size = UDim2.new(1,-10,1,-55)
+scroll.Position = UDim2.fromOffset(5,50)
 scroll.BackgroundTransparency = 1
 scroll.BorderSizePixel = 0
-scroll.ScrollBarThickness = 4
-scroll.Parent = main
+scroll.ScrollBarThickness = 5
+scroll.CanvasSize = UDim2.new(0,0,0,0)
+scroll.Parent = frame
 
 local layout = Instance.new("UIListLayout")
 layout.Padding = UDim.new(0,6)
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layout.Parent = scroll
 
-layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0,5)
+padding.PaddingBottom = UDim.new(0,10)
+padding.Parent = scroll
 
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     scroll.CanvasSize = UDim2.new(
-        0,
-        0,
-        0,
-        layout.AbsoluteContentSize.Y + 10
+        0,0,0,layout.AbsoluteContentSize.Y + 15
     )
 end)
 
-local function button(text,callback)
-
+local function makeButton(text,callback)
     local b = Instance.new("TextButton")
-
-    b.Size = UDim2.new(.92,0,0,40)
-    b.BackgroundColor3 = Color3.fromRGB(31,57,46)
-    b.TextColor3 = Color3.new(1,1,1)
-
+    b.Size = UDim2.new(1,-14,0,42)
     b.Text = text
     b.TextSize = 16
-    b.Font = Enum.Font.GothamBold
-
-    Instance.new("UICorner",b).CornerRadius =
-        UDim.new(0,9)
-
+    b.TextColor3 = Color3.fromRGB(225,235,230)
+    b.BackgroundColor3 = Color3.fromRGB(31,57,46)
+    b.BorderSizePixel = 0
     b.Parent = scroll
 
-    b.Activated:Connect(callback)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0,14)
+    c.Parent = b
+
+    b.MouseButton1Click:Connect(callback)
 
     return b
 end
 
--- =========================================================
--- 🔧 QUẢN LÝ TỪNG HIỆU ỨNG
--- =========================================================
+-- =========================
+-- ☀️ SKY
+-- =========================
 
-local connections = {}
-
-local function stopConnection(name)
-
-    if connections[name] then
-        connections[name]:Disconnect()
-        connections[name] = nil
-    end
-end
-
-local function destroyEffect(name)
-
-    local x = workspace:FindFirstChild(name)
-
-    if x then
-        x:Destroy()
-    end
-end
-
--- =========================================================
--- ☀️ THỜI GIAN
--- =========================================================
-
-button("☀️ Sáng",function()
-
-    Lighting.ClockTime = 14
+makeButton("☀️ Sáng",function()
+    Lighting.ClockTime = 12
     Lighting.Brightness = 3
-
+    Lighting.Ambient = Color3.fromRGB(180,180,180)
+    Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
 end)
 
-button("🌄 Mặt trời mọc",function()
-
+makeButton("🌄 Mặt trời mọc",function()
     Lighting.ClockTime = 6
-    Lighting.Brightness = 2
-
+    Lighting.Brightness = 2.5
+    Lighting.Ambient = Color3.fromRGB(255,180,130)
+    Lighting.OutdoorAmbient = Color3.fromRGB(255,150,100)
 end)
 
-button("🌅 Hoàng hôn",function()
-
-    Lighting.ClockTime = 18
-    Lighting.Brightness = 2
-
+makeButton("🌅 Hoàng hôn",function()
+    Lighting.ClockTime = 17.8
+    Lighting.Brightness = 3
+    Lighting.Ambient = Color3.fromRGB(255,150,100)
+    Lighting.OutdoorAmbient = Color3.fromRGB(230,100,70)
 end)
 
-button("🌙 Tối",function()
-
+makeButton("🌙 Tối",function()
     Lighting.ClockTime = 0
-    Lighting.Brightness = .5
-
+    Lighting.Brightness = .7
+    Lighting.Ambient = Color3.fromRGB(30,30,55)
+    Lighting.OutdoorAmbient = Color3.fromRGB(20,20,40)
 end)
 
--- =========================================================
--- 🌈 CẦU VỒNG BÊN TRÁI
--- =========================================================
+-- =========================
+-- 🌈 CẦU VỒNG
+-- =========================
 
-local function rainbow()
+local rainbowFolder
 
-    destroyEffect("SKY_Rainbow")
-
-    local root =
-        player.Character
-        and player.Character:FindFirstChild("HumanoidRootPart")
-
-    if not root then return end
-
-    local folder = Instance.new("Folder")
-    folder.Name = "SKY_Rainbow"
-    folder.Parent = workspace
-
-    local colors = {
-        Color3.fromRGB(255,0,0),
-        Color3.fromRGB(255,150,0),
-        Color3.fromRGB(255,255,0),
-        Color3.fromRGB(0,255,0),
-        Color3.fromRGB(0,200,255),
-        Color3.fromRGB(0,80,255),
-        Color3.fromRGB(180,0,255)
-    }
-
-    for c,color in ipairs(colors) do
-
-        for i = 1,21 do
-
-            local p = Instance.new("Part")
-
-            p.Shape = Enum.PartType.Ball
-            p.Size = Vector3.new(9,9,9)
-
-            p.Material = Enum.Material.Neon
-            p.Color = color
-
-            p.Anchored = true
-            p.CanCollide = false
-            p.CanTouch = false
-            p.CanQuery = false
-
-            local x = (i-11)*18
-            local y = ((i-11)^2)*.08
-
-            p.Position =
-                root.Position
-                - root.CFrame.RightVector*180
-                + Vector3.new(
-                    x,
-                    y+70,
-                    c*9
-                )
-
-            p.Parent = folder
-        end
+local function removeRainbow()
+    if rainbowFolder then
+        rainbowFolder:Destroy()
+        rainbowFolder = nil
     end
 end
 
-button("🌈 Bật cầu vồng bên trái",rainbow)
+local function createRainbow()
+    removeRainbow()
 
-button("❌ Tắt cầu vồng",function()
-
-    destroyEffect("SKY_Rainbow")
-
-end)
-
--- =========================================================
--- 🌌 GALAXY
--- =========================================================
-
-local function galaxy()
-
-    destroyEffect("SKY_Galaxy")
-    stopConnection("Galaxy")
-
-    local root =
-        player.Character
-        and player.Character:FindFirstChild("HumanoidRootPart")
-
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    local folder = Instance.new("Folder")
-    folder.Name = "SKY_Galaxy"
-    folder.Parent = workspace
+    rainbowFolder = Instance.new("Folder")
+    rainbowFolder.Name = "SKY_Rainbow"
+    rainbowFolder.Parent = workspace
 
     local center =
         root.Position
-        + root.CFrame.LookVector*180
-        + Vector3.new(0,45,0)
-
-    -- ⭐ HẠT SAO
-    local particles = {}
+        - root.CFrame.RightVector * 180
+        + Vector3.new(0,80,0)
 
     local colors = {
-        Color3.fromRGB(255,255,255),
-        Color3.fromRGB(255,245,70),
-        Color3.fromRGB(255,70,240),
-        Color3.fromRGB(190,50,255),
-        Color3.fromRGB(120,180,255)
+        Color3.fromRGB(255,0,0),
+        Color3.fromRGB(255,140,0),
+        Color3.fromRGB(255,255,0),
+        Color3.fromRGB(0,255,0),
+        Color3.fromRGB(0,170,255),
+        Color3.fromRGB(0,0,255),
+        Color3.fromRGB(180,0,255)
     }
 
-    for i = 1,260 do
+    for colorIndex,color in ipairs(colors) do
+        local radius = 75-(colorIndex-1)*3
 
-        local p = Instance.new("Part")
+        for i=0,40 do
+            local angle = math.pi*(i/40)
 
-        p.Shape = Enum.PartType.Ball
+            local part = Instance.new("Part")
+            part.Anchored = true
+            part.CanCollide = false
+            part.CanTouch = false
+            part.CanQuery = false
+            part.Material = Enum.Material.Neon
+            part.Color = color
+            part.Size = Vector3.new(3,3,2)
 
-        local size = math.random(1,4)
+            part.Position =
+                center+
+                Vector3.new(
+                    math.cos(angle)*radius,
+                    math.sin(angle)*radius,
+                    0
+                )
 
-        p.Size = Vector3.new(
-            size,
-            size,
-            size
+            part.Parent = rainbowFolder
+        end
+    end
+end
+
+makeButton("🌈 Cầu vồng bên trái",createRainbow)
+makeButton("❌ Tắt cầu vồng",removeRainbow)
+
+-- =========================
+-- 🌌 THIÊN HÀ
+-- =========================
+
+local galaxyFolder
+local galaxyRunning = false
+
+local function removeGalaxy()
+    galaxyRunning = false
+
+    if galaxyFolder then
+        galaxyFolder:Destroy()
+        galaxyFolder = nil
+    end
+end
+
+local function createGalaxy()
+    removeGalaxy()
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    galaxyRunning = true
+
+    galaxyFolder = Instance.new("Folder")
+    galaxyFolder.Name = "SKY_Galaxy"
+    galaxyFolder.Parent = workspace
+
+    local center =
+        root.Position+
+        root.CFrame.LookVector*1000+
+        Vector3.new(0,450,0)
+
+    local movingStars = {}
+
+    for i=1,450 do
+        local star = Instance.new("Part")
+
+        star.Shape = Enum.PartType.Ball
+
+        local size = math.random(2,7)
+        star.Size = Vector3.new(size,size,size)
+
+        star.Material = Enum.Material.Neon
+
+        star.Color = Color3.fromRGB(
+            math.random(180,255),
+            math.random(180,255),
+            math.random(200,255)
         )
 
-        p.Material = Enum.Material.Neon
+        star.Anchored = true
+        star.CanCollide = false
+        star.CanTouch = false
+        star.CanQuery = false
 
-        p.Color =
-            colors[
-                math.random(1,#colors)
-            ]
+        local angle = math.random()*math.pi*2
+        local distance = math.random(100,750)
+        local height = math.random(-220,220)
 
-        p.Anchored = true
-        p.CanCollide = false
-        p.CanTouch = false
-        p.CanQuery = false
+        star.Position =
+            center+
+            Vector3.new(
+                math.cos(angle)*distance,
+                height,
+                math.sin(angle)*distance
+            )
 
-        local angle =
-            math.random()*math.pi*2
+        star.Parent = galaxyFolder
 
-        local radius =
-            math.random(30,420)
+        table.insert(movingStars,{
+            part=star,
+            angle=angle,
+            distance=distance,
+            height=height,
+            speed=math.random(2,8)/100
+        })
+    end
 
-        p.Position =
+    for arm=1,5 do
+        for i=1,230 do
+            local t=i/230
+
+            local angle =
+                t*math.pi*7+
+                (arm-1)*(math.pi*2/5)
+
+            local radius=t*750
+
+            local x=math.cos(angle)*radius
+            local z=math.sin(angle)*radius
+
+            local y =
+                math.sin(t*math.pi)*40+
+                math.random(-20,20)
+
+            local dust=Instance.new("Part")
+
+            dust.Shape=Enum.PartType.Ball
+
+            local size=math.random(3,9)
+            dust.Size=Vector3.new(size,size,size)
+
+            dust.Material=Enum.Material.Neon
+
+            dust.Color=Color3.fromRGB(
+                math.random(100,220),
+                math.random(80,180),
+                math.random(180,255)
+            )
+
+            dust.Transparency=.2
+            dust.Anchored=true
+            dust.CanCollide=false
+            dust.CanTouch=false
+            dust.CanQuery=false
+
+            dust.Position=
+                center+
+                Vector3.new(x,y,z)
+
+            dust.Parent=galaxyFolder
+        end
+    end
+
+    local planet=Instance.new("Part")
+
+    planet.Shape=Enum.PartType.Ball
+    planet.Size=Vector3.new(430,430,430)
+    planet.Material=Enum.Material.SmoothPlastic
+    planet.Color=Color3.fromRGB(75,80,95)
+
+    planet.Anchored=true
+    planet.CanCollide=false
+    planet.CanTouch=false
+    planet.CanQuery=false
+
+    planet.Position=
+        center-
+        root.CFrame.RightVector*430+
+        Vector3.new(0,-80,0)
+
+    planet.Parent=galaxyFolder
+
+    for i=1,3 do
+        local ring=Instance.new("Part")
+
+        ring.Shape=Enum.PartType.Cylinder
+
+        ring.Size=Vector3.new(
+            12,
+            650+i*80,
+            650+i*80
+        )
+
+        ring.Material=Enum.Material.Neon
+
+        ring.Color=Color3.fromRGB(
+            100+i*30,
+            100+i*20,
+            130+i*30
+        )
+
+        ring.Transparency=.45
+        ring.Anchored=true
+        ring.CanCollide=false
+        ring.CanTouch=false
+        ring.CanQuery=false
+
+        ring.CFrame=
+            CFrame.new(planet.Position)*
+            CFrame.Angles(
+                math.rad(65),
+                0,
+                math.rad(20)
+            )
+
+        ring.Parent=galaxyFolder
+    end
+
+    local sun=Instance.new("Part")
+
+    sun.Shape=Enum.PartType.Ball
+    sun.Size=Vector3.new(260,260,260)
+    sun.Material=Enum.Material.Neon
+    sun.Color=Color3.fromRGB(255,245,210)
+
+    sun.Anchored=true
+    sun.CanCollide=false
+    sun.CanTouch=false
+    sun.CanQuery=false
+
+    sun.Position=
+        center+
+        root.CFrame.RightVector*500+
+        Vector3.new(0,80,0)
+
+    sun.Parent=galaxyFolder
+
+    local light=Instance.new("PointLight")
+    light.Brightness=20
+    light.Range=1200
+    light.Parent=sun
+
+    task.spawn(function()
+        while galaxyRunning
+        and galaxyFolder
+        and galaxyFolder.Parent do
+
+            for _,data in ipairs(movingStars) do
+                if data.part and data.part.Parent then
+                    data.angle+=data.speed
+
+                    data.part.Position=
+                        center+
+                        Vector3.new(
+                            math.cos(data.angle)*data.distance,
+                            data.height,
+                            math.sin(data.angle)*data.distance
+                        )
+                end
+            end
+
+            task.wait(.03)
+        end
+    end)
+end
+
+makeButton("🌌 Bật thiên hà lớn",createGalaxy)
+makeButton("❌ Tắt thiên hà",removeGalaxy)
+
+-- =========================
+-- ❤️ TRÁI TIM
+-- =========================
+
+local heartFolder
+
+local function removeHeart()
+    if heartFolder then
+        heartFolder:Destroy()
+        heartFolder=nil
+    end
+end
+
+local function createHeart()
+    removeHeart()
+
+    local char=player.Character
+    local root=char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    heartFolder=Instance.new("Folder")
+    heartFolder.Name="SKY_Heart"
+    heartFolder.Parent=workspace
+
+    local center=
+        root.Position+
+        root.CFrame.LookVector*120+
+        Vector3.new(0,80,0)
+
+    for i=0,220 do
+        local t=math.pi*2*(i/220)
+
+        local x=16*math.sin(t)^3
+
+        local y=
+            13*math.cos(t)
+            -5*math.cos(2*t)
+            -2*math.cos(3*t)
+            -math.cos(4*t)
+
+        local p=Instance.new("Part")
+
+        p.Shape=Enum.PartType.Ball
+        p.Size=Vector3.new(5,5,5)
+        p.Material=Enum.Material.Neon
+
+        p.Color=Color3.fromRGB(
+            255,
+            math.random(70,220),
+            180
+        )
+
+        p.Anchored=true
+        p.CanCollide=false
+        p.CanTouch=false
+        p.CanQuery=false
+
+        p.Position=
+            center+
+            root.CFrame.RightVector*(x*3)+
+            Vector3.new(0,y*3,0)
+
+        p.Parent=heartFolder
+    end
+
+    for i=1,650 do
+        local angle=math.random()*math.pi*2
+        local radius=math.random(70,190)
+
+        local p=Instance.new("Part")
+
+        p.Shape=Enum.PartType.Ball
+
+        local size=math.random(1,4)
+        p.Size=Vector3.new(size,size,size)
+
+        p.Material=Enum.Material.Neon
+
+        p.Color=Color3.fromRGB(
+            math.random(160,255),
+            math.random(60,220),
+            255
+        )
+
+        p.Transparency=math.random(0,65)/100
+
+        p.Anchored=true
+        p.CanCollide=false
+        p.CanTouch=false
+        p.CanQuery=false
+
+        p.Position=
             center+
             Vector3.new(
                 math.cos(angle)*radius,
-                math.random(-130,130),
+                math.random(-120,120),
                 math.sin(angle)*radius
             )
 
-        p.Parent = folder
-
-        particles[i] = {
-            part = p,
-            angle = angle,
-            radius = radius,
-            height = p.Position.Y-center.Y,
-            speed = math.random(3,10)/100
-        }
+        p.Parent=heartFolder
     end
-
-    -- =====================================================
-    -- 💗 TIM
-    -- =====================================================
-
-    local heartFolder = Instance.new("Folder")
-    heartFolder.Name = "Heart"
-    heartFolder.Parent = folder
-
-    local heartParts = {}
-
-    for i = 1,65 do
-
-        local p = Instance.new("Part")
-
-        p.Shape = Enum.PartType.Ball
-        p.Size = Vector3.new(3,3,3)
-
-        p.Material = Enum.Material.Neon
-        p.Color = Color3.fromRGB(255,80,220)
-
-        p.Anchored = true
-        p.CanCollide = false
-        p.CanTouch = false
-        p.CanQuery = false
-
-        p.Parent = heartFolder
-
-        heartParts[i] = p
-    end
-
-    -- =====================================================
-    -- 🪐 VÒNG HÀNH TINH
-    -- =====================================================
-
-    local ringFolder = Instance.new("Folder")
-    ringFolder.Name = "PlanetRing"
-    ringFolder.Parent = folder
-
-    local rings = {}
-
-    for i = 1,3 do
-
-        local ring = Instance.new("Part")
-
-        ring.Shape = Enum.PartType.Cylinder
-
-        local size = 145+i*25
-
-        ring.Size = Vector3.new(
-            3,
-            size,
-            size
-        )
-
-        ring.Material = Enum.Material.Neon
-
-        if i == 1 then
-            ring.Color =
-                Color3.fromRGB(255,255,255)
-        elseif i == 2 then
-            ring.Color =
-                Color3.fromRGB(230,150,255)
-        else
-            ring.Color =
-                Color3.fromRGB(255,210,255)
-        end
-
-        ring.Transparency = .08
-
-        ring.Anchored = true
-        ring.CanCollide = false
-        ring.CanTouch = false
-        ring.CanQuery = false
-
-        ring.Parent = ringFolder
-
-        rings[i] = ring
-    end
-
-    -- =====================================================
-    -- 🪐 HÀNH TINH
-    -- =====================================================
-
-    local planet = Instance.new("Part")
-
-    planet.Shape = Enum.PartType.Ball
-    planet.Size = Vector3.new(115,115,115)
-
-    planet.Position =
-        center+
-        Vector3.new(0,-15,0)
-
-    planet.Material = Enum.Material.Neon
-    planet.Color =
-        Color3.fromRGB(235,205,255)
-
-    planet.Anchored = true
-    planet.CanCollide = false
-    planet.CanTouch = false
-    planet.CanQuery = false
-
-    planet.Parent = folder
-
-    local planetLight = Instance.new("PointLight")
-
-    planetLight.Color =
-        Color3.fromRGB(255,180,255)
-
-    planetLight.Brightness = 10
-    planetLight.Range = 280
-
-    planetLight.Parent = planet
-
-    -- =====================================================
-    -- ☀️ MẶT TRỜI
-    -- =====================================================
-
-    local sun = Instance.new("Part")
-
-    sun.Shape = Enum.PartType.Ball
-    sun.Size = Vector3.new(55,55,55)
-
-    sun.Position =
-        center+
-        Vector3.new(230,70,0)
-
-    sun.Material = Enum.Material.Neon
-    sun.Color =
-        Color3.fromRGB(255,255,220)
-
-    sun.Anchored = true
-    sun.CanCollide = false
-    sun.CanTouch = false
-    sun.CanQuery = false
-
-    sun.Parent = folder
-
-    local sunLight = Instance.new("PointLight")
-
-    sunLight.Color =
-        Color3.fromRGB(255,255,180)
-
-    sunLight.Brightness = 12
-    sunLight.Range = 300
-
-    sunLight.Parent = sun
-
-    -- =====================================================
-    -- 🔄 CHUYỂN ĐỘNG
-    -- =====================================================
-
-    connections.Galaxy =
-        RunService.Heartbeat:Connect(function()
-
-        if not folder.Parent then
-
-            stopConnection("Galaxy")
-            return
-
-        end
-
-        local t = os.clock()
-
-        -- ⭐ SAO
-        for _,d in ipairs(particles) do
-
-            d.angle += d.speed
-
-            d.part.Position =
-                center+
-                Vector3.new(
-                    math.cos(d.angle)*d.radius,
-                    d.height+
-                    math.sin(t*2+d.angle)*12,
-                    math.sin(d.angle)*d.radius
-                )
-        end
-
-        -- 💗 TIM
-        for i,p in ipairs(heartParts) do
-
-            local a =
-                ((i/#heartParts)+t*.08)
-                *math.pi*2
-
-            local x =
-                16*math.sin(a)^3
-
-            local y =
-                13*math.cos(a)
-                -5*math.cos(2*a)
-                -2*math.cos(3*a)
-                -math.cos(4*a)
-
-            p.Position =
-                center+
-                Vector3.new(
-                    x*2.2,
-                    y*2.2+65,
-                    0
-                )
-        end
-
-        -- 🪐 VÒNG
-        for i,ring in ipairs(rings) do
-
-            ring.CFrame =
-                CFrame.new(
-                    center+
-                    Vector3.new(0,-15,0)
-                )*
-                CFrame.Angles(
-                    math.rad(68),
-                    t*(.12+i*.025),
-                    math.rad(8)
-                )
-        end
-
-        -- 🪐 HÀNH TINH
-        planet.CFrame =
-            CFrame.new(
-                center+
-                Vector3.new(0,-15,0)
-            )*
-            CFrame.Angles(
-                0,
-                t*.2,
-                0
-            )
-
-        -- ☀️ MẶT TRỜI
-        sun.Position =
-            center+
-            Vector3.new(
-                math.cos(t*.3)*230,
-                70+math.sin(t*.5)*30,
-                math.sin(t*.3)*100
-            )
-    end)
 end
 
-button("🌌 Bật thiên hà",galaxy)
+makeButton("❤️ Bật trái tim + hạt",createHeart)
+makeButton("❌ Tắt trái tim",removeHeart)
 
-button("❌ Tắt thiên hà",function()
-
-    stopConnection("Galaxy")
-    destroyEffect("SKY_Galaxy")
-
-end)
-
--- =========================================================
--- ❤️ TIM BAY
--- =========================================================
-
-local function heart()
-
-    destroyEffect("SKY_Heart")
-    stopConnection("Heart")
-
-    local root =
-        player.Character
-        and player.Character:FindFirstChild("HumanoidRootPart")
-
-    if not root then return end
-
-    local folder = Instance.new("Folder")
-    folder.Name = "SKY_Heart"
-    folder.Parent = workspace
-
-    local parts = {}
-
-    for i = 1,60 do
-
-        local p = Instance.new("Part")
-
-        p.Shape = Enum.PartType.Ball
-        p.Size = Vector3.new(2,2,2)
-
-        p.Material = Enum.Material.Neon
-        p.Color = Color3.fromRGB(255,40,100)
-
-        p.Anchored = true
-        p.CanCollide = false
-        p.CanTouch = false
-        p.CanQuery = false
-
-        p.Parent = folder
-
-        parts[i] = p
-    end
-
-    connections.Heart =
-        RunService.Heartbeat:Connect(function()
-
-        if not folder.Parent then
-            stopConnection("Heart")
-            return
-        end
-
-        local r =
-            player.Character
-            and player.Character:FindFirstChild(
-                "HumanoidRootPart"
-            )
-
-        if not r then return end
-
-        local center =
-            r.Position+
-            r.CFrame.LookVector*100+
-            Vector3.new(0,50,0)
-
-        local t = os.clock()
-
-        for i,p in ipairs(parts) do
-
-            local a =
-                ((i/#parts)+t*.06)
-                *math.pi*2
-
-            local x =
-                16*math.sin(a)^3
-
-            local y =
-                13*math.cos(a)
-                -5*math.cos(2*a)
-                -2*math.cos(3*a)
-                -math.cos(4*a)
-
-            p.Position =
-                center+
-                r.CFrame.RightVector*(x*3)+
-                Vector3.new(0,y*3,0)
-        end
-    end)
-end
-
-button("❤️ Bật tim",heart)
-
-button("❌ Tắt tim",function()
-
-    stopConnection("Heart")
-    destroyEffect("SKY_Heart")
-
-end)
-
--- =========================================================
+-- =========================
 -- 🪲 ĐOM ĐÓM
--- =========================================================
+-- =========================
 
-local function fireflies()
+local fireflyFolder
+local fireflyRunning=false
 
-    destroyEffect("SKY_Fireflies")
-    stopConnection("Fireflies")
+local function removeFireflies()
+    fireflyRunning=false
 
-    local folder = Instance.new("Folder")
-    folder.Name = "SKY_Fireflies"
-    folder.Parent = workspace
+    if fireflyFolder then
+        fireflyFolder:Destroy()
+        fireflyFolder=nil
+    end
+end
 
-    local data = {}
+local function createFireflies()
+    removeFireflies()
 
-    for i = 1,50 do
+    local char=player.Character
+    local root=char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
 
-        local p = Instance.new("Part")
+    fireflyRunning=true
 
-        p.Shape = Enum.PartType.Ball
-        p.Size = Vector3.new(2,2,2)
+    fireflyFolder=Instance.new("Folder")
+    fireflyFolder.Name="SKY_Fireflies"
+    fireflyFolder.Parent=workspace
 
-        p.Material = Enum.Material.Neon
-        p.Color = Color3.fromRGB(255,240,100)
+    local fireflies={}
 
-        p.Anchored = true
-        p.CanCollide = false
-        p.CanTouch = false
-        p.CanQuery = false
+    for i=1,250 do
+        local p=Instance.new("Part")
 
-        p.Parent = folder
+        p.Shape=Enum.PartType.Ball
+        p.Size=Vector3.new(2,2,2)
+        p.Material=Enum.Material.Neon
+        p.Color=Color3.fromRGB(255,240,100)
 
-        data[i] = {
-            part = p,
-            angle = math.random()*6.28,
-            radius = math.random(30,150),
-            height = math.random(10,80)
-        }
+        p.Anchored=true
+        p.CanCollide=false
+        p.CanTouch=false
+        p.CanQuery=false
+
+        p.Parent=fireflyFolder
+
+        table.insert(fireflies,{
+            part=p,
+            angle=math.random()*math.pi*2,
+            radius=math.random(40,300),
+            height=math.random(10,180),
+            speed=math.random(2,8)/100,
+            phase=math.random()*20
+        })
     end
 
-    connections.Fireflies =
-        RunService.Heartbeat:Connect(function()
+    task.spawn(function()
+        while fireflyRunning
+        and fireflyFolder
+        and fireflyFolder.Parent do
 
-        if not folder.Parent then
-            stopConnection("Fireflies")
-            return
-        end
+            local now=os.clock()
 
-        local root =
-            player.Character
-            and player.Character:FindFirstChild(
-                "HumanoidRootPart"
-            )
+            for _,data in ipairs(fireflies) do
+                if data.part and data.part.Parent then
 
-        if not root then return end
+                    data.angle+=data.speed
 
-        local t = os.clock()
+                    local pulse=
+                        .5+
+                        math.abs(
+                            math.sin(
+                                now*4+
+                                data.phase
+                            )
+                        )
 
-        for _,d in ipairs(data) do
+                    local size=1.5+pulse*2.5
 
-            d.angle += .01
+                    data.part.Size=
+                        Vector3.new(size,size,size)
 
-            d.part.Position =
-                root.Position+
-                Vector3.new(
-                    math.cos(d.angle)*d.radius,
-                    d.height+
-                    math.sin(t)*10,
-                    math.sin(d.angle)*d.radius
-                )
+                    data.part.Position=
+                        root.Position+
+                        Vector3.new(
+                            math.cos(data.angle)*data.radius,
+                            data.height+
+                            math.sin(
+                                now*1.5+
+                                data.phase
+                            )*25,
+                            math.sin(data.angle)*data.radius
+                        )
+                end
+            end
+
+            task.wait(.03)
         end
     end)
 end
 
-button("🪲 Bật đom đóm",fireflies)
+makeButton("🪲 Bật đom đóm ✨",createFireflies)
+makeButton("❌ Tắt đom đóm",removeFireflies)
 
-button("❌ Tắt đom đóm",function()
+-- =========================
+-- 🌊 NƯỚC 30 ĐỘ SÂU
+-- 📦 ĐỒ VẬT NỔI + TRÔI
+-- 🚫 KHÔNG ĐẨY NGƯỜI CHƠI
+-- 🚫 KHÔNG NẢY
+-- =========================
 
-    stopConnection("Fireflies")
-    destroyEffect("SKY_Fireflies")
+local waterFolder
+local waterConnection
 
-end)
+local WATER_DEPTH=30
+local WATER_SIZE=1500
 
--- =========================================================
--- 🌊 NƯỚC + VẬT NỔI
--- CHỈ PHẦN NÀY ĐƯỢC TỐI ƯU
--- =========================================================
+local floatingParts={}
 
-local function removeFloatForces()
+local function removeWater()
 
-    for _,v in ipairs(workspace:GetDescendants()) do
+    if waterConnection then
+        waterConnection:Disconnect()
+        waterConnection=nil
+    end
 
-        if v.Name == "SKY_FloatForce"
-        or v.Name == "SKY_FloatAttachment" then
+    for part,data in pairs(floatingParts) do
 
-            v:Destroy()
+        if data.force then
+            data.force:Destroy()
         end
+
+        if data.attachment then
+            data.attachment:Destroy()
+        end
+
+        floatingParts[part]=nil
+    end
+
+    if waterFolder then
+        waterFolder:Destroy()
+        waterFolder=nil
     end
 end
 
-local function water()
+local function createWater()
 
-    destroyEffect("SKY_Water")
-    stopConnection("Water")
+    removeWater()
 
-    local root =
-        player.Character
-        and player.Character:FindFirstChild(
-            "HumanoidRootPart"
-        )
+    local char=player.Character
+    local root=char and char:FindFirstChild("HumanoidRootPart")
 
     if not root then return end
 
-    local folder = Instance.new("Folder")
-    folder.Name = "SKY_Water"
-    folder.Parent = workspace
+    waterFolder=Instance.new("Folder")
+    waterFolder.Name="SKY_Water"
+    waterFolder.Parent=workspace
 
-    local water = Instance.new("Part")
+    local water=Instance.new("Part")
 
-    water.Name = "Ocean"
+    water.Name="Ocean"
 
-    water.Size =
-        Vector3.new(
-            1500,
-            1,
-            1500
-        )
+    water.Size=Vector3.new(
+        WATER_SIZE,
+        1,
+        WATER_SIZE
+    )
 
-    water.Position =
+    water.Position=
         root.Position-
         Vector3.new(0,5,0)
 
-    water.Anchored = true
-    water.CanCollide = false
-    water.CanTouch = false
-    water.CanQuery = false
+    water.Anchored=true
 
-    water.Material = Enum.Material.Glass
-    water.Color =
-        Color3.fromRGB(25,145,210)
+    water.CanCollide=false
+    water.CanTouch=false
+    water.CanQuery=false
 
-    water.Transparency = .3
-    water.Reflectance = .25
+    water.Material=Enum.Material.Glass
+    water.Color=Color3.fromRGB(25,145,210)
+    water.Transparency=.25
+    water.Reflectance=.35
 
-    water.Parent = folder
+    water.Parent=waterFolder
 
-    -- 🌊 CHỈ QUÉT 4 LẦN / GIÂY
-    local scanTimer = 0
+    local volume=Instance.new("Part")
 
-    connections.Water =
+    volume.Name="WaterDepth"
+
+    volume.Size=Vector3.new(
+        WATER_SIZE,
+        WATER_DEPTH,
+        WATER_SIZE
+    )
+
+    volume.Position=
+        water.Position-
+        Vector3.new(
+            0,
+            WATER_DEPTH/2,
+            0
+        )
+
+    volume.Anchored=true
+    volume.Transparency=1
+    volume.CanCollide=false
+    volume.CanTouch=false
+    volume.CanQuery=false
+
+    volume.Parent=waterFolder
+
+    local scanTimer=0
+
+    waterConnection=
         RunService.Heartbeat:Connect(function(dt)
 
-        if not folder.Parent then
-            stopConnection("Water")
+        if not waterFolder
+        or not waterFolder.Parent then
+
+            if waterConnection then
+                waterConnection:Disconnect()
+                waterConnection=nil
+            end
+
             return
         end
 
-        scanTimer += dt
+        scanTimer+=dt
 
-        if scanTimer < .25 then
+        if scanTimer<.15 then
             return
         end
 
-        scanTimer = 0
+        scanTimer=0
 
-        local parts =
+        local parts=
             workspace:GetPartBoundsInBox(
-                CFrame.new(water.Position),
-                Vector3.new(250,25,250)
+                CFrame.new(
+                    water.Position-
+                    Vector3.new(
+                        0,
+                        WATER_DEPTH/2,
+                        0
+                    )
+                ),
+                Vector3.new(
+                    350,
+                    WATER_DEPTH+15,
+                    350
+                )
             )
 
-        for _,p in ipairs(parts) do
+        local detected={}
 
-            if p:IsA("BasePart")
-            and not p.Anchored
-            and not p:IsDescendantOf(folder)
+        for _,part in ipairs(parts) do
+
+            if part:IsA("BasePart")
+            and not part.Anchored
+            and not part:IsDescendantOf(waterFolder)
             and not (
                 player.Character
-                and p:IsDescendantOf(
+                and part:IsDescendantOf(
                     player.Character
                 )
             ) then
 
-                local depth =
-                    water.Position.Y-p.Position.Y
+                local surfaceY=water.Position.Y
+                local bottomY=surfaceY-WATER_DEPTH
+                local y=part.Position.Y
 
-                if depth > -2 and depth < 8 then
+                if y<=surfaceY+3
+                and y>=bottomY then
 
-                    local attachment =
-                        p:FindFirstChild(
-                            "SKY_FloatAttachment"
-                        )
+                    detected[part]=true
 
-                    if not attachment then
+                    local data=floatingParts[part]
 
-                        attachment =
+                    if not data then
+
+                        local attachment=
                             Instance.new("Attachment")
 
-                        attachment.Name =
+                        attachment.Name=
                             "SKY_FloatAttachment"
 
-                        attachment.Parent = p
-                    end
+                        attachment.Parent=part
 
-                    local force =
-                        p:FindFirstChild(
-                            "SKY_FloatForce"
-                        )
-
-                    if not force then
-
-                        force =
+                        local force=
                             Instance.new("VectorForce")
 
-                        force.Name =
+                        force.Name=
                             "SKY_FloatForce"
 
-                        force.Attachment0 =
+                        force.Attachment0=
                             attachment
 
-                        force.RelativeTo =
+                        force.RelativeTo=
                             Enum.ActuatorRelativeTo.World
 
-                        force.ApplyAtCenterOfMass =
-                            true
+                        force.ApplyAtCenterOfMass=true
+                        force.Parent=part
 
-                        force.Parent = p
+                        data={
+                            attachment=attachment,
+                            force=force,
+                            phase=math.random()*20
+                        }
+
+                        floatingParts[part]=data
                     end
 
-                    force.Force =
+                    local mass=part.AssemblyMass
+                    local velocity=part.AssemblyLinearVelocity
+
+                    -- lực nổi nhẹ, tránh nảy
+                    local buoyancy=
+                        mass*
+                        workspace.Gravity*
+                        .98
+
+                    local damping=
+                        -velocity.Y*
+                        mass*
+                        4
+
+                    -- dòng nước trôi ngang
+                    local t=
+                        os.clock()+
+                        data.phase
+
+                    local driftX=
+                        math.sin(
+                            t*.35+
+                            part.Position.Z*.01
+                        )*.8
+
+                    local driftZ=
+                        math.cos(
+                            t*.30+
+                            part.Position.X*.01
+                        )*.8
+
+                    data.force.Force=
                         Vector3.new(
-                            0,
-                            p.AssemblyMass*
-                            workspace.Gravity*
-                            1.05,
-                            0
+                            driftX*mass,
+                            buoyancy+damping,
+                            driftZ*mass
                         )
                 end
             end
         end
-    end)
-end
 
-button("🌊 Bật nước + vật nổi",water)
+        -- XÓA LỰC KHI ĐỒ RA KHỎI NƯỚC
+        for part,data in pairs(floatingParts) do
 
-button("❌ Tắt nước",function()
+            if not detected[part]
+            or not part.Parent then
 
-    stopConnection("Water")
-    destroyEffect("SKY_Water")
-    removeFloatForces()
-
-end)
-
--- =========================================================
--- 🏊 BƠI
--- =========================================================
-
-local swimOn = false
-
-local function removeSwimForce()
-
-    local character = player.Character
-    local root =
-        character
-        and character:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
-    if not root then return end
-
-    for _,n in ipairs({
-        "SKY_SwimForce",
-        "SKY_SwimAttachment"
-    }) do
-
-        local x = root:FindFirstChild(n)
-
-        if x then
-            x:Destroy()
-        end
-    end
-end
-
-local function swim()
-
-    swimOn = true
-
-    stopConnection("Swim")
-
-    connections.Swim =
-        RunService.Heartbeat:Connect(function()
-
-        if not swimOn then
-            return
-        end
-
-        local character = player.Character
-
-        local humanoid =
-            character and
-            character:FindFirstChildOfClass(
-                "Humanoid"
-            )
-
-        local root =
-            character and
-            character:FindFirstChild(
-                "HumanoidRootPart"
-            )
-
-        local waterFolder =
-            workspace:FindFirstChild(
-                "SKY_Water"
-            )
-
-        local ocean =
-            waterFolder and
-            waterFolder:FindFirstChild(
-                "Ocean"
-            )
-
-        if not humanoid
-        or not root
-        or not ocean then
-            return
-        end
-
-        local depth =
-            ocean.Position.Y-root.Position.Y
-
-        if depth > -2 and depth < 10 then
-
-            humanoid:ChangeState(
-                Enum.HumanoidStateType.Swimming
-            )
-
-            local attachment =
-                root:FindFirstChild(
-                    "SKY_SwimAttachment"
-                )
-
-            if not attachment then
-
-                attachment =
-                    Instance.new("Attachment")
-
-                attachment.Name =
-                    "SKY_SwimAttachment"
-
-                attachment.Parent = root
-            end
-
-            local force =
-                root:FindFirstChild(
-                    "SKY_SwimForce"
-                )
-
-            if not force then
-
-                force =
-                    Instance.new("VectorForce")
-
-                force.Name =
-                    "SKY_SwimForce"
-
-                force.Attachment0 =
-                    attachment
-
-                force.RelativeTo =
-                    Enum.ActuatorRelativeTo.World
-
-                force.ApplyAtCenterOfMass =
-                    true
-
-                force.Parent = root
-            end
-
-            local lift =
-                math.clamp(
-                    1.05+
-                    depth*.08,
-                    1,
-                    1.35
-                )
-
-            force.Force =
-                Vector3.new(
-                    0,
-                    root.AssemblyMass*
-                    workspace.Gravity*
-                    lift,
-                    0
-                )
-
-        else
-
-            removeSwimForce()
-
-        end
-    end)
-end
-
-button("🏊 Bật bơi",swim)
-
-button("🛑 Tắt bơi",function()
-
-    swimOn = false
-    stopConnection("Swim")
-    removeSwimForce()
-
-end)
-
--- =========================================================
--- 🌬️ GIÓ NHẸ - CHỈ NGƯỜI CHƠI
--- =========================================================
-
-local windOn = false
-
-local function removeWindForce()
-
-    local character = player.Character
-    local root =
-        character
-        and character:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
-    if not root then return end
-
-    for _,n in ipairs({
-        "SKY_WindForce",
-        "SKY_WindAttachment"
-    }) do
-
-        local x = root:FindFirstChild(n)
-
-        if x then
-            x:Destroy()
-        end
-    end
-end
-
-local function wind()
-
-    windOn = true
-
-    stopConnection("Wind")
-
-    connections.Wind =
-        RunService.Heartbeat:Connect(function()
-
-        if not windOn then
-            return
-        end
-
-        local character = player.Character
-
-        local root =
-            character
-            and character:FindFirstChild(
-                "HumanoidRootPart"
-            )
-
-        if not root then return end
-
-        local attachment =
-            root:FindFirstChild(
-                "SKY_WindAttachment"
-            )
-
-        if not attachment then
-
-            attachment =
-                Instance.new("Attachment")
-
-            attachment.Name =
-                "SKY_WindAttachment"
-
-            attachment.Parent = root
-        end
-
-        local force =
-            root:FindFirstChild(
-                "SKY_WindForce"
-            )
-
-        if not force then
-
-            force =
-                Instance.new("VectorForce")
-
-            force.Name =
-                "SKY_WindForce"
-
-            force.Attachment0 =
-                attachment
-
-            force.RelativeTo =
-                Enum.ActuatorRelativeTo.World
-
-            force.ApplyAtCenterOfMass =
-                true
-
-            force.Parent = root
-        end
-
-        force.Force =
-            root.CFrame.LookVector*
-            root.AssemblyMass*
-            workspace.Gravity*
-            .10
-    end)
-end
-
-button("🌬️ Bật gió nhẹ",wind)
-
-button("🛑 Tắt gió",function()
-
-    windOn = false
-    stopConnection("Wind")
-    removeWindForce()
-
-end)
-
--- =========================================================
--- 🌾 LÚA CHỈ TRÊN CỎ
--- CHỈ PHẦN NÀY ĐƯỢC TỐI ƯU
--- =========================================================
-
-local function rice()
-
-    destroyEffect("SKY_Rice")
-    stopConnection("Rice")
-
-    local folder = Instance.new("Folder")
-    folder.Name = "SKY_Rice"
-    folder.Parent = workspace
-
-    local stalks = {}
-
-    local count = 0
-
-    -- 🌾 GIỚI HẠN LÚA
-    local MAX_RICE = 220
-
-    -- Chỉ quét workspace 1 lần
-    for _,part in ipairs(workspace:GetDescendants()) do
-
-        if count >= MAX_RICE then
-            break
-        end
-
-        if part:IsA("BasePart")
-        and part.Material == Enum.Material.Grass
-        and part.Size.X > 6
-        and part.Size.Z > 6 then
-
-            local amount =
-                math.min(
-                    8,
-                    math.floor(
-                        part.Size.X*
-                        part.Size.Z/
-                        1000
-                    )
-                )
-
-            for i = 1,amount do
-
-                if count >= MAX_RICE then
-                    break
+                if data.force then
+                    data.force:Destroy()
                 end
 
-                local p = Instance.new("Part")
+                if data.attachment then
+                    data.attachment:Destroy()
+                end
 
-                p.Size =
-                    Vector3.new(
-                        .12,
-                        3,
-                        .12
-                    )
-
-                p.Material =
-                    Enum.Material.Grass
-
-                p.Color =
-                    Color3.fromRGB(
-                        110,
-                        180,
-                        50
-                    )
-
-                p.Anchored = true
-                p.CanCollide = false
-                p.CanTouch = false
-                p.CanQuery = false
-
-                local x =
-                    (math.random()-.5)*
-                    (part.Size.X-2)
-
-                local z =
-                    (math.random()-.5)*
-                    (part.Size.Z-2)
-
-                p.Position =
-                    part.Position+
-                    Vector3.new(
-                        x,
-                        part.Size.Y/2+1.5,
-                        z
-                    )
-
-                p.Parent = folder
-
-                table.insert(
-                    stalks,
-                    {
-                        part = p,
-                        base = p.CFrame,
-                        phase = math.random()*10
-                    }
-                )
-
-                count += 1
+                floatingParts[part]=nil
             end
-        end
-    end
-
-    -- 🌾 CHỈ CẬP NHẬT 10 LẦN/GIÂY
-    local riceTimer = 0
-
-    connections.Rice =
-        RunService.Heartbeat:Connect(function(dt)
-
-        if not folder.Parent then
-            stopConnection("Rice")
-            return
-        end
-
-        riceTimer += dt
-
-        if riceTimer < .1 then
-            return
-        end
-
-        riceTimer = 0
-
-        local t = os.clock()
-
-        for _,d in ipairs(stalks) do
-
-            local sway =
-                math.sin(
-                    t*1.5+d.phase
-                )*.08
-
-            d.part.CFrame =
-                d.base*
-                CFrame.Angles(
-                    sway,
-                    0,
-                    sway*.5
-                )
         end
     end)
 end
 
-button("🌾 Bật lúa trên cỏ",rice)
+makeButton("🌊 Bật nước 30 độ sâu",createWater)
+makeButton("❌ Tắt nước",removeWater)
 
-button("❌ Tắt lúa",function()
+-- =========================
+-- NÚT MỞ MENU
+-- =========================
 
-    stopConnection("Rice")
-    destroyEffect("SKY_Rice")
+local open=Instance.new("TextButton")
 
+open.Size=UDim2.fromOffset(50,50)
+open.Position=UDim2.new(0,15,.5,-25)
+open.Text="🌌"
+open.TextSize=24
+open.TextColor3=Color3.fromRGB(230,240,235)
+open.BackgroundColor3=Color3.fromRGB(20,38,31)
+open.BorderSizePixel=0
+open.Parent=gui
+
+local openCorner=Instance.new("UICorner")
+openCorner.CornerRadius=UDim.new(1,0)
+openCorner.Parent=open
+
+open.MouseButton1Click:Connect(function()
+    frame.Visible=true
 end)
 
--- =========================================================
--- ❌ ĐÓNG MENU
--- =========================================================
-
-local reopen = Instance.new("TextButton")
-
-reopen.Size =
-    UDim2.new(
-        0,
-        55,
-        0,
-        55
-    )
-
-reopen.Position =
-    UDim2.new(
-        0,
-        15,
-        .5,
-        -25
-    )
-
-reopen.BackgroundColor3 =
-    Color3.fromRGB(
-        20,
-        38,
-        31
-    )
-
-reopen.Text = "SKY"
-reopen.TextColor3 = Color3.new(1,1,1)
-reopen.TextSize = 15
-reopen.Font = Enum.Font.GothamBold
-reopen.Visible = false
-
-reopen.Parent = gui
-
-Instance.new("UICorner",reopen).CornerRadius =
-    UDim.new(1,0)
-
-close.Activated:Connect(function()
-
-    main.Visible = false
-    reopen.Visible = true
-
-end)
-
-reopen.Activated:Connect(function()
-
-    main.Visible = true
-    reopen.Visible = false
-
-end)
-
--- =========================================================
--- 🔄 NHÂN VẬT RESPAWN
--- =========================================================
-
-player.CharacterAdded:Connect(function()
-
-    task.wait(1)
-
-    swimOn = false
-    windOn = false
-
-    stopConnection("Swim")
-    stopConnection("Wind")
-
-end)
-
-print("🌌 SKY FULL LOADED")
-print("🌊 Water optimization: ON")
-print("🌾 Rice optimization: ON")
-print("⚡ Global low-lag: OFF")
+print("🌊 SKY LOADED")
