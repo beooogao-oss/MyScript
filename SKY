@@ -12,7 +12,9 @@ local Terrain = workspace.Terrain
 --==================================================
 
 local oldGui = playerGui:FindFirstChild("SKY")
-if oldGui then oldGui:Destroy() end
+if oldGui then
+	oldGui:Destroy()
+end
 
 for _, name in ipairs({
 	"SKY_Water",
@@ -237,7 +239,10 @@ button("🌙 Tối", function()
 end)
 
 --==================================================
--- 🌊 BIỂN 4000 × 4000 × CAO 500
+-- 🌊 BIỂN 4000 × 4000
+-- MẶT NƯỚC +200
+-- ĐÁY NƯỚC -100
+-- TỔNG CAO 300
 --==================================================
 
 local waterActive = false
@@ -245,7 +250,10 @@ local waterRegion
 
 local WATER_SIZE_X = 4000
 local WATER_SIZE_Z = 4000
-local WATER_HEIGHT = 500
+
+local WATER_TOP_ABOVE = 200
+local WATER_BOTTOM_BELOW = 100
+local WATER_HEIGHT = WATER_TOP_ABOVE + WATER_BOTTOM_BELOW
 
 local function removeWater()
 
@@ -261,7 +269,6 @@ local function removeWater()
 
 		waterRegion = nil
 	end
-
 end
 
 local function createWater()
@@ -277,13 +284,21 @@ local function createWater()
 
 	waterActive = true
 
-	-- MẶT NƯỚC Ở ĐỘ CAO NHÂN VẬT
-	local waterTopY = root.Position.Y
+	-- MẶT NƯỚC CAO HƠN NGƯỜI CHƠI 200
+	local waterTopY =
+		root.Position.Y + WATER_TOP_ABOVE
+
+	-- ĐÁY NƯỚC THẤP HƠN NGƯỜI CHƠI 100
+	local waterBottomY =
+		root.Position.Y - WATER_BOTTOM_BELOW
 
 	-- TÂM KHỐI NƯỚC
+	local waterCenterY =
+		(waterTopY + waterBottomY) / 2
+
 	local center = Vector3.new(
 		root.Position.X,
-		waterTopY - WATER_HEIGHT / 2,
+		waterCenterY,
 		root.Position.Z
 	)
 
@@ -309,7 +324,7 @@ local function createWater()
 		Enum.Material.Water
 	)
 
-	-- MÀU NƯỚC
+	-- NƯỚC
 	Terrain.WaterColor =
 		Color3.fromRGB(15, 125, 180)
 
@@ -323,7 +338,7 @@ local function createWater()
 end
 
 button(
-	"🌊 BẬT BIỂN 4000 × 4000 × CAO 500",
+	"🌊 BẬT BIỂN 4000 × 4000",
 	createWater
 )
 
@@ -343,12 +358,16 @@ RunService.Heartbeat:Connect(function()
 	end
 
 	local char = player.Character
+
 	if not char then
 		return
 	end
 
-	local root = char:FindFirstChild("HumanoidRootPart")
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	local root =
+		char:FindFirstChild("HumanoidRootPart")
+
+	local humanoid =
+		char:FindFirstChildOfClass("Humanoid")
 
 	if not root or not humanoid then
 		return
@@ -378,7 +397,6 @@ RunService.Heartbeat:Connect(function()
 			)
 		end
 	end
-
 end)
 
 --==================================================
@@ -396,7 +414,6 @@ local function removeFireflies()
 		fireflyFolder:Destroy()
 		fireflyFolder = nil
 	end
-
 end
 
 local function createFireflies()
@@ -440,7 +457,6 @@ local function createFireflies()
 			height = math.random(-30, 45),
 			speed = math.random(3, 8) / 100
 		})
-
 	end
 
 	task.spawn(function()
@@ -457,7 +473,8 @@ local function createFireflies()
 
 				for _, data in ipairs(flies) do
 
-					if data.part and data.part.Parent then
+					if data.part
+						and data.part.Parent then
 
 						data.angle += data.speed
 
@@ -474,17 +491,13 @@ local function createFireflies()
 								math.sin(data.angle)
 									* data.radius
 							)
-
 					end
 				end
 			end
 
 			task.wait(0.05)
-
 		end
-
 	end)
-
 end
 
 button(
@@ -509,7 +522,6 @@ local function removeRainbow()
 		rainbowFolder:Destroy()
 		rainbowFolder = nil
 	end
-
 end
 
 local function createRainbow()
@@ -534,7 +546,6 @@ local function createRainbow()
 		+ Vector3.new(0, 80, 0)
 
 	local colors = {
-
 		Color3.fromRGB(255, 0, 0),
 		Color3.fromRGB(255, 140, 0),
 		Color3.fromRGB(255, 255, 0),
@@ -542,12 +553,12 @@ local function createRainbow()
 		Color3.fromRGB(0, 170, 255),
 		Color3.fromRGB(0, 0, 255),
 		Color3.fromRGB(180, 0, 255)
-
 	}
 
 	for index, color in ipairs(colors) do
 
-		local radius = 75 - (index - 1) * 3
+		local radius =
+			75 - (index - 1) * 3
 
 		for i = 0, 40 do
 
@@ -574,10 +585,8 @@ local function createRainbow()
 				)
 
 			p.Parent = rainbowFolder
-
 		end
 	end
-
 end
 
 button(
@@ -605,7 +614,6 @@ local function removeGalaxy()
 		galaxyFolder:Destroy()
 		galaxyFolder = nil
 	end
-
 end
 
 local function createGalaxy()
@@ -633,19 +641,24 @@ local function createGalaxy()
 
 	local stars = {}
 
-	-- 450 NGÔI SAO
 	for i = 1, 450 do
 
 		local star = Instance.new("Part")
 
 		star.Shape = Enum.PartType.Ball
 
-		local size = math.random(2, 7)
+		local size =
+			math.random(2, 7)
 
 		star.Size =
-			Vector3.new(size, size, size)
+			Vector3.new(
+				size,
+				size,
+				size
+			)
 
-		star.Material = Enum.Material.Neon
+		star.Material =
+			Enum.Material.Neon
 
 		star.Color =
 			Color3.fromRGB(
@@ -685,10 +698,8 @@ local function createGalaxy()
 			height = height,
 			speed = math.random(2, 8) / 100
 		})
-
 	end
 
-	-- 5 CÁNH THIÊN HÀ
 	for arm = 1, 5 do
 
 		for i = 1, 230 do
@@ -704,7 +715,8 @@ local function createGalaxy()
 
 			local p = Instance.new("Part")
 
-			p.Shape = Enum.PartType.Ball
+			p.Shape =
+				Enum.PartType.Ball
 
 			local size =
 				math.random(3, 9)
@@ -716,7 +728,8 @@ local function createGalaxy()
 					size
 				)
 
-			p.Material = Enum.Material.Neon
+			p.Material =
+				Enum.Material.Neon
 
 			p.Color =
 				Color3.fromRGB(
@@ -742,14 +755,14 @@ local function createGalaxy()
 				)
 
 			p.Parent = galaxyFolder
-
 		end
 	end
 
-	-- HÀNH TINH
 	local planet = Instance.new("Part")
 
-	planet.Shape = Enum.PartType.Ball
+	planet.Shape =
+		Enum.PartType.Ball
+
 	planet.Size =
 		Vector3.new(430, 430, 430)
 
@@ -771,7 +784,6 @@ local function createGalaxy()
 
 	planet.Parent = galaxyFolder
 
-	-- VÒNG HÀNH TINH
 	for i = 1, 3 do
 
 		local ring = Instance.new("Part")
@@ -812,10 +824,8 @@ local function createGalaxy()
 			)
 
 		ring.Parent = galaxyFolder
-
 	end
 
-	-- MẶT TRỜI
 	local sun = Instance.new("Part")
 
 	sun.Shape =
@@ -847,13 +857,10 @@ local function createGalaxy()
 	sun.Parent = galaxyFolder
 
 	local light = Instance.new("PointLight")
-
 	light.Brightness = 20
 	light.Range = 1200
-
 	light.Parent = sun
 
-	-- CHUYỂN ĐỘNG SAO
 	task.spawn(function()
 
 		while galaxyRunning
@@ -878,16 +885,12 @@ local function createGalaxy()
 							math.sin(data.angle)
 								* data.distance
 						)
-
 				end
 			end
 
 			task.wait(0.03)
-
 		end
-
 	end)
-
 end
 
 button(
@@ -912,7 +915,6 @@ local function removeHeart()
 		heartFolder:Destroy()
 		heartFolder = nil
 	end
-
 end
 
 local function createHeart()
@@ -936,7 +938,6 @@ local function createHeart()
 		+ root.CFrame.LookVector * 120
 		+ Vector3.new(0, 80, 0)
 
-	-- VIỀN TRÁI TIM
 	for i = 0, 220 do
 
 		local t =
@@ -985,10 +986,8 @@ local function createHeart()
 			)
 
 		p.Parent = heartFolder
-
 	end
 
-	-- HẠT XUNG QUANH
 	for i = 1, 650 do
 
 		local angle =
@@ -1039,9 +1038,7 @@ local function createHeart()
 			)
 
 		p.Parent = heartFolder
-
 	end
-
 end
 
 button(
