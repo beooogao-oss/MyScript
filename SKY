@@ -164,8 +164,8 @@ layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 end)
 
 local function makeButton(text, callback)
-
 	local button = Instance.new("TextButton")
+
 	button.Size = UDim2.new(1, -10, 0, 34)
 	button.BackgroundColor3 = Color3.fromRGB(31, 57, 46)
 	button.BorderSizePixel = 0
@@ -184,7 +184,7 @@ local function makeButton(text, callback)
 end
 
 --==================================================
--- ☀️ LIGHTING
+-- LIGHTING
 --==================================================
 
 makeButton("☀️ Sáng", function()
@@ -216,18 +216,18 @@ makeButton("🌙 Tối", function()
 end)
 
 --==================================================
--- 🌊 NƯỚC
+-- NƯỚC
 -- 4000 x 4000
--- MẶT NƯỚC +30M SO VỚI NGƯỜI
--- ĐỘ SÂU 50M
+-- MẶT NƯỚC +50M
+-- ĐỘ SÂU 100M
 --==================================================
 
 local waterActive = false
 local waterRegion = nil
 
 local WATER_SIZE = 4000
-local WATER_HEIGHT = 30
-local WATER_DEPTH = 50
+local WATER_HEIGHT = 50
+local WATER_DEPTH = 100
 
 local function removeWater()
 
@@ -265,14 +265,13 @@ local function createWater()
 
 	waterActive = true
 
-	-- VỊ TRÍ NGƯỜI KHI BẤM NÚT
 	local playerPosition = root.Position
 
-	-- MẶT NƯỚC CAO HƠN NGƯỜI 30M
+	-- MẶT NƯỚC CAO HƠN NGƯỜI CHƠI 50M
 	local waterTopY =
 		playerPosition.Y + WATER_HEIGHT
 
-	-- ĐỘ SÂU 50M
+	-- ĐÁY NƯỚC SÂU 100M
 	local waterBottomY =
 		waterTopY - WATER_DEPTH
 
@@ -312,12 +311,16 @@ local function createWater()
 	)
 
 	Terrain.WaterColor =
-		Color3.fromRGB(15, 125, 180)
+		Color3.fromRGB(
+			15,
+			125,
+			180
+		)
 
-	Terrain.WaterTransparency = 0.18
+	Terrain.WaterTransparency = 0.12
 	Terrain.WaterReflectance = 0.35
-	Terrain.WaterWaveSize = 0.25
-	Terrain.WaterWaveSpeed = 7
+	Terrain.WaterWaveSize = 0.15
+	Terrain.WaterWaveSpeed = 5
 end
 
 makeButton(
@@ -331,7 +334,7 @@ makeButton(
 )
 
 --==================================================
--- 🏊 BƠI
+-- BƠI
 --==================================================
 
 RunService.Heartbeat:Connect(function()
@@ -384,7 +387,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --==================================================
--- ✨ ĐOM ĐÓM ĐI THEO NGƯỜI
+-- ĐOM ĐÓM
 --==================================================
 
 local fireflyFolder
@@ -465,19 +468,10 @@ local function createFireflies()
 
 		table.insert(flies, {
 			part = part,
-
-			angle =
-				math.random()
-				* math.pi * 2,
-
-			radius =
-				math.random(15, 90),
-
-			height =
-				math.random(-30, 45),
-
-			speed =
-				math.random(3, 8) / 100
+			angle = math.random() * math.pi * 2,
+			radius = math.random(15, 90),
+			height = math.random(-30, 45),
+			speed = math.random(3, 8) / 100
 		})
 	end
 
@@ -545,7 +539,7 @@ makeButton(
 )
 
 --==================================================
--- 🌈 CẦU VỒNG
+-- CẦU VỒNG
 --==================================================
 
 local rainbowFolder
@@ -698,7 +692,7 @@ makeButton(
 )
 
 --==================================================
--- 🌌 THIÊN HÀ
+-- THIÊN HÀ
 --==================================================
 
 local galaxyFolder
@@ -857,459 +851,4 @@ local function createGalaxy()
 			local angle =
 				t * math.pi * 7
 				+ (arm - 1)
-				* (math.pi * 2 / 5)
-
-			local radius =
-				t * 750
-
-			local part =
-				Instance.new("Part")
-
-			part.Shape =
-				Enum.PartType.Ball
-
-			local size =
-				math.random(
-					3,
-					9
-				)
-
-			part.Size =
-				Vector3.new(
-					size,
-					size,
-					size
-				)
-
-			part.Material =
-				Enum.Material.Neon
-
-			part.Color =
-				Color3.fromRGB(
-					math.random(
-						100,
-						220
-					),
-
-					math.random(
-						80,
-						180
-					),
-
-					math.random(
-						180,
-						255
-					)
-				)
-
-			part.Transparency = 0.2
-			part.Anchored = true
-			part.CanCollide = false
-			part.CanTouch = false
-			part.CanQuery = false
-
-			part.Position =
-				center
-				+ Vector3.new(
-
-					math.cos(angle)
-						* radius,
-
-					math.sin(
-						t * math.pi
-					) * 40
-					+ math.random(
-						-20,
-						20
-					),
-
-					math.sin(angle)
-						* radius
-				)
-
-			part.Parent =
-				galaxyFolder
-		end
-	end
-
-	local planet =
-		Instance.new("Part")
-
-	planet.Shape =
-		Enum.PartType.Ball
-
-	planet.Size =
-		Vector3.new(
-			430,
-			430,
-			430
-		)
-
-	planet.Material =
-		Enum.Material.SmoothPlastic
-
-	planet.Color =
-		Color3.fromRGB(
-			75,
-			80,
-			95
-		)
-
-	planet.Anchored = true
-	planet.CanCollide = false
-	planet.CanTouch = false
-	planet.CanQuery = false
-
-	planet.Position =
-		center
-		- root.CFrame.RightVector
-		* 430
-		+ Vector3.new(
-			0,
-			-80,
-			0
-		)
-
-	planet.Parent =
-		galaxyFolder
-
-	for i = 1, 3 do
-
-		local ring =
-			Instance.new("Part")
-
-		ring.Shape =
-			Enum.PartType.Cylinder
-
-		ring.Size =
-			Vector3.new(
-				12,
-				650 + i * 80,
-				650 + i * 80
-			)
-
-		ring.Material =
-			Enum.Material.Neon
-
-		ring.Color =
-			Color3.fromRGB(
-				100 + i * 30,
-				100 + i * 20,
-				130 + i * 30
-			)
-
-		ring.Transparency = 0.45
-		ring.Anchored = true
-		ring.CanCollide = false
-		ring.CanTouch = false
-		ring.CanQuery = false
-
-		ring.CFrame =
-			CFrame.new(
-				planet.Position
-			)
-			* CFrame.Angles(
-				math.rad(65),
-				0,
-				math.rad(20)
-			)
-
-		ring.Parent =
-			galaxyFolder
-	end
-
-	local sun =
-		Instance.new("Part")
-
-	sun.Shape =
-		Enum.PartType.Ball
-
-	sun.Size =
-		Vector3.new(
-			260,
-			260,
-			260
-		)
-
-	sun.Material =
-		Enum.Material.Neon
-
-	sun.Color =
-		Color3.fromRGB(
-			255,
-			245,
-			210
-		)
-
-	sun.Anchored = true
-	sun.CanCollide = false
-	sun.CanTouch = false
-	sun.CanQuery = false
-
-	sun.Position =
-		center
-		+ root.CFrame.RightVector
-		* 500
-		+ Vector3.new(
-			0,
-			80,
-			0
-		)
-
-	sun.Parent =
-		galaxyFolder
-
-	local light =
-		Instance.new("PointLight")
-
-	light.Brightness = 20
-	light.Range = 1200
-	light.Parent = sun
-
-	task.spawn(function()
-
-		while galaxyRunning
-		and galaxyFolder
-		and galaxyFolder.Parent do
-
-			for _, data in ipairs(stars) do
-
-				if data.part
-				and data.part.Parent then
-
-					data.angle +=
-						data.speed
-
-					data.part.Position =
-						center
-						+ Vector3.new(
-
-							math.cos(
-								data.angle
-							)
-							* data.distance,
-
-							data.height,
-
-							math.sin(
-								data.angle
-							)
-							* data.distance
-						)
-				end
-			end
-
-			task.wait(0.03)
-		end
-	end)
-end
-
-makeButton(
-	"🌌 BẬT THIÊN HÀ",
-	createGalaxy
-)
-
-makeButton(
-	"❌ TẮT THIÊN HÀ",
-	removeGalaxy
-)
-
---==================================================
--- ❤️ TRÁI TIM
---==================================================
-
-local heartFolder
-
-local function removeHeart()
-
-	if heartFolder then
-		heartFolder:Destroy()
-		heartFolder = nil
-	end
-end
-
-local function createHeart()
-
-	removeHeart()
-
-	local character = player.Character
-
-	local root =
-		character
-		and character:FindFirstChild(
-			"HumanoidRootPart"
-		)
-
-	if not root then
-		return
-	end
-
-	heartFolder =
-		Instance.new("Folder")
-
-	heartFolder.Name =
-		"SKY_Heart"
-
-	heartFolder.Parent =
-		workspace
-
-	local center =
-		root.Position
-		+ root.CFrame.LookVector
-		* 120
-		+ Vector3.new(
-			0,
-			80,
-			0
-		)
-
-	for i = 0, 220 do
-
-		local t =
-			math.pi * 2
-			* (i / 220)
-
-		local x =
-			16 * math.sin(t)^3
-
-		local y =
-			13 * math.cos(t)
-			- 5 * math.cos(2 * t)
-			- 2 * math.cos(3 * t)
-			- math.cos(4 * t)
-
-		local part =
-			Instance.new("Part")
-
-		part.Shape =
-			Enum.PartType.Ball
-
-		part.Size =
-			Vector3.new(
-				5,
-				5,
-				5
-			)
-
-		part.Material =
-			Enum.Material.Neon
-
-		part.Color =
-			Color3.fromRGB(
-				255,
-				math.random(
-					70,
-					220
-				),
-				180
-			)
-
-		part.Anchored = true
-		part.CanCollide = false
-		part.CanTouch = false
-		part.CanQuery = false
-
-		part.Position =
-			center
-			+ root.CFrame.RightVector
-			* (x * 3)
-			+ Vector3.new(
-				0,
-				y * 3,
-				0
-			)
-
-		part.Parent =
-			heartFolder
-	end
-
-	for i = 1, 650 do
-
-		local angle =
-			math.random()
-			* math.pi * 2
-
-		local radius =
-			math.random(
-				70,
-				190
-			)
-
-		local part =
-			Instance.new("Part")
-
-		part.Shape =
-			Enum.PartType.Ball
-
-		local size =
-			math.random(
-				1,
-				4
-			)
-
-		part.Size =
-			Vector3.new(
-				size,
-				size,
-				size
-			)
-
-		part.Material =
-			Enum.Material.Neon
-
-		part.Color =
-			Color3.fromRGB(
-				math.random(
-					160,
-					255
-				),
-
-				math.random(
-					60,
-					220
-				),
-
-				255
-			)
-
-		part.Transparency =
-			math.random(
-				0,
-				65
-			) / 100
-
-		part.Anchored = true
-		part.CanCollide = false
-		part.CanTouch = false
-		part.CanQuery = false
-
-		part.Position =
-			center
-			+ Vector3.new(
-
-				math.cos(angle)
-					* radius,
-
-				math.random(
-					-120,
-					120
-				),
-
-				math.sin(angle)
-					* radius
-			)
-
-		part.Parent =
-			heartFolder
-	end
-end
-
-makeButton(
-	"❤️ BẬT TRÁI TIM",
-	createHeart
-)
-
-makeButton(
-	"❌ TẮT TRÁI TIM",
-	removeHeart
-)
+				* (math
