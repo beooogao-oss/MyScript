@@ -77,7 +77,6 @@ UserInputService.InputChanged:Connect(function(input)
 		input.UserInputType == Enum.UserInputType.Touch
 		or input.UserInputType == Enum.UserInputType.MouseMovement
 	) then
-
 		local delta = input.Position - dragStart
 
 		frame.Position = UDim2.new(
@@ -195,50 +194,43 @@ end
 --==================================================
 
 button("☀️ Sáng",function()
-
 	Lighting.ClockTime = 12
 	Lighting.Brightness = 3
 	Lighting.Ambient = Color3.fromRGB(180,180,180)
 	Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
-
 end)
 
 button("🌄 Mặt trời mọc",function()
-
 	Lighting.ClockTime = 6
 	Lighting.Brightness = 2.5
 	Lighting.Ambient = Color3.fromRGB(255,180,130)
 	Lighting.OutdoorAmbient = Color3.fromRGB(255,150,100)
-
 end)
 
 button("🌅 Hoàng hôn",function()
-
 	Lighting.ClockTime = 17.8
 	Lighting.Brightness = 3
 	Lighting.Ambient = Color3.fromRGB(255,150,100)
 	Lighting.OutdoorAmbient = Color3.fromRGB(230,100,70)
-
 end)
 
 button("🌙 Tối",function()
-
 	Lighting.ClockTime = 0
 	Lighting.Brightness = 0.7
 	Lighting.Ambient = Color3.fromRGB(30,30,55)
 	Lighting.OutdoorAmbient = Color3.fromRGB(20,20,40)
-
 end)
 
 --==================================================
--- 🌊 BIỂN SIÊU RỘNG
+-- 🌊 BIỂN RỘNG HƠN
 --==================================================
 
 local waterActive = false
 local waterRegion
 
-local WATER_SIZE = 4000
-local WATER_DEPTH = 100
+-- ĐÃ TĂNG PHẠM VI NƯỚC
+local WATER_SIZE = 10000
+local WATER_DEPTH = 3000
 
 local function removeWater()
 
@@ -268,18 +260,19 @@ local function createWater()
 
 	local half = WATER_SIZE / 2
 
-	local center = root.Position - Vector3.new(0,50,0)
+	-- Mặt nước nằm ngang tại độ cao hiện tại
+	local center = root.Position - Vector3.new(0,WATER_DEPTH/2,0)
 
 	waterRegion = Region3.new(
 		center - Vector3.new(
 			half,
-			WATER_DEPTH / 2,
+			WATER_DEPTH/2,
 			half
 		),
 
 		center + Vector3.new(
 			half,
-			WATER_DEPTH / 2,
+			WATER_DEPTH/2,
 			half
 		)
 	):ExpandToGrid(4)
@@ -298,10 +291,9 @@ local function createWater()
 
 	Terrain.WaterWaveSize = 0.25
 	Terrain.WaterWaveSpeed = 7
-
 end
 
-button("🌊 BẬT BIỂN 4000 × 4000",createWater)
+button("🌊 BẬT BIỂN 10000 × 10000",createWater)
 button("❌ Tắt biển",removeWater)
 
 --==================================================
@@ -339,7 +331,6 @@ RunService.Heartbeat:Connect(function()
 			)
 		end
 	end
-
 end)
 
 --==================================================
@@ -422,15 +413,9 @@ local function createFireflies()
 						data.part.Position =
 							root.Position
 							+ Vector3.new(
-								math.cos(data.angle)
-								* data.radius,
-
-								data.height
-								+ math.sin(os.clock()*2)
-								* 4,
-
-								math.sin(data.angle)
-								* data.radius
+								math.cos(data.angle) * data.radius,
+								data.height + math.sin(os.clock()*2) * 4,
+								math.sin(data.angle) * data.radius
 							)
 					end
 				end
@@ -439,7 +424,6 @@ local function createFireflies()
 			task.wait(0.05)
 		end
 	end)
-
 end
 
 button("✨ Bật đom đóm",createFireflies)
@@ -457,7 +441,6 @@ local function removeRainbow()
 		rainbowFolder:Destroy()
 		rainbowFolder = nil
 	end
-
 end
 
 local function createRainbow()
@@ -479,7 +462,6 @@ local function createRainbow()
 		+ Vector3.new(0,80,0)
 
 	local colors = {
-
 		Color3.fromRGB(255,0,0),
 		Color3.fromRGB(255,140,0),
 		Color3.fromRGB(255,255,0),
@@ -487,7 +469,6 @@ local function createRainbow()
 		Color3.fromRGB(0,170,255),
 		Color3.fromRGB(0,0,255),
 		Color3.fromRGB(180,0,255)
-
 	}
 
 	for index,color in ipairs(colors) do
@@ -520,7 +501,6 @@ local function createRainbow()
 			p.Parent = rainbowFolder
 		end
 	end
-
 end
 
 button("🌈 Cầu vồng bên trái",createRainbow)
@@ -541,7 +521,6 @@ local function removeGalaxy()
 		galaxyFolder:Destroy()
 		galaxyFolder = nil
 	end
-
 end
 
 local function createGalaxy()
@@ -591,14 +570,9 @@ local function createGalaxy()
 		star.CanTouch = false
 		star.CanQuery = false
 
-		local angle =
-			math.random()*math.pi*2
-
-		local distance =
-			math.random(100,750)
-
-		local height =
-			math.random(-220,220)
+		local angle = math.random()*math.pi*2
+		local distance = math.random(100,750)
+		local height = math.random(-220,220)
 
 		star.Position =
 			center
@@ -638,7 +612,6 @@ local function createGalaxy()
 			local size=math.random(3,9)
 
 			p.Size=Vector3.new(size,size,size)
-
 			p.Material=Enum.Material.Neon
 
 			p.Color =
@@ -672,7 +645,6 @@ local function createGalaxy()
 
 	planet.Shape=Enum.PartType.Ball
 	planet.Size=Vector3.new(430,430,430)
-
 	planet.Material=Enum.Material.SmoothPlastic
 	planet.Color=Color3.fromRGB(75,80,95)
 
@@ -731,7 +703,6 @@ local function createGalaxy()
 
 	sun.Shape=Enum.PartType.Ball
 	sun.Size=Vector3.new(260,260,260)
-
 	sun.Material=Enum.Material.Neon
 	sun.Color=Color3.fromRGB(255,245,210)
 
@@ -767,13 +738,9 @@ local function createGalaxy()
 					data.part.Position =
 						center
 						+Vector3.new(
-							math.cos(data.angle)
-							*data.distance,
-
+							math.cos(data.angle)*data.distance,
 							data.height,
-
-							math.sin(data.angle)
-							*data.distance
+							math.sin(data.angle)*data.distance
 						)
 				end
 			end
@@ -781,7 +748,6 @@ local function createGalaxy()
 			task.wait(0.03)
 		end
 	end)
-
 end
 
 button("🌌 Bật thiên hà lớn",createGalaxy)
@@ -799,7 +765,6 @@ local function removeHeart()
 		heartFolder:Destroy()
 		heartFolder=nil
 	end
-
 end
 
 local function createHeart()
@@ -836,7 +801,6 @@ local function createHeart()
 
 		p.Shape=Enum.PartType.Ball
 		p.Size=Vector3.new(5,5,5)
-
 		p.Material=Enum.Material.Neon
 
 		p.Color=
@@ -871,7 +835,6 @@ local function createHeart()
 		local size=math.random(1,4)
 
 		p.Size=Vector3.new(size,size,size)
-
 		p.Material=Enum.Material.Neon
 
 		p.Color=
@@ -898,7 +861,6 @@ local function createHeart()
 
 		p.Parent=heartFolder
 	end
-
 end
 
 button("❤️ Bật trái tim + hạt",createHeart)
