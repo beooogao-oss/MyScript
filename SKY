@@ -30,7 +30,7 @@ for _, name in ipairs({
 end
 
 --==================================================
--- GUI
+-- GUI SKY
 --==================================================
 
 local gui = Instance.new("ScreenGui")
@@ -103,7 +103,7 @@ UserInputService.InputEnded:Connect(function(input)
 end)
 
 --==================================================
--- ĐÓNG
+-- ĐÓNG MENU
 --==================================================
 
 local close = Instance.new("TextButton")
@@ -199,7 +199,7 @@ local function button(text, callback)
 end
 
 --==================================================
--- SKY
+-- ☀️ SKY
 --==================================================
 
 button("☀️ Sáng", function()
@@ -239,10 +239,10 @@ button("🌙 Tối", function()
 end)
 
 --==================================================
--- 🌊 BIỂN 4000 × 4000
--- MẶT NƯỚC +200
--- ĐÁY NƯỚC -100
--- TỔNG CAO 300
+-- 🌊 BIỂN
+-- 4000 × 4000
+-- MẶT NƯỚC THẤP HƠN CHÂN 2 STUDS
+-- ĐÁY -302 STUDS
 --==================================================
 
 local waterActive = false
@@ -251,9 +251,11 @@ local waterRegion
 local WATER_SIZE_X = 4000
 local WATER_SIZE_Z = 4000
 
-local WATER_TOP_ABOVE = 200
-local WATER_BOTTOM_BELOW = 100
-local WATER_HEIGHT = WATER_TOP_ABOVE + WATER_BOTTOM_BELOW
+local WATER_TOP_OFFSET = -2
+local WATER_BOTTOM_OFFSET = -302
+
+local WATER_HEIGHT =
+	WATER_TOP_OFFSET - WATER_BOTTOM_OFFSET
 
 local function removeWater()
 
@@ -276,7 +278,8 @@ local function createWater()
 	removeWater()
 
 	local char = player.Character
-	local root = char and char:FindFirstChild("HumanoidRootPart")
+	local root =
+		char and char:FindFirstChild("HumanoidRootPart")
 
 	if not root then
 		return
@@ -284,15 +287,12 @@ local function createWater()
 
 	waterActive = true
 
-	-- MẶT NƯỚC CAO HƠN NGƯỜI CHƠI 200
 	local waterTopY =
-		root.Position.Y + WATER_TOP_ABOVE
+		root.Position.Y + WATER_TOP_OFFSET
 
-	-- ĐÁY NƯỚC THẤP HƠN NGƯỜI CHƠI 100
 	local waterBottomY =
-		root.Position.Y - WATER_BOTTOM_BELOW
+		root.Position.Y + WATER_BOTTOM_OFFSET
 
-	-- TÂM KHỐI NƯỚC
 	local waterCenterY =
 		(waterTopY + waterBottomY) / 2
 
@@ -324,21 +324,20 @@ local function createWater()
 		Enum.Material.Water
 	)
 
-	-- NƯỚC
+	-- NƯỚC XANH GIỐNG ẢNH
+
 	Terrain.WaterColor =
-		Color3.fromRGB(15, 125, 180)
+		Color3.fromRGB(25, 165, 225)
 
-	Terrain.WaterTransparency = 0.18
-	Terrain.WaterReflectance = 0.35
+	Terrain.WaterTransparency = 0.08
+	Terrain.WaterReflectance = 0.55
 
-	-- SÓNG
-	Terrain.WaterWaveSize = 0.25
-	Terrain.WaterWaveSpeed = 7
-
+	Terrain.WaterWaveSize = 0.8
+	Terrain.WaterWaveSpeed = 12
 end
 
 button(
-	"🌊 BẬT BIỂN 4000 × 4000",
+	"🌊 Biển",
 	createWater
 )
 
@@ -441,7 +440,6 @@ local function createFireflies()
 		p.CanCollide = false
 		p.CanTouch = false
 		p.CanQuery = false
-
 		p.Parent = fireflyFolder
 
 		local light = Instance.new("PointLight")
@@ -485,8 +483,7 @@ local function createFireflies()
 									* data.radius,
 
 								data.height
-									+ math.sin(os.clock() * 2)
-									* 4,
+									+ math.sin(os.clock() * 2) * 4,
 
 								math.sin(data.angle)
 									* data.radius
@@ -704,7 +701,8 @@ local function createGalaxy()
 
 		for i = 1, 230 do
 
-			local t = i / 230
+			local t =
+				i / 230
 
 			local angle =
 				t * math.pi * 7
@@ -713,7 +711,8 @@ local function createGalaxy()
 			local radius =
 				t * 750
 
-			local p = Instance.new("Part")
+			local p =
+				Instance.new("Part")
 
 			p.Shape =
 				Enum.PartType.Ball
@@ -758,7 +757,10 @@ local function createGalaxy()
 		end
 	end
 
-	local planet = Instance.new("Part")
+	-- HÀNH TINH
+
+	local planet =
+		Instance.new("Part")
 
 	planet.Shape =
 		Enum.PartType.Ball
@@ -784,9 +786,12 @@ local function createGalaxy()
 
 	planet.Parent = galaxyFolder
 
+	-- VÒNG
+
 	for i = 1, 3 do
 
-		local ring = Instance.new("Part")
+		local ring =
+			Instance.new("Part")
 
 		ring.Shape =
 			Enum.PartType.Cylinder
@@ -826,7 +831,10 @@ local function createGalaxy()
 		ring.Parent = galaxyFolder
 	end
 
-	local sun = Instance.new("Part")
+	-- MẶT TRỜI
+
+	local sun =
+		Instance.new("Part")
 
 	sun.Shape =
 		Enum.PartType.Ball
@@ -856,7 +864,9 @@ local function createGalaxy()
 
 	sun.Parent = galaxyFolder
 
-	local light = Instance.new("PointLight")
+	local light =
+		Instance.new("PointLight")
+
 	light.Brightness = 20
 	light.Range = 1200
 	light.Parent = sun
@@ -929,14 +939,21 @@ local function createHeart()
 		return
 	end
 
-	heartFolder = Instance.new("Folder")
-	heartFolder.Name = "SKY_Heart"
-	heartFolder.Parent = workspace
+	heartFolder =
+		Instance.new("Folder")
+
+	heartFolder.Name =
+		"SKY_Heart"
+
+	heartFolder.Parent =
+		workspace
 
 	local center =
 		root.Position
 		+ root.CFrame.LookVector * 120
 		+ Vector3.new(0, 80, 0)
+
+	-- VIỀN TRÁI TIM
 
 	for i = 0, 220 do
 
@@ -952,7 +969,8 @@ local function createHeart()
 			- 2 * math.cos(3 * t)
 			- math.cos(4 * t)
 
-		local p = Instance.new("Part")
+		local p =
+			Instance.new("Part")
 
 		p.Shape =
 			Enum.PartType.Ball
@@ -985,8 +1003,11 @@ local function createHeart()
 				0
 			)
 
-		p.Parent = heartFolder
+		p.Parent =
+			heartFolder
 	end
+
+	-- HẠT XUNG QUANH
 
 	for i = 1, 650 do
 
@@ -996,7 +1017,8 @@ local function createHeart()
 		local radius =
 			math.random(70, 190)
 
-		local p = Instance.new("Part")
+		local p =
+			Instance.new("Part")
 
 		p.Shape =
 			Enum.PartType.Ball
@@ -1037,7 +1059,8 @@ local function createHeart()
 				math.sin(angle) * radius
 			)
 
-		p.Parent = heartFolder
+		p.Parent =
+			heartFolder
 	end
 end
 
