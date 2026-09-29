@@ -902,39 +902,18 @@ local function createHeart()
 end
 
 -- 🔗 DÍNH ĐỒ VẬT
-local dinhPart1 = nil
+local dinhEnabled = false
+local dinhButton
 
-button("🔗 Dính đồ vật: OFF", function()
-	local mouse = player:GetMouse()
-	local connection
+dinhButton = button("🔗 Dính đồ vật: OFF", function()
+	dinhEnabled = not dinhEnabled
 
-	connection = mouse.Button1Down:Connect(function()
-		if not mouse.Target then return end
-
-		local part = mouse.Target
-		if not part:IsA("BasePart") then return end
-
-		if not dinhPart1 then
-			dinhPart1 = part
-			print("Đã chọn vật thứ nhất")
-		else
-			if dinhPart1 ~= part then
-				local weld = Instance.new("WeldConstraint")
-				weld.Part0 = dinhPart1
-				weld.Part1 = part
-				weld.Parent = dinhPart1
-				print("Đã dính 2 đồ vật")
-			end
-
-			dinhPart1 = nil
-		end
-	end)
-
-	task.delay(0.5, function()
-		if connection then
-			connection:Disconnect()
-		end
-	end)
+	if dinhEnabled then
+		dinhButton.Text = "🔗 Dính đồ vật: ON"
+	else
+		dinhButton.Text = "🔗 Dính đồ vật: OFF"
+	end
 end)
+
 button("❤️ Bật trái tim + hạt",createHeart)
 button("❌ Tắt trái tim",removeHeart)
