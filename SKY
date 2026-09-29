@@ -238,7 +238,7 @@ local waterActive = false
 local waterRegion
 
 local WATER_SIZE = 4000
-local WATER_DEPTH = 100
+local WATER_DEPTH = 200
 
 local function removeWater()
 
