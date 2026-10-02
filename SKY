@@ -917,3 +917,192 @@ end)
 
 button("❤️ Bật trái tim + hạt",createHeart)
 button("❌ Tắt trái tim",removeHeart)
+
+--==================================================
+-- 🦆 VỊT BAY QUANH NGƯỜI
+--==================================================
+
+local duckFolder
+local duckRunning = false
+local ducks = {}
+
+local DUCK_COUNT = 8
+local DUCK_RADIUS = 1.5
+local DUCK_HEIGHT = 3
+local DUCK_SPEED = 1.5
+
+local function removeDucks()
+
+	duckRunning = false
+	ducks = {}
+
+	if duckFolder then
+		duckFolder:Destroy()
+		duckFolder = nil
+	end
+
+end
+
+local function createDuck()
+
+	local body = Instance.new("Part")
+	body.Name = "DuckBody"
+	body.Shape = Enum.PartType.Ball
+	body.Size = Vector3.new(2,1.5,2)
+	body.Color = Color3.fromRGB(255,230,50)
+	body.Material = Enum.Material.SmoothPlastic
+	body.Anchored = true
+	body.CanCollide = false
+	body.CanTouch = false
+	body.CanQuery = false
+	body.Parent = duckFolder
+
+	local beak = Instance.new("Part")
+	beak.Name = "DuckBeak"
+	beak.Shape = Enum.PartType.Ball
+	beak.Size = Vector3.new(0.7,0.4,0.7)
+	beak.Color = Color3.fromRGB(255,140,0)
+	beak.Material = Enum.Material.SmoothPlastic
+	beak.Anchored = true
+	beak.CanCollide = false
+	beak.CanTouch = false
+	beak.CanQuery = false
+	beak.Parent = duckFolder
+
+	local eye1 = Instance.new("Part")
+	eye1.Shape = Enum.PartType.Ball
+	eye1.Size = Vector3.new(0.18,0.18,0.18)
+	eye1.Color = Color3.new(0,0,0)
+	eye1.Material = Enum.Material.Neon
+	eye1.Anchored = true
+	eye1.CanCollide = false
+	eye1.CanTouch = false
+	eye1.CanQuery = false
+	eye1.Parent = duckFolder
+
+	local eye2 = eye1:Clone()
+	eye2.Parent = duckFolder
+
+	return {
+		body = body,
+		beak = beak,
+		eye1 = eye1,
+		eye2 = eye2
+	}
+end
+
+local function createDucks()
+
+	removeDucks()
+
+	local char = player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+
+	if not root then return end
+
+	duckRunning = true
+
+	duckFolder = Instance.new("Folder")
+	duckFolder.Name = "SKY_Ducks"
+	duckFolder.Parent = workspace
+
+	for i = 1,DUCK_COUNT do
+
+		local duck = createDuck()
+
+		duck.angle =
+			(math.pi * 2 / DUCK_COUNT) * i
+
+		duck.offset =
+			math.random()*math.pi*2
+
+		table.insert(ducks,duck)
+
+	end
+
+	task.spawn(function()
+
+		while duckRunning
+		and duckFolder
+		and duckFolder.Parent do
+
+			local character = player.Character
+			local rootPart =
+				character
+				and character:FindFirstChild("HumanoidRootPart")
+
+			if rootPart then
+
+				for _,duck in ipairs(ducks) do
+
+					if duck.body
+					and duck.body.Parent then
+
+						duck.angle += DUCK_SPEED * 0.03
+
+						local wave =
+							math.sin(
+								os.clock()*3
+								+duck.offset
+							) * 0.5
+
+						local pos =
+							rootPart.Position
+							+Vector3.new(
+								math.cos(duck.angle)
+								*DUCK_RADIUS,
+
+								DUCK_HEIGHT
+								+wave,
+
+								math.sin(duck.angle)
+								*DUCK_RADIUS
+							)
+
+						duck.body.Position = pos
+
+						local forward =
+							Vector3.new(
+								math.cos(duck.angle),
+								0,
+								math.sin(duck.angle)
+							)
+
+						duck.beak.Position =
+							pos
+							+forward*1.05
+
+						duck.eye1.Position =
+							pos
+							+forward*0.75
+							+Vector3.new(
+								0.35,
+								0.35,
+								0
+							)
+
+						duck.eye2.Position =
+							pos
+							+forward*0.75
+							+Vector3.new(
+								-0.35,
+								0.35,
+								0
+							)
+
+					end
+
+				end
+
+			end
+
+			task.wait(0.03)
+
+		end
+
+	end)
+
+end
+
+button("🦆 Bật vịt bay",createDucks)
+button("❌ Tắt vịt",removeDucks)
