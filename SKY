@@ -899,13 +899,17 @@ local function createHeart()
 		p.Parent=heartFolder
 	end
 
-end
+end 
 
+--==================================================
 -- 🔗 DÍNH ĐỒ VẬT
+--==================================================
+
 local dinhEnabled = false
 local dinhButton
 
 dinhButton = button("🔗 Dính đồ vật: OFF", function()
+
 	dinhEnabled = not dinhEnabled
 
 	if dinhEnabled then
@@ -913,27 +917,45 @@ dinhButton = button("🔗 Dính đồ vật: OFF", function()
 	else
 		dinhButton.Text = "🔗 Dính đồ vật: OFF"
 	end
+
 end)
 
 button("❤️ Bật trái tim + hạt",createHeart)
 button("❌ Tắt trái tim",removeHeart)
 
 --==================================================
--- 🦆 VỊT BAY QUANH NGƯỜI
+-- 🦆 VỊT VÒNG TRÒN DƯỚI CHÂN
 --==================================================
 
 local duckFolder
-local duckRunning = false
+local duckConnection
 local ducks = {}
 
 local DUCK_COUNT = 8
-local DUCK_RADIUS = 1.5
-local DUCK_HEIGHT = 3
-local DUCK_SPEED = 1.5
+
+-- Bán kính vòng tròn
+local DUCK_RADIUS = 5
+
+-- Kích thước vịt
+local DUCK_SIZE = 1
+
+-- Độ cao dưới chân
+local DUCK_HEIGHT = -2.5
+
+-- Tốc độ quay
+local DUCK_SPEED = 1.2
+
+--==================================================
+-- XÓA VỊT
+--==================================================
 
 local function removeDucks()
 
-	duckRunning = false
+	if duckConnection then
+		duckConnection:Disconnect()
+		duckConnection = nil
+	end
+
 	ducks = {}
 
 	if duckFolder then
@@ -943,53 +965,114 @@ local function removeDucks()
 
 end
 
-local function createDuck()
+--==================================================
+-- TẠO 1 CON VỊT
+--==================================================
 
+local function makeDuck()
+
+	local model = Instance.new("Model")
+	model.Name = "Duck"
+	model.Parent = duckFolder
+
+	-- Thân
 	local body = Instance.new("Part")
-	body.Name = "DuckBody"
+
 	body.Shape = Enum.PartType.Ball
-	body.Size = Vector3.new(2,1.5,2)
+	body.Size = Vector3.new(
+		DUCK_SIZE,
+		DUCK_SIZE * 0.75,
+		DUCK_SIZE
+	)
+
 	body.Color = Color3.fromRGB(255,230,50)
 	body.Material = Enum.Material.SmoothPlastic
+
 	body.Anchored = true
 	body.CanCollide = false
 	body.CanTouch = false
 	body.CanQuery = false
-	body.Parent = duckFolder
 
+	body.Parent = model
+
+	-- Đầu
+	local head = Instance.new("Part")
+
+	head.Shape = Enum.PartType.Ball
+	head.Size = Vector3.new(
+		0.65,
+		0.65,
+		0.65
+	)
+
+	head.Color = Color3.fromRGB(255,235,60)
+	head.Material = Enum.Material.SmoothPlastic
+
+	head.Anchored = true
+	head.CanCollide = false
+	head.CanTouch = false
+	head.CanQuery = false
+
+	head.Parent = model
+
+	-- Mỏ
 	local beak = Instance.new("Part")
-	beak.Name = "DuckBeak"
+
 	beak.Shape = Enum.PartType.Ball
-	beak.Size = Vector3.new(0.7,0.4,0.7)
+	beak.Size = Vector3.new(
+		0.35,
+		0.22,
+		0.35
+	)
+
 	beak.Color = Color3.fromRGB(255,140,0)
 	beak.Material = Enum.Material.SmoothPlastic
+
 	beak.Anchored = true
 	beak.CanCollide = false
 	beak.CanTouch = false
 	beak.CanQuery = false
-	beak.Parent = duckFolder
 
+	beak.Parent = model
+
+	-- Mắt trái
 	local eye1 = Instance.new("Part")
+
 	eye1.Shape = Enum.PartType.Ball
-	eye1.Size = Vector3.new(0.18,0.18,0.18)
-	eye1.Color = Color3.new(0,0,0)
+	eye1.Size = Vector3.new(
+		0.12,
+		0.12,
+		0.12
+	)
+
+	eye1.Color = Color3.fromRGB(0,0,0)
 	eye1.Material = Enum.Material.Neon
+
 	eye1.Anchored = true
 	eye1.CanCollide = false
 	eye1.CanTouch = false
 	eye1.CanQuery = false
-	eye1.Parent = duckFolder
 
+	eye1.Parent = model
+
+	-- Mắt phải
 	local eye2 = eye1:Clone()
-	eye2.Parent = duckFolder
+	eye2.Parent = model
 
 	return {
+		model = model,
 		body = body,
+		head = head,
 		beak = beak,
 		eye1 = eye1,
 		eye2 = eye2
 	}
+
 end
+
+--==================================================
+-- TẠO VÒNG VỊT
+--==================================================
 
 local function createDucks()
 
@@ -998,105 +1081,138 @@ local function createDucks()
 	local char = player.Character
 	local root = char and char:FindFirstChild("HumanoidRootPart")
 
-	if not root then return end
-
-	duckRunning = true
+	if not root then
+		return
+	end
 
 	duckFolder = Instance.new("Folder")
 	duckFolder.Name = "SKY_Ducks"
 	duckFolder.Parent = workspace
 
-	for i = 1,DUCK_COUNT do
+	for i = 1, DUCK_COUNT do
 
-		local duck = createDuck()
+		local duck = makeDuck()
 
 		duck.angle =
-			(math.pi * 2 / DUCK_COUNT) * i
+			((i - 1) / DUCK_COUNT)
+			* math.pi * 2
 
-		duck.offset =
-			math.random()*math.pi*2
+		duck.bobOffset =
+			(i / DUCK_COUNT)
+			* math.pi * 2
 
 		table.insert(ducks,duck)
 
 	end
 
-	task.spawn(function()
+	--==================================================
+	-- CHUYỂN ĐỘNG MƯỢT
+	--==================================================
 
-		while duckRunning
-		and duckFolder
-		and duckFolder.Parent do
+	duckConnection = RunService.Heartbeat:Connect(function(dt)
 
-			local character = player.Character
-			local rootPart =
-				character
-				and character:FindFirstChild("HumanoidRootPart")
+		local character = player.Character
+		local rootPart =
+			character
+			and character:FindFirstChild("HumanoidRootPart")
 
-			if rootPart then
+		if not rootPart then
+			return
+		end
 
-				for _,duck in ipairs(ducks) do
+		for _,duck in ipairs(ducks) do
 
-					if duck.body
-					and duck.body.Parent then
+			if duck.model
+			and duck.model.Parent then
 
-						duck.angle += DUCK_SPEED * 0.03
+				-- Quay vòng
+				duck.angle =
+					duck.angle
+					+ DUCK_SPEED * dt
 
-						local wave =
-							math.sin(
-								os.clock()*3
-								+duck.offset
-							) * 0.5
+				-- Vị trí vòng tròn
+				local x =
+					math.cos(duck.angle)
+					* DUCK_RADIUS
 
-						local pos =
-							rootPart.Position
-							+Vector3.new(
-								math.cos(duck.angle)
-								*DUCK_RADIUS,
+				local z =
+					math.sin(duck.angle)
+					* DUCK_RADIUS
 
-								DUCK_HEIGHT
-								+wave,
+				-- Nhấp nhô rất nhẹ
+				local y =
+					DUCK_HEIGHT
+					+ math.sin(
+						os.clock() * 3
+						+ duck.bobOffset
+					) * 0.15
 
-								math.sin(duck.angle)
-								*DUCK_RADIUS
-							)
+				local position =
+					rootPart.Position
+					+ Vector3.new(x,y,z)
 
-						duck.body.Position = pos
+				-- Hướng vịt theo hướng chạy
+				local nextAngle =
+					duck.angle + 0.1
 
-						local forward =
-							Vector3.new(
-								math.cos(duck.angle),
-								0,
-								math.sin(duck.angle)
-							)
+				local nextPosition =
+					rootPart.Position
+					+ Vector3.new(
+						math.cos(nextAngle)
+						* DUCK_RADIUS,
 
-						duck.beak.Position =
-							pos
-							+forward*1.05
+						y,
 
-						duck.eye1.Position =
-							pos
-							+forward*0.75
-							+Vector3.new(
-								0.35,
-								0.35,
-								0
-							)
+						math.sin(nextAngle)
+						* DUCK_RADIUS
+					)
 
-						duck.eye2.Position =
-							pos
-							+forward*0.75
-							+Vector3.new(
-								-0.35,
-								0.35,
-								0
-							)
+				local cf =
+					CFrame.lookAt(
+						position,
+						nextPosition
+					)
 
-					end
+				-- Thân
+				duck.body.CFrame =
+					cf
 
-				end
+				-- Đầu
+				duck.head.CFrame =
+					cf
+					* CFrame.new(
+						0,
+						0.25,
+						-0.28
+					)
+
+				-- Mỏ
+				duck.beak.CFrame =
+					cf
+					* CFrame.new(
+						0,
+						0.22,
+						-0.62
+					)
+
+				-- Mắt
+				duck.eye1.CFrame =
+					cf
+					* CFrame.new(
+						-0.18,
+						0.35,
+						-0.48
+					)
+
+				duck.eye2.CFrame =
+					cf
+					* CFrame.new(
+						0.18,
+						0.35,
+						-0.48
+					)
 
 			end
-
-			task.wait(0.03)
 
 		end
 
@@ -1104,5 +1220,9 @@ local function createDucks()
 
 end
 
-button("🦆 Bật vịt bay",createDucks)
+--==================================================
+-- 🦆 NÚT BẬT / TẮT
+--==================================================
+
+button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
