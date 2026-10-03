@@ -1937,3 +1937,10 @@ if button then
 		end
 	end)
 end
+
+-- NÚT BẬT IRON MAN
+local ironButton = button("🦾 ⚡ IRON MAN SNAP 0.5×", function()
+	if not ironManBusy then
+		task.spawn(IronManSnap)
+	end
+end)
