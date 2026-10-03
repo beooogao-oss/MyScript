@@ -1226,3 +1226,426 @@ end
 
 button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
+
+--==================================================
+-- 🦾 IRON MAN SNAP
+--==================================================
+
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+
+local snapRunning = false
+
+local function ironManSnap()
+
+	if snapRunning then return end
+	snapRunning = true
+
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+
+	if not character or not humanoid or not root then
+		snapRunning = false
+		return
+	end
+
+	--================================================
+	-- TÌM TAY
+	--================================================
+
+	local hand =
+		character:FindFirstChild("RightHand")
+		or character:FindFirstChild("Right Arm")
+
+	local upperArm =
+		character:FindFirstChild("RightUpperArm")
+		or character:FindFirstChild("Right Arm")
+
+	local lowerArm =
+		character:FindFirstChild("RightLowerArm")
+
+	--================================================
+	-- GIƠ TAY
+	--================================================
+
+	local motors = {}
+
+	for _,obj in ipairs(character:GetDescendants()) do
+
+		if obj:IsA("Motor6D") then
+
+			if obj.Name == "RightShoulder"
+			or obj.Name == "RightElbow"
+			or obj.Name == "RightWrist" then
+
+				table.insert(motors,obj)
+
+			end
+
+		end
+
+	end
+
+	-- Lưu Transform cũ
+	local oldTransforms = {}
+
+	for _,motor in ipairs(motors) do
+		oldTransforms[motor] = motor.Transform
+	end
+
+	-- R15
+	local shoulder =
+		character:FindFirstChild("RightShoulder",true)
+
+	local elbow =
+		character:FindFirstChild("RightElbow",true)
+
+	local wrist =
+		character:FindFirstChild("RightWrist",true)
+
+	--================================================
+	-- TẠO HIỆU ỨNG NĂNG LƯỢNG
+	--================================================
+
+	local effectFolder = Instance.new("Folder")
+	effectFolder.Name = "SKY_IronManSnap"
+	effectFolder.Parent = workspace
+
+	-- Vòng năng lượng
+	local ring = Instance.new("Part")
+
+	ring.Shape = Enum.PartType.Cylinder
+	ring.Size = Vector3.new(0.2,2,2)
+	ring.Material = Enum.Material.Neon
+	ring.Color = Color3.fromRGB(255,210,70)
+
+	ring.Anchored = true
+	ring.CanCollide = false
+	ring.CanTouch = false
+	ring.CanQuery = false
+	ring.Transparency = 0.2
+
+	ring.Parent = effectFolder
+
+	--================================================
+	-- HẠT NĂNG LƯỢNG
+	--================================================
+
+	local emitterPart = Instance.new("Part")
+
+	emitterPart.Size = Vector3.new(0.2,0.2,0.2)
+	emitterPart.Transparency = 1
+	emitterPart.Anchored = true
+	emitterPart.CanCollide = false
+	emitterPart.CanTouch = false
+	emitterPart.CanQuery = false
+
+	emitterPart.Parent = effectFolder
+
+	local emitter = Instance.new("ParticleEmitter")
+
+	emitter.Texture =
+		"rbxasset://textures/particles/sparkles_main.dds"
+
+	emitter.Rate = 0
+	emitter.Lifetime = NumberRange.new(0.4,1)
+	emitter.Speed = NumberRange.new(8,18)
+
+	emitter.SpreadAngle = Vector2.new(360,360)
+
+	emitter.Rotation = NumberRange.new(0,360)
+	emitter.RotSpeed = NumberRange.new(-180,180)
+
+	emitter.LightEmission = 1
+
+	emitter.Size =
+		NumberSequence.new({
+			NumberSequenceKeypoint.new(0,0.7),
+			NumberSequenceKeypoint.new(0.5,0.35),
+			NumberSequenceKeypoint.new(1,0)
+		})
+
+	emitter.Color =
+		ColorSequence.new(
+			Color3.fromRGB(255,220,80)
+		)
+
+	emitter.Parent = emitterPart
+
+	--================================================
+	-- ÁNH SÁNG
+	--================================================
+
+	local light = Instance.new("PointLight")
+
+	light.Color = Color3.fromRGB(255,210,80)
+	light.Brightness = 0
+	light.Range = 5
+
+	light.Parent = emitterPart
+
+	--================================================
+	-- HIỆU ỨNG BỤI DƯỚI CHÂN
+	--================================================
+
+	local dustPart = Instance.new("Part")
+
+	dustPart.Size = Vector3.new(1,0.2,1)
+	dustPart.Transparency = 1
+	dustPart.Anchored = true
+	dustPart.CanCollide = false
+	dustPart.CanTouch = false
+	dustPart.CanQuery = false
+
+	dustPart.Position =
+		root.Position - Vector3.new(0,3,0)
+
+	dustPart.Parent = effectFolder
+
+	local dust = Instance.new("ParticleEmitter")
+
+	dust.Texture =
+		"rbxasset://textures/particles/smoke_main.dds"
+
+	dust.Rate = 0
+	dust.Lifetime = NumberRange.new(0.5,1.2)
+
+	dust.Speed = NumberRange.new(5,12)
+
+	dust.SpreadAngle =
+		Vector2.new(360,360)
+
+	dust.Size =
+		NumberSequence.new({
+			NumberSequenceKeypoint.new(0,1),
+			NumberSequenceKeypoint.new(1,4)
+		})
+
+	dust.Transparency =
+		NumberSequence.new({
+			NumberSequenceKeypoint.new(0,0.25),
+			NumberSequenceKeypoint.new(1,1)
+		})
+
+	dust.Color =
+		ColorSequence.new(
+			Color3.fromRGB(150,150,150)
+		)
+
+	dust.Parent = dustPart
+
+	--================================================
+	-- GIƠ TAY R15
+	--================================================
+
+	if shoulder then
+
+		local info =
+			TweenInfo.new(
+				0.55,
+				Enum.EasingStyle.Quad,
+				Enum.EasingDirection.Out
+			)
+
+		local goal = {
+			Transform =
+				CFrame.Angles(
+					math.rad(-75),
+					math.rad(10),
+					math.rad(20)
+				)
+		}
+
+		TweenService:Create(
+			shoulder,
+			info,
+			goal
+		):Play()
+
+	end
+
+	if elbow then
+
+		TweenService:Create(
+			elbow,
+
+			TweenInfo.new(
+				0.55,
+				Enum.EasingStyle.Quad,
+				Enum.EasingDirection.Out
+			),
+
+			{
+				Transform =
+					CFrame.Angles(
+						math.rad(-35),
+						0,
+						0
+					)
+			}
+
+		):Play()
+
+	end
+
+	--================================================
+	-- CHỜ GIƠ TAY
+	--================================================
+
+	task.wait(0.6)
+
+	--================================================
+	-- TÌM VỊ TRÍ BÀN TAY
+	--================================================
+
+	if hand then
+		emitterPart.Position =
+			hand.Position
+	else
+		emitterPart.Position =
+			root.Position
+			+ root.CFrame.RightVector
+			* 1.5
+			+ Vector3.new(0,2,0)
+	end
+
+	ring.Position =
+		emitterPart.Position
+
+	ring.CFrame =
+		CFrame.new(ring.Position)
+		* CFrame.Angles(
+			0,
+			math.rad(90),
+			0
+		)
+
+	--================================================
+	-- 🫰 BÚNG TAY
+	--================================================
+
+	emitter:Emit(100)
+
+	-- Ánh sáng lóe
+	TweenService:Create(
+		light,
+
+		TweenInfo.new(0.08),
+
+		{
+			Brightness = 18,
+			Range = 30
+		}
+
+	):Play()
+
+	-- Vòng năng lượng phóng ra
+	TweenService:Create(
+		ring,
+
+		TweenInfo.new(
+			0.35,
+			Enum.EasingStyle.Quad,
+			Enum.EasingDirection.Out
+		),
+
+		{
+			Size = Vector3.new(
+				0.2,
+				25,
+				25
+			),
+
+			Transparency = 1
+		}
+
+	):Play()
+
+	--================================================
+	-- 💨 BỤI BAY
+	--================================================
+
+	dust:Emit(70)
+
+	--================================================
+	-- ✨ FLASH
+	--================================================
+
+	local flash = Instance.new("ColorCorrectionEffect")
+
+	flash.Name = "SKY_SnapFlash"
+	flash.Brightness = 0.8
+	flash.Contrast = 0.4
+	flash.Saturation = 0.2
+
+	flash.Parent = Lighting
+
+	TweenService:Create(
+		flash,
+
+		TweenInfo.new(0.35),
+
+		{
+			Brightness = 0,
+			Contrast = 0,
+			Saturation = 0
+		}
+
+	):Play()
+
+	Debris:AddItem(flash,0.4)
+
+	--================================================
+	-- CHỜ HIỆU ỨNG
+	--================================================
+
+	task.wait(0.4)
+
+	--================================================
+	-- HẠ TAY XUỐNG
+	--================================================
+
+	for motor,oldTransform in pairs(oldTransforms) do
+
+		if motor and motor.Parent then
+
+			TweenService:Create(
+
+				motor,
+
+				TweenInfo.new(
+					0.45,
+					Enum.EasingStyle.Quad,
+					Enum.EasingDirection.InOut
+				),
+
+				{
+					Transform = oldTransform
+				}
+
+			):Play()
+
+		end
+
+	end
+
+	task.wait(0.5)
+
+	--================================================
+	-- DỌN HIỆU ỨNG
+	--================================================
+
+	if effectFolder then
+		effectFolder:Destroy()
+	end
+
+	snapRunning = false
+
+end
+
+--==================================================
+-- 🦾 NÚT IRON MAN
+--==================================================
+
+button("🦾 Iron Man Snap",ironManSnap)
