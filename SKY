@@ -1383,3 +1383,557 @@ makePart(
 	hair,
 	Enum.Material.SmoothPlastic
 )
+
+--==================================================
+-- SKY | IRON MAN SNAP 0.5X
+--==================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Debris = game:GetService("Debris")
+
+local player = Players.LocalPlayer
+local ironManBusy = false
+
+local function makeIMPart(parent, name, size, cf, color, material)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Size = size
+	p.CFrame = cf
+	p.Anchored = true
+	p.CanCollide = false
+	p.Material = material or Enum.Material.Metal
+	p.Color = color
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	p.Parent = parent
+	return p
+end
+
+local function IronManSnap()
+
+	if ironManBusy then return end
+	ironManBusy = true
+
+	local character = player.Character
+	if not character then
+		ironManBusy = false
+		return
+	end
+
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if not root then
+		ironManBusy = false
+		return
+	end
+
+	local old = workspace:FindFirstChild("SKY_IronMan")
+	if old then old:Destroy() end
+
+	local model = Instance.new("Model")
+	model.Name = "SKY_IronMan"
+	model.Parent = workspace
+
+	local base = root.Position + root.CFrame.LookVector * 8
+	base = Vector3.new(base.X, root.Position.Y, base.Z)
+
+	local facing = CFrame.lookAt(base, root.Position)
+
+	local RED = Color3.fromRGB(145,15,18)
+	local RED2 = Color3.fromRGB(205,25,25)
+	local GOLD = Color3.fromRGB(225,175,45)
+	local SKIN = Color3.fromRGB(215,170,130)
+	local HAIR = Color3.fromRGB(55,38,30)
+	local BLUE = Color3.fromRGB(60,220,255)
+
+	--==================================================
+	-- CHÂN
+	--==================================================
+
+	makeIMPart(
+		model,"LeftLeg",
+		Vector3.new(.9,2.8,.95),
+		facing*CFrame.new(-.58,1.4,0),
+		RED
+	)
+
+	makeIMPart(
+		model,"RightLeg",
+		Vector3.new(.9,2.8,.95),
+		facing*CFrame.new(.58,1.4,0),
+		RED
+	)
+
+	makeIMPart(
+		model,"LeftBoot",
+		Vector3.new(.95,.5,1),
+		facing*CFrame.new(-.58,.12,-.05),
+		GOLD
+	)
+
+	makeIMPart(
+		model,"RightBoot",
+		Vector3.new(.95,.5,1),
+		facing*CFrame.new(.58,.12,-.05),
+		GOLD
+	)
+
+	--==================================================
+	-- THÂN GIÁP
+	--==================================================
+
+	makeIMPart(
+		model,"ArmorBody",
+		Vector3.new(2.5,3.2,1.25),
+		facing*CFrame.new(0,4.2,0),
+		RED
+	)
+
+	makeIMPart(
+		model,"ChestArmor",
+		Vector3.new(2.05,1.9,.16),
+		facing*CFrame.new(0,4.35,-.68),
+		RED2
+	)
+
+	makeIMPart(
+		model,"ChestGold",
+		Vector3.new(.8,1.15,.12),
+		facing*CFrame.new(0,4.3,-.78),
+		GOLD
+	)
+
+	--==================================================
+	-- ARC REACTOR
+	--==================================================
+
+	local reactor = makeIMPart(
+		model,"ArcReactor",
+		Vector3.new(.5,.5,.14),
+		facing*CFrame.new(0,4.45,-.88),
+		BLUE,
+		Enum.Material.Neon
+	)
+
+	reactor.Shape = Enum.PartType.Ball
+
+	local reactorLight = Instance.new("PointLight")
+	reactorLight.Color = BLUE
+	reactorLight.Brightness = 5
+	reactorLight.Range = 12
+	reactorLight.Parent = reactor
+
+	--==================================================
+	-- 6 VIÊN ĐÁ TRÊN BỘ GIÁP
+	--==================================================
+
+	local stoneColors = {
+		Color3.fromRGB(150,0,255),
+		Color3.fromRGB(0,180,255),
+		Color3.fromRGB(255,220,0),
+		Color3.fromRGB(0,255,80),
+		Color3.fromRGB(255,45,45),
+		Color3.fromRGB(255,110,0)
+	}
+
+	local stonePositions = {
+		Vector3.new(-.7,4.9,-.86),
+		Vector3.new(0,5.05,-.88),
+		Vector3.new(.7,4.9,-.86),
+		Vector3.new(-.65,4.25,-.86),
+		Vector3.new(0,4.1,-.9),
+		Vector3.new(.65,4.25,-.86)
+	}
+
+	local stones = {}
+
+	for i = 1,6 do
+
+		local stone = makeIMPart(
+			model,
+			"InfinityStone"..i,
+			Vector3.new(.28,.28,.18),
+			facing*CFrame.new(stonePositions[i]),
+			stoneColors[i],
+			Enum.Material.Neon
+		)
+
+		stone.Shape = Enum.PartType.Ball
+
+		local light = Instance.new("PointLight")
+		light.Color = stoneColors[i]
+		light.Brightness = 3
+		light.Range = 7
+		light.Parent = stone
+
+		table.insert(stones,stone)
+	end
+
+	--==================================================
+	-- ĐẦU - KHÔNG MẶT NẠ
+	--==================================================
+
+	makeIMPart(
+		model,"TonyFace",
+		Vector3.new(1.5,1.65,1.4),
+		facing*CFrame.new(0,6.65,0),
+		SKIN,
+		Enum.Material.SmoothPlastic
+	)
+
+	makeIMPart(
+		model,"Hair",
+		Vector3.new(1.55,.55,1.4),
+		facing*CFrame.new(0,7.4,.02),
+		HAIR,
+		Enum.Material.SmoothPlastic
+	)
+
+	makeIMPart(
+		model,"HairFront",
+		Vector3.new(1.3,.22,.35),
+		facing*CFrame.new(0,7.18,-.7),
+		HAIR,
+		Enum.Material.SmoothPlastic
+	)
+
+	for _,x in ipairs({-.3,.3}) do
+		makeIMPart(
+			model,"Eye",
+			Vector3.new(.24,.1,.05),
+			facing*CFrame.new(x,6.78,-.72),
+			Color3.fromRGB(35,25,20),
+			Enum.Material.SmoothPlastic
+		)
+
+		makeIMPart(
+			model,"Brow",
+			Vector3.new(.34,.07,.05),
+			facing*CFrame.new(x,6.93,-.73),
+			HAIR,
+			Enum.Material.SmoothPlastic
+		)
+	end
+
+	makeIMPart(
+		model,"Nose",
+		Vector3.new(.18,.28,.18),
+		facing*CFrame.new(0,6.55,-.75),
+		Color3.fromRGB(185,135,100),
+		Enum.Material.SmoothPlastic
+	)
+
+	makeIMPart(
+		model,"Beard",
+		Vector3.new(.65,.24,.06),
+		facing*CFrame.new(0,6.2,-.73),
+		HAIR,
+		Enum.Material.SmoothPlastic
+	)
+
+	--==================================================
+	-- VAI + TAY
+	--==================================================
+
+	makeIMPart(
+		model,"LeftShoulder",
+		Vector3.new(.9,.85,1.1),
+		facing*CFrame.new(-1.5,5.15,0),
+		RED2
+	)
+
+	makeIMPart(
+		model,"RightShoulder",
+		Vector3.new(.9,.85,1.1),
+		facing*CFrame.new(1.5,5.15,0),
+		RED2
+	)
+
+	local rightUpper = makeIMPart(
+		model,"RightUpperArm",
+		Vector3.new(.72,1.4,.72),
+		facing*CFrame.new(1.55,4.25,0),
+		RED
+	)
+
+	local rightForearm = makeIMPart(
+		model,"RightForearm",
+		Vector3.new(.72,1.4,.72),
+		facing*CFrame.new(1.55,3.05,0),
+		RED2
+	)
+
+	local glove = makeIMPart(
+		model,"InfinityGlove",
+		Vector3.new(.95,.9,.95),
+		facing*CFrame.new(1.55,2.15,0),
+		GOLD
+	)
+
+	--==================================================
+	-- NGÓN TAY
+	--==================================================
+
+	local thumb = makeIMPart(
+		model,"Thumb",
+		Vector3.new(.25,.6,.28),
+		glove.CFrame*CFrame.new(-.35,.05,-.3),
+		GOLD
+	)
+
+	local index = makeIMPart(
+		model,"IndexFinger",
+		Vector3.new(.25,.7,.28),
+		glove.CFrame*CFrame.new(.3,.25,-.3),
+		GOLD
+	)
+
+	--==================================================
+	-- HÀM ANIMATION
+	--==================================================
+
+	local function animate(time, callback)
+
+		local steps = math.max(1,math.floor(time*60))
+
+		for i = 1,steps do
+
+			local a = i/steps
+			local smooth = a*a*(3-2*a)
+
+			callback(smooth)
+
+			RunService.RenderStepped:Wait()
+		end
+	end
+
+	--==================================================
+	-- ĐƯA TAY LÊN
+	--==================================================
+
+	local oldUpper = rightUpper.CFrame
+	local oldFore = rightForearm.CFrame
+	local oldGlove = glove.CFrame
+	local oldThumb = thumb.CFrame
+	local oldIndex = index.CFrame
+
+	local targetUpper =
+		facing*
+		CFrame.new(.85,5.15,-.15)*
+		CFrame.Angles(math.rad(-35),math.rad(-20),math.rad(-20))
+
+	local targetFore =
+		facing*
+		CFrame.new(.65,5.7,-.75)*
+		CFrame.Angles(math.rad(-60),math.rad(-20),math.rad(-20))
+
+	local targetGlove =
+		facing*
+		CFrame.new(.5,5.95,-1.2)*
+		CFrame.Angles(math.rad(-70),math.rad(-20),math.rad(-20))
+
+	-- 0.5X
+	animate(1.8,function(a)
+
+		rightUpper.CFrame = oldUpper:Lerp(targetUpper,a)
+		rightForearm.CFrame = oldFore:Lerp(targetFore,a)
+		glove.CFrame = oldGlove:Lerp(targetGlove,a)
+
+		thumb.CFrame =
+			glove.CFrame*CFrame.new(-.35,.05,-.3)
+
+		index.CFrame =
+			glove.CFrame*CFrame.new(.3,.25,-.3)
+
+	end)
+
+	task.wait(.5)
+
+	--==================================================
+	-- CHUẨN BỊ BÚNG
+	--==================================================
+
+	local readyIndex =
+		glove.CFrame*
+		CFrame.new(.05,.2,-.15)
+
+	animate(.5,function(a)
+		index.CFrame =
+			targetGlove:Lerp(readyIndex,a)
+	end)
+
+	task.wait(.35)
+
+	--==================================================
+	-- CÚ BÚNG 0.5X
+	--==================================================
+
+	local snapStart = index.CFrame
+
+	local snapEnd =
+		glove.CFrame*
+		CFrame.new(.55,.2,-.15)*
+		CFrame.Angles(math.rad(-55),0,math.rad(35))
+
+	animate(.3,function(a)
+		index.CFrame =
+			snapStart:Lerp(snapEnd,a)
+	end)
+
+	--==================================================
+	-- TĂNG SÁNG 6 VIÊN ĐÁ
+	--==================================================
+
+	for _,stone in ipairs(stones) do
+
+		local light = stone:FindFirstChildOfClass("PointLight")
+
+		if light then
+			light.Brightness = 14
+			light.Range = 20
+		end
+	end
+
+	--==================================================
+	-- ÂM THANH TẠCH
+	--==================================================
+
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://9118823101"
+	sound.Volume = 2
+	sound.PlaybackSpeed = 1
+	sound.Parent = glove
+	sound:Play()
+
+	Debris:AddItem(sound,3)
+
+	--==================================================
+	-- ÁNH SÁNG
+	--==================================================
+
+	local flash = Instance.new("Part")
+	flash.Shape = Enum.PartType.Ball
+	flash.Size = Vector3.new(1,1,1)
+	flash.Position = glove.Position
+	flash.Anchored = true
+	flash.CanCollide = false
+	flash.Material = Enum.Material.Neon
+	flash.Color = Color3.fromRGB(255,255,255)
+	flash.Parent = workspace
+
+	local flashLight = Instance.new("PointLight")
+	flashLight.Color = Color3.fromRGB(255,235,170)
+	flashLight.Brightness = 35
+	flashLight.Range = 25
+	flashLight.Parent = flash
+
+	task.spawn(function()
+
+		for i = 1,35 do
+
+			local a = i/35
+
+			flash.Size =
+				Vector3.new(1,1,1)*(1+a*18)
+
+			flash.Transparency = a
+			flashLight.Brightness = 35*(1-a)
+
+			RunService.RenderStepped:Wait()
+		end
+
+		flash:Destroy()
+	end)
+
+	--==================================================
+	-- VÒNG NĂNG LƯỢNG
+	--==================================================
+
+	local ring = Instance.new("Part")
+	ring.Shape = Enum.PartType.Cylinder
+	ring.Size = Vector3.new(.12,2,2)
+	ring.CFrame =
+		CFrame.new(glove.Position)*
+		CFrame.Angles(0,0,math.rad(90))
+
+	ring.Anchored = true
+	ring.CanCollide = false
+	ring.Material = Enum.Material.Neon
+	ring.Color = GOLD
+	ring.Parent = workspace
+
+	task.spawn(function()
+
+		for i = 1,40 do
+
+			local a = i/40
+
+			ring.Size =
+				Vector3.new(.12,2+a*35,2+a*35)
+
+			ring.Transparency = a
+
+			RunService.RenderStepped:Wait()
+		end
+
+		ring:Destroy()
+	end)
+
+	--==================================================
+	-- BỤI
+	--==================================================
+
+	local dust = Instance.new("ParticleEmitter")
+	dust.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	dust.Rate = 0
+	dust.Lifetime = NumberRange.new(.7,1.3)
+	dust.Speed = NumberRange.new(5,12)
+	dust.SpreadAngle = Vector2.new(180,180)
+	dust.Parent = glove
+	dust:Emit(70)
+
+	Debris:AddItem(dust,2)
+
+	task.wait(1.5)
+
+	--==================================================
+	-- HẠ TAY
+	--==================================================
+
+	animate(1.8,function(a)
+
+		rightUpper.CFrame =
+			targetUpper:Lerp(oldUpper,a)
+
+		rightForearm.CFrame =
+			targetFore:Lerp(oldFore,a)
+
+		glove.CFrame =
+			targetGlove:Lerp(oldGlove,a)
+
+		thumb.CFrame =
+			glove.CFrame*CFrame.new(-.35,.05,-.3)
+
+		index.CFrame =
+			glove.CFrame*CFrame.new(.3,.25,-.3)
+
+	end)
+
+	task.wait(1)
+
+	model:Destroy()
+
+	ironManBusy = false
+end
+
+--==================================================
+-- NÚT MENU SKY
+--==================================================
+
+if button then
+	button("🦾 ⚡ IRON MAN SNAP 0.5×",function()
+		if not ironManBusy then
+			task.spawn(IronManSnap)
+		end
+	end)
+end
