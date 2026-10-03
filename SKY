@@ -1227,6 +1227,10 @@ end
 button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
 
+button("🦾 BẬT IRON MAN SNAP", function()
+    IronManSnap()
+end)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Debris = game:GetService("Debris")
@@ -1516,6 +1520,6 @@ end
 
 IronManSnap()
 
-button("🦾 BẬT IRON MAN SNAP", function()
-	IronManSnap()
+button("🦾 ⚡ IRON MAN SNAP", function()
+    IronManSnap()
 end)
