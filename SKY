@@ -1227,425 +1227,291 @@ end
 button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
 
---==================================================
--- 🦾 IRON MAN SNAP
---==================================================
-
-local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Debris = game:GetService("Debris")
 
-local snapRunning = false
+local player = Players.LocalPlayer
 
-local function ironManSnap()
-
-	if snapRunning then return end
-	snapRunning = true
-
+local function IronManSnap()
 	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not character then return end
 
-	if not character or not humanoid or not root then
-		snapRunning = false
-		return
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local old = workspace:FindFirstChild("SKY_IronMan")
+	if old then old:Destroy() end
+
+	local model = Instance.new("Model")
+	model.Name = "SKY_IronMan"
+	model.Parent = workspace
+
+	local base = root.Position + root.CFrame.LookVector * 8
+	base = Vector3.new(base.X, root.Position.Y, base.Z)
+
+	local function makePart(name,size,cf,color,material)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Size = size
+		p.CFrame = cf
+		p.Anchored = true
+		p.CanCollide = false
+		p.Color = color
+		p.Material = material or Enum.Material.Metal
+		p.Parent = model
+		return p
 	end
 
-	--================================================
-	-- TÌM TAY
-	--================================================
+	-- THÂN
+	local body = makePart(
+		"Body",
+		Vector3.new(2.4,3,1.2),
+		CFrame.new(base + Vector3.new(0,2.3,0)),
+		Color3.fromRGB(150,20,20)
+	)
 
-	local hand =
-		character:FindFirstChild("RightHand")
-		or character:FindFirstChild("Right Arm")
+	-- NGỰC
+	local chest = makePart(
+		"Chest",
+		Vector3.new(.55,.55,.15),
+		CFrame.new(base + Vector3.new(0,2.4,-.65)),
+		Color3.fromRGB(255,220,80),
+		Enum.Material.Neon
+	)
 
-	local upperArm =
-		character:FindFirstChild("RightUpperArm")
-		or character:FindFirstChild("Right Arm")
+	-- ĐẦU
+	local head = makePart(
+		"Head",
+		Vector3.new(1.5,1.5,1.5),
+		CFrame.new(base + Vector3.new(0,4.6,0)),
+		Color3.fromRGB(210,170,100)
+	)
 
-	local lowerArm =
-		character:FindFirstChild("RightLowerArm")
+	-- MẶT NẠ
+	local mask = makePart(
+		"Mask",
+		Vector3.new(1.2,1.2,.15),
+		CFrame.new(base + Vector3.new(0,4.6,-.78)),
+		Color3.fromRGB(190,25,20)
+	)
 
-	--================================================
-	-- GIƠ TAY
-	--================================================
+	-- MẮT
+	for _,x in ipairs({-.32,.32}) do
+		makePart(
+			"Eye",
+			Vector3.new(.35,.12,.06),
+			CFrame.new(base + Vector3.new(x,4.7,-.87)),
+			Color3.fromRGB(100,220,255),
+			Enum.Material.Neon
+		)
+	end
 
-	local motors = {}
+	-- CHÂN
+	local leftLeg = makePart(
+		"LeftLeg",
+		Vector3.new(.85,2.5,.9),
+		CFrame.new(base + Vector3.new(-.6,.55,0)),
+		Color3.fromRGB(150,20,20)
+	)
 
-	for _,obj in ipairs(character:GetDescendants()) do
+	local rightLeg = makePart(
+		"RightLeg",
+		Vector3.new(.85,2.5,.9),
+		CFrame.new(base + Vector3.new(.6,.55,0)),
+		Color3.fromRGB(150,20,20)
+	)
 
-		if obj:IsA("Motor6D") then
+	-- TAY
+	local leftArm = makePart(
+		"LeftArm",
+		Vector3.new(.75,2.7,.75),
+		CFrame.new(base + Vector3.new(-1.55,2.4,0)),
+		Color3.fromRGB(170,25,20)
+	)
 
-			if obj.Name == "RightShoulder"
-			or obj.Name == "RightElbow"
-			or obj.Name == "RightWrist" then
+	local rightArm = makePart(
+		"RightArm",
+		Vector3.new(.75,2.7,.75),
+		CFrame.new(base + Vector3.new(1.55,2.4,0)),
+		Color3.fromRGB(170,25,20)
+	)
 
-				table.insert(motors,obj)
+	-- GĂNG TAY
+	local glove = makePart(
+		"InfinityGlove",
+		Vector3.new(.9,.9,.9),
+		CFrame.new(base + Vector3.new(1.55,1.0,-.1)),
+		Color3.fromRGB(210,170,50)
+	)
 
-			end
+	-- 6 VIÊN ĐÁ
+	local stones = {
+		{Color3.fromRGB(150,0,255),Vector3.new(-.28,.28,-.48)},
+		{Color3.fromRGB(0,170,255),Vector3.new(.28,.28,-.48)},
+		{Color3.fromRGB(255,220,0),Vector3.new(-.28,0,-.48)},
+		{Color3.fromRGB(0,255,80),Vector3.new(.28,0,-.48)},
+		{Color3.fromRGB(255,60,60),Vector3.new(-.28,-.28,-.48)},
+		{Color3.fromRGB(255,120,0),Vector3.new(.28,-.28,-.48)}
+	}
 
+	local stoneParts = {}
+
+	for i,data in ipairs(stones) do
+		local stone = makePart(
+			"Stone"..i,
+			Vector3.new(.18,.18,.12),
+			glove.CFrame * CFrame.new(data[2]),
+			data[1],
+			Enum.Material.Neon
+		)
+
+		local light = Instance.new("PointLight")
+		light.Color = data[1]
+		light.Brightness = 2
+		light.Range = 5
+		light.Parent = stone
+
+		table.insert(stoneParts,stone)
+	end
+
+	-- LƯU VỊ TRÍ BAN ĐẦU
+	local startPivot = model:GetPivot()
+
+	-- QUỲ XUỐNG
+	for i = 1,35 do
+		local a = i/35
+
+		model:PivotTo(
+			startPivot
+			* CFrame.new(0,-1.1*a,0)
+			* CFrame.Angles(math.rad(65)*a,0,0)
+		)
+
+		RunService.RenderStepped:Wait()
+	end
+
+	task.wait(.5)
+
+	-- ĐƯA GĂNG TAY LÊN
+	local gloveStart = glove.CFrame
+	local gloveTarget =
+		CFrame.new(base + Vector3.new(.8,2.8,-.9))
+		* CFrame.Angles(math.rad(-30),math.rad(20),math.rad(-20))
+
+	for i = 1,30 do
+		local a = i/30
+		glove.CFrame = gloveStart:Lerp(gloveTarget,a)
+
+		for _,stone in ipairs(stoneParts) do
+			local index = table.find(stoneParts,stone)
+			stone.CFrame =
+				glove.CFrame * CFrame.new(stones[index][2])
 		end
 
+		RunService.RenderStepped:Wait()
 	end
 
-	-- Lưu Transform cũ
-	local oldTransforms = {}
+	task.wait(.7)
 
-	for _,motor in ipairs(motors) do
-		oldTransforms[motor] = motor.Transform
+	-- 6 VIÊN ĐÁ SÁNG MẠNH
+	for _,stone in ipairs(stoneParts) do
+		local light = stone:FindFirstChildOfClass("PointLight")
+		if light then
+			light.Brightness = 10
+			light.Range = 15
+		end
 	end
 
-	-- R15
-	local shoulder =
-		character:FindFirstChild("RightShoulder",true)
+	-- ÂM THANH "TẠCH"
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://9118823101"
+	sound.Volume = 2
+	sound.PlaybackSpeed = 1.1
+	sound.Parent = glove
+	sound:Play()
+	Debris:AddItem(sound,3)
 
-	local elbow =
-		character:FindFirstChild("RightElbow",true)
+	-- LÓE SÁNG
+	local flash = Instance.new("Part")
+	flash.Shape = Enum.PartType.Ball
+	flash.Size = Vector3.new(2,2,2)
+	flash.CFrame = glove.CFrame
+	flash.Anchored = true
+	flash.CanCollide = false
+	flash.Material = Enum.Material.Neon
+	flash.Color = Color3.fromRGB(255,255,255)
+	flash.Parent = workspace
 
-	local wrist =
-		character:FindFirstChild("RightWrist",true)
+	local flashLight = Instance.new("PointLight")
+	flashLight.Brightness = 30
+	flashLight.Range = 60
+	flashLight.Color = Color3.fromRGB(255,240,180)
+	flashLight.Parent = flash
 
-	--================================================
-	-- TẠO HIỆU ỨNG NĂNG LƯỢNG
-	--================================================
+	-- ÁNH SÁNG LAN RA
+	task.spawn(function()
+		for i = 1,35 do
+			flash.Size += Vector3.new(2,2,2)
+			flash.Transparency = i/35
+			flashLight.Brightness = 30*(1-i/35)
+			RunService.RenderStepped:Wait()
+		end
+		flash:Destroy()
+	end)
 
-	local effectFolder = Instance.new("Folder")
-	effectFolder.Name = "SKY_IronManSnap"
-	effectFolder.Parent = workspace
-
-	-- Vòng năng lượng
+	-- VÒNG NĂNG LƯỢNG
 	local ring = Instance.new("Part")
-
 	ring.Shape = Enum.PartType.Cylinder
-	ring.Size = Vector3.new(0.2,2,2)
-	ring.Material = Enum.Material.Neon
-	ring.Color = Color3.fromRGB(255,210,70)
-
+	ring.Size = Vector3.new(.15,2,2)
+	ring.CFrame =
+		CFrame.new(glove.Position)
+		* CFrame.Angles(0,0,math.rad(90))
 	ring.Anchored = true
 	ring.CanCollide = false
-	ring.CanTouch = false
-	ring.CanQuery = false
-	ring.Transparency = 0.2
+	ring.Material = Enum.Material.Neon
+	ring.Color = Color3.fromRGB(255,220,80)
+	ring.Parent = workspace
 
-	ring.Parent = effectFolder
+	task.spawn(function()
+		for i = 1,35 do
+			ring.Size += Vector3.new(.05,1.2,1.2)
+			ring.Transparency = i/35
+			RunService.RenderStepped:Wait()
+		end
+		ring:Destroy()
+	end)
 
-	--================================================
-	-- HẠT NĂNG LƯỢNG
-	--================================================
-
-	local emitterPart = Instance.new("Part")
-
-	emitterPart.Size = Vector3.new(0.2,0.2,0.2)
-	emitterPart.Transparency = 1
-	emitterPart.Anchored = true
-	emitterPart.CanCollide = false
-	emitterPart.CanTouch = false
-	emitterPart.CanQuery = false
-
-	emitterPart.Parent = effectFolder
-
-	local emitter = Instance.new("ParticleEmitter")
-
-	emitter.Texture =
-		"rbxasset://textures/particles/sparkles_main.dds"
-
-	emitter.Rate = 0
-	emitter.Lifetime = NumberRange.new(0.4,1)
-	emitter.Speed = NumberRange.new(8,18)
-
-	emitter.SpreadAngle = Vector2.new(360,360)
-
-	emitter.Rotation = NumberRange.new(0,360)
-	emitter.RotSpeed = NumberRange.new(-180,180)
-
-	emitter.LightEmission = 1
-
-	emitter.Size =
-		NumberSequence.new({
-			NumberSequenceKeypoint.new(0,0.7),
-			NumberSequenceKeypoint.new(0.5,0.35),
-			NumberSequenceKeypoint.new(1,0)
-		})
-
-	emitter.Color =
-		ColorSequence.new(
-			Color3.fromRGB(255,220,80)
-		)
-
-	emitter.Parent = emitterPart
-
-	--================================================
-	-- ÁNH SÁNG
-	--================================================
-
-	local light = Instance.new("PointLight")
-
-	light.Color = Color3.fromRGB(255,210,80)
-	light.Brightness = 0
-	light.Range = 5
-
-	light.Parent = emitterPart
-
-	--================================================
-	-- HIỆU ỨNG BỤI DƯỚI CHÂN
-	--================================================
-
-	local dustPart = Instance.new("Part")
-
-	dustPart.Size = Vector3.new(1,0.2,1)
-	dustPart.Transparency = 1
-	dustPart.Anchored = true
-	dustPart.CanCollide = false
-	dustPart.CanTouch = false
-	dustPart.CanQuery = false
-
-	dustPart.Position =
-		root.Position - Vector3.new(0,3,0)
-
-	dustPart.Parent = effectFolder
-
+	-- BỤI
 	local dust = Instance.new("ParticleEmitter")
-
-	dust.Texture =
-		"rbxasset://textures/particles/smoke_main.dds"
-
+	dust.Texture = "rbxasset://textures/particles/smoke_main.dds"
 	dust.Rate = 0
-	dust.Lifetime = NumberRange.new(0.5,1.2)
+	dust.Lifetime = NumberRange.new(.7,1.5)
+	dust.Speed = NumberRange.new(5,15)
+	dust.SpreadAngle = Vector2.new(180,180)
+	dust.Parent = glove
+	dust:Emit(100)
+	Debris:AddItem(dust,2)
 
-	dust.Speed = NumberRange.new(5,12)
+	task.wait(1.5)
 
-	dust.SpreadAngle =
-		Vector2.new(360,360)
+	-- HẠ TAY
+	for i = 1,30 do
+		local a = i/30
 
-	dust.Size =
-		NumberSequence.new({
-			NumberSequenceKeypoint.new(0,1),
-			NumberSequenceKeypoint.new(1,4)
-		})
+		glove.CFrame = gloveTarget:Lerp(gloveStart,a)
 
-	dust.Transparency =
-		NumberSequence.new({
-			NumberSequenceKeypoint.new(0,0.25),
-			NumberSequenceKeypoint.new(1,1)
-		})
-
-	dust.Color =
-		ColorSequence.new(
-			Color3.fromRGB(150,150,150)
-		)
-
-	dust.Parent = dustPart
-
-	--================================================
-	-- GIƠ TAY R15
-	--================================================
-
-	if shoulder then
-
-		local info =
-			TweenInfo.new(
-				0.55,
-				Enum.EasingStyle.Quad,
-				Enum.EasingDirection.Out
-			)
-
-		local goal = {
-			Transform =
-				CFrame.Angles(
-					math.rad(-75),
-					math.rad(10),
-					math.rad(20)
-				)
-		}
-
-		TweenService:Create(
-			shoulder,
-			info,
-			goal
-		):Play()
-
-	end
-
-	if elbow then
-
-		TweenService:Create(
-			elbow,
-
-			TweenInfo.new(
-				0.55,
-				Enum.EasingStyle.Quad,
-				Enum.EasingDirection.Out
-			),
-
-			{
-				Transform =
-					CFrame.Angles(
-						math.rad(-35),
-						0,
-						0
-					)
-			}
-
-		):Play()
-
-	end
-
-	--================================================
-	-- CHỜ GIƠ TAY
-	--================================================
-
-	task.wait(0.6)
-
-	--================================================
-	-- TÌM VỊ TRÍ BÀN TAY
-	--================================================
-
-	if hand then
-		emitterPart.Position =
-			hand.Position
-	else
-		emitterPart.Position =
-			root.Position
-			+ root.CFrame.RightVector
-			* 1.5
-			+ Vector3.new(0,2,0)
-	end
-
-	ring.Position =
-		emitterPart.Position
-
-	ring.CFrame =
-		CFrame.new(ring.Position)
-		* CFrame.Angles(
-			0,
-			math.rad(90),
-			0
-		)
-
-	--================================================
-	-- 🫰 BÚNG TAY
-	--================================================
-
-	emitter:Emit(100)
-
-	-- Ánh sáng lóe
-	TweenService:Create(
-		light,
-
-		TweenInfo.new(0.08),
-
-		{
-			Brightness = 18,
-			Range = 30
-		}
-
-	):Play()
-
-	-- Vòng năng lượng phóng ra
-	TweenService:Create(
-		ring,
-
-		TweenInfo.new(
-			0.35,
-			Enum.EasingStyle.Quad,
-			Enum.EasingDirection.Out
-		),
-
-		{
-			Size = Vector3.new(
-				0.2,
-				25,
-				25
-			),
-
-			Transparency = 1
-		}
-
-	):Play()
-
-	--================================================
-	-- 💨 BỤI BAY
-	--================================================
-
-	dust:Emit(70)
-
-	--================================================
-	-- ✨ FLASH
-	--================================================
-
-	local flash = Instance.new("ColorCorrectionEffect")
-
-	flash.Name = "SKY_SnapFlash"
-	flash.Brightness = 0.8
-	flash.Contrast = 0.4
-	flash.Saturation = 0.2
-
-	flash.Parent = Lighting
-
-	TweenService:Create(
-		flash,
-
-		TweenInfo.new(0.35),
-
-		{
-			Brightness = 0,
-			Contrast = 0,
-			Saturation = 0
-		}
-
-	):Play()
-
-	Debris:AddItem(flash,0.4)
-
-	--================================================
-	-- CHỜ HIỆU ỨNG
-	--================================================
-
-	task.wait(0.4)
-
-	--================================================
-	-- HẠ TAY XUỐNG
-	--================================================
-
-	for motor,oldTransform in pairs(oldTransforms) do
-
-		if motor and motor.Parent then
-
-			TweenService:Create(
-
-				motor,
-
-				TweenInfo.new(
-					0.45,
-					Enum.EasingStyle.Quad,
-					Enum.EasingDirection.InOut
-				),
-
-				{
-					Transform = oldTransform
-				}
-
-			):Play()
-
+		for _,stone in ipairs(stoneParts) do
+			local index = table.find(stoneParts,stone)
+			stone.CFrame =
+				glove.CFrame * CFrame.new(stones[index][2])
 		end
 
+		RunService.RenderStepped:Wait()
 	end
 
-	task.wait(0.5)
-
-	--================================================
-	-- DỌN HIỆU ỨNG
-	--================================================
-
-	if effectFolder then
-		effectFolder:Destroy()
-	end
-
-	snapRunning = false
-
+	task.wait(1)
+	model:Destroy()
 end
 
---==================================================
--- 🦾 NÚT IRON MAN
---==================================================
-
-button("🦾 Iron Man Snap",ironManSnap)
+IronManSnap()
