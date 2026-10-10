@@ -1226,3 +1226,241 @@ end
 
 button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
+
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local old = playerGui:FindFirstChild("SKY_8")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SKY_8"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(300, 390)
+frame.Position = UDim2.new(0.5, -150, 0.5, -195)
+frame.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 18)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 48)
+title.BackgroundTransparency = 1
+title.Text = "🌌 SKY • 8 BẦU TRỜI"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.Parent = frame
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(35, 35)
+close.Position = UDim2.new(1, -42, 0, 6)
+close.Text = "×"
+close.TextSize = 24
+close.TextColor3 = Color3.new(1, 1, 1)
+close.BackgroundColor3 = Color3.fromRGB(90, 40, 40)
+close.Parent = frame
+Instance.new("UICorner", close).CornerRadius = UDim.new(1, 0)
+
+local open = Instance.new("TextButton")
+open.Size = UDim2.fromOffset(50, 50)
+open.Position = UDim2.new(0, 12, 0.5, -25)
+open.Text = "🌌"
+open.TextSize = 24
+open.Visible = false
+open.BackgroundColor3 = Color3.fromRGB(20, 70, 50)
+open.TextColor3 = Color3.new(1, 1, 1)
+open.Parent = gui
+Instance.new("UICorner", open).CornerRadius = UDim.new(1, 0)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	open.Visible = true
+end)
+
+open.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	open.Visible = false
+end)
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Position = UDim2.fromOffset(8, 53)
+scroll.Size = UDim2.new(1, -16, 1, -61)
+scroll.BackgroundTransparency = 1
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 4
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.Parent = frame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 7)
+layout.Parent = scroll
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scroll.CanvasSize = UDim2.fromOffset(0, layout.AbsoluteContentSize.Y + 10)
+end)
+
+local buttons = {}
+
+local function makeButton(text, callback)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1, -8, 0, 43)
+	b.BackgroundColor3 = Color3.fromRGB(31, 57, 46)
+	b.TextColor3 = Color3.fromRGB(240, 250, 245)
+	b.TextSize = 15
+	b.Font = Enum.Font.GothamBold
+	b.Text = text
+	b.BorderSizePixel = 0
+	b.Parent = scroll
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 12)
+	b.MouseButton1Click:Connect(callback)
+	return b
+end
+
+local original = {
+	ClockTime = Lighting.ClockTime,
+	Brightness = Lighting.Brightness,
+	Ambient = Lighting.Ambient,
+	OutdoorAmbient = Lighting.OutdoorAmbient,
+	FogColor = Lighting.FogColor,
+	FogStart = Lighting.FogStart,
+	FogEnd = Lighting.FogEnd,
+}
+
+local effects = {
+	{
+		name = "☀️ Bầu trời ban ngày",
+		apply = function()
+			Lighting.ClockTime = 12
+			Lighting.Brightness = 3
+			Lighting.Ambient = Color3.fromRGB(150, 160, 170)
+			Lighting.OutdoorAmbient = Color3.fromRGB(170, 180, 190)
+			Lighting.FogEnd = 100000
+		end
+	},
+	{
+		name = "🌅 Bầu trời hoàng hôn",
+		apply = function()
+			Lighting.ClockTime = 17.8
+			Lighting.Brightness = 2
+			Lighting.Ambient = Color3.fromRGB(180, 95, 65)
+			Lighting.OutdoorAmbient = Color3.fromRGB(200, 120, 80)
+		end
+	},
+	{
+		name = "🌫️ Bầu trời sương mù",
+		apply = function()
+			Lighting.ClockTime = 10
+			Lighting.Brightness = 1.5
+			Lighting.FogColor = Color3.fromRGB(190, 200, 205)
+			Lighting.FogStart = 0
+			Lighting.FogEnd = 180
+		end
+	},
+	{
+		name = "⛈️ Bầu trời giông bão",
+		apply = function()
+			Lighting.ClockTime = 15
+			Lighting.Brightness = 0.5
+			Lighting.Ambient = Color3.fromRGB(35, 40, 55)
+			Lighting.OutdoorAmbient = Color3.fromRGB(45, 50, 65)
+			Lighting.FogColor = Color3.fromRGB(65, 70, 80)
+			Lighting.FogStart = 0
+			Lighting.FogEnd = 450
+		end
+	},
+	{
+		name = "🌊 Bầu trời phản chiếu biển",
+		apply = function()
+			Lighting.ClockTime = 13
+			Lighting.Brightness = 2.5
+			Lighting.Ambient = Color3.fromRGB(100, 170, 200)
+			Lighting.OutdoorAmbient = Color3.fromRGB(130, 190, 220)
+			Lighting.FogEnd = 100000
+		end
+	},
+	{
+		name = "🌙 Bầu trời đêm xanh",
+		apply = function()
+			Lighting.ClockTime = 22
+			Lighting.Brightness = 1
+			Lighting.Ambient = Color3.fromRGB(25, 40, 100)
+			Lighting.OutdoorAmbient = Color3.fromRGB(20, 35, 90)
+			Lighting.FogColor = Color3.fromRGB(15, 30, 75)
+			Lighting.FogStart = 100
+			Lighting.FogEnd = 1500
+		end
+	},
+	{
+		name = "🌌 Bầu trời ngân hà",
+		apply = function()
+			Lighting.ClockTime = 0
+			Lighting.Brightness = 0.7
+			Lighting.Ambient = Color3.fromRGB(30, 20, 65)
+			Lighting.OutdoorAmbient = Color3.fromRGB(20, 15, 50)
+			Lighting.FogColor = Color3.fromRGB(15, 10, 35)
+			Lighting.FogStart = 100
+			Lighting.FogEnd = 2500
+		end
+	},
+	{
+		name = "🌑 Bầu trời đêm tối",
+		apply = function()
+			Lighting.ClockTime = 0
+			Lighting.Brightness = 0.2
+			Lighting.Ambient = Color3.fromRGB(5, 5, 10)
+			Lighting.OutdoorAmbient = Color3.fromRGB(5, 5, 10)
+			Lighting.FogColor = Color3.fromRGB(5, 5, 10)
+			Lighting.FogStart = 0
+			Lighting.FogEnd = 500
+		end
+	},
+}
+
+local function restoreLighting()
+	for property, value in pairs(original) do
+		Lighting[property] = value
+	end
+end
+
+for _, effect in ipairs(effects) do
+	local enabled = false
+	local b
+
+	b = makeButton(effect.name .. " : OFF", function()
+		if enabled then
+			enabled = false
+			b.Text = effect.name .. " : OFF"
+			restoreLighting()
+		else
+			enabled = true
+			for _, other in ipairs(buttons) do
+				other.enabled = false
+				other.button.Text = other.name .. " : OFF"
+			end
+
+			for property, value in pairs(original) do
+				Lighting[property] = value
+			end
+
+			effect.apply()
+			b.Text = effect.name .. " : ON"
+		end
+	end)
+
+	table.insert(buttons, {
+		button = b,
+		name = effect.name,
+		enabled = enabled,
+	})
+end
+
+makeButton("↩️ Khôi phục bầu trời ban đầu", restoreLighting)
