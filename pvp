@@ -1,5 +1,6 @@
+
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 local me = Players.LocalPlayer
 local pg = me:WaitForChild("PlayerGui")
 
@@ -12,14 +13,15 @@ gui.ResetOnSpawn = false
 gui.Parent = pg
 
 local panel = Instance.new("Frame")
-panel.Size = UDim2.fromOffset(220, 230)
-panel.Position = UDim2.new(0, 12, 0.3, 0)
+panel.Size = UDim2.fromOffset(220, 220)
+panel.Position = UDim2.new(0, 15, 0.2, 0)
 panel.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+panel.Active = true
 panel.Parent = gui
 Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 14)
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 34)
+title.Size = UDim2.new(1, 0, 0, 35)
 title.BackgroundTransparency = 1
 title.Text = "SKY • AIM"
 title.TextColor3 = Color3.fromRGB(100, 255, 180)
@@ -35,59 +37,68 @@ local function makeButton(text, y)
     b.TextScaled = true
     b.Text = text
     b.Parent = panel
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9)
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
     return b
 end
 
-local aimBtn = makeButton("AIM ASSIST: OFF", 100)
-local espBtn = makeButton("ESP: ON", 78)
-local fovBtn = makeButton("FOV 120: ON", 116)
-local lineBtn = makeButton("AIM LINE: ON", 50)
-local rangeBtn = makeButton("RANGE: 200", 192)
+local espBtn = makeButton("ESP: ON", 42)
+local fovBtn = makeButton("FOV 120: ON", 80)
+local rangeBtn = makeButton("RANGE: 50", 118)
+local hideBtn = makeButton("ẨN MENU", 156)
 
+local reopen = Instance.new("TextButton")
+reopen.Size = UDim2.fromOffset(48, 48)
+reopen.Position = UDim2.new(0, 15, 0.35, 0)
+reopen.Text = "🌐"
+reopen.TextScaled = true
+reopen.Visible = false
+reopen.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+reopen.Parent = gui
+Instance.new("UICorner", reopen).CornerRadius = UDim.new(1, 0)
 
-panel.Size = UDim2.fromOffset(220, 270)
+local espOn, fovOn = true, true
+local range = 50
+local marks = {}
 
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(1, -16, 0, 32)
-closeBtn.Position = UDim2.fromOffset(8, 232)
-closeBtn.BackgroundColor3 = Color3.fromRGB(150, 45, 45)
-closeBtn.Text = "✖ ẨN MENU"
-closeBtn.TextColor3 = Color3.new(1, 1, 1)
-closeBtn.TextScaled = true
-closeBtn.Parent = panel
-Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 9)
+local function clearMark(p)
+    if marks[p] then
+        for _, obj in ipairs(marks[p]) do
+            obj:Destroy()
+        end
+    end
+    marks[p] = nil
+end
 
-local reopenBtn = Instance.new("TextButton")
-reopenBtn.Size = UDim2.fromOffset(48, 48)
-reopenBtn.Position = UDim2.new(0, 12, 0.3, 0)
-reopenBtn.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
-reopenBtn.Text = "🌐"
-reopenBtn.TextScaled = true
-reopenBtn.Visible = false
-reopenBtn.Parent = gui
-Instance.new("UICorner", reopenBtn).CornerRadius = UDim.new(1, 0)
+local function addMark(p)
+    if p == me or marks[p] then return end
+    local char = p.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
 
-closeBtn.Activated:Connect(function()
-    panel.Visible = false
-    reopenBtn.Visible = true
-end)
+    local h = Instance.new("Highlight")
+    h.FillColor = Color3.fromRGB(40, 255, 140)
+    h.OutlineColor = Color3.fromRGB(255, 255, 255)
+    h.Adornee = char
+    h.Parent = gui
 
-reopenBtn.Activated:Connect(function()
-    panel.Visible = true
-    reopenBtn.Visible = false
-end)
+    local bill = Instance.new("BillboardGui")
+    bill.Size = UDim2.fromOffset(160, 35)
+    bill.StudsOffset = Vector3.new(0, 3, 0)
+    bill.AlwaysOnTop = true
+    bill.Adornee = root
+    bill.Parent = gui
 
+    local txt = Instance.new("TextLabel")
+    txt.Size = UDim2.fromScale(1, 1)
+    txt.BackgroundTransparency = 1
+    txt.TextColor3 = Color3.new(1, 1, 1)
+    txt.TextStrokeTransparency = 0
+    txt.TextScaled = true
+    txt.Parent = bill
 
-local aimOn, espOn, fovOn, lineOn = false, true, true, true
-local range = 25
-local highlights, tags = {}, {}
-local target
-
-aimBtn.Activated:Connect(function()
-    aimOn = not aimOn
-    aimBtn.Text = aimOn and "AIM ASSIST: ON" or "AIM ASSIST: OFF"
-end)
+    marks[p] = {h, bill}
+    marks[p].label = txt
+end
 
 espBtn.Activated:Connect(function()
     espOn = not espOn
@@ -99,164 +110,78 @@ fovBtn.Activated:Connect(function()
     fovBtn.Text = fovOn and "FOV 120: ON" or "FOV: DEFAULT"
 end)
 
-lineBtn.Activated:Connect(function()
-    lineOn = not lineOn
-    lineBtn.Text = lineOn and "AIM LINE: ON" or "AIM LINE: OFF"
-end)
-
 rangeBtn.Activated:Connect(function()
-    range = range + 5
-    if range > 50 then range = 0 end
+    range = range + 50
+    if range > 500 then range = 50 end
     rangeBtn.Text = "RANGE: " .. range
 end)
 
-local function clearESP(p)
-    if highlights[p] then highlights[p]:Destroy() end
-    if tags[p] then tags[p]:Destroy() end
-    highlights[p], tags[p] = nil, nil
-end
-
-local function setupESP(p)
-    if p == me or not p.Character then return end
-    clearESP(p)
-
-    local char = p.Character
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    local h = Instance.new("Highlight")
-    h.Adornee = char
-    h.FillColor = Color3.fromRGB(0, 255, 170)
-    h.OutlineColor = Color3.new(1, 1, 1)
-    h.FillTransparency = 0.8
-    h.Enabled = false
-    h.Parent = gui
-    highlights[p] = h
-
-    local tag = Instance.new("BillboardGui")
-    tag.Adornee = root
-    tag.Size = UDim2.fromOffset(180, 42)
-    tag.StudsOffset = Vector3.new(0, 3, 0)
-    tag.AlwaysOnTop = true
-    tag.Enabled = false
-    tag.Parent = gui
-
-    local label = Instance.new("TextLabel")
-    label.Name = "Info"
-    label.Size = UDim2.fromScale(1, 1)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(100, 255, 180)
-    label.TextStrokeTransparency = 0.25
-    label.TextScaled = true
-    label.Parent = tag
-    tags[p] = tag
-end
-
-local function getTarget()
-    local char = me.Character
-    local root = char and char:FindFirstChild("HumanoidRootPart")
-    local cam = workspace.CurrentCamera
-    if not root or not cam then return nil end
-
-    local best, bestDist = nil, math.huge
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= me and p.Character then
-            local r = p.Character:FindFirstChild("HumanoidRootPart")
-            local hum = p.Character:FindFirstChildOfClass("Humanoid")
-            if r and hum and hum.Health > 0 then
-                local d = (r.Position - root.Position).Magnitude
-                local point, visible = cam:WorldToViewportPoint(r.Position)
-                if d <= range and visible then
-                    local center = cam.ViewportSize / 2
-                    local screenDist = (Vector2.new(point.X, point.Y) - center).Magnitude
-                    if screenDist < bestDist then
-                        best, bestDist = r, screenDist
-                    end
-                end
-            end
-        end
-    end
-    return best
-end
-
-for _, p in ipairs(Players:GetPlayers()) do
-    setupESP(p)
-    p.CharacterAdded:Connect(function()
-        task.wait(1)
-        setupESP(p)
-    end)
-end
-
-Players.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Connect(function()
-        task.wait(1)
-        setupESP(p)
-    end)
+hideBtn.Activated:Connect(function()
+    panel.Visible = false
+    reopen.Visible = true
 end)
 
-Players.PlayerRemoving:Connect(clearESP)
+reopen.Activated:Connect(function()
+    panel.Visible = true
+    reopen.Visible = false
+end)
 
-local function makeLine()
-    local line = Instance.new("Frame")
-    line.Name = "AimLine"
-    line.AnchorPoint = Vector2.new(0, 0.5)
-    line.BorderSizePixel = 0
-    line.BackgroundColor3 = Color3.fromRGB(0, 255, 180)
-    line.Visible = false
-    line.Parent = gui
-    return line
-end
+local dragging, dragStart, startPos
+title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = panel.Position
+    end
+end)
 
-local aimLine = makeLine()
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        panel.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
 
-RunService:BindToRenderStep("SKY_AIM_UPDATE", Enum.RenderPriority.Camera.Value + 1, function(dt)
-    local cam = workspace.CurrentCamera
-    if not cam then return end
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
 
-    cam.FieldOfView = fovOn and 120 or 70
-    target = getTarget()
+Players.PlayerRemoving:Connect(clearMark)
 
-    local char = me.Character
-    local myRoot = char and char:FindFirstChild("HumanoidRootPart")
-
-    for p, h in pairs(highlights) do
-        local tag = tags[p]
-        local otherChar = p.Character
-        local r = otherChar and otherChar:FindFirstChild("HumanoidRootPart")
-        local hum = otherChar and otherChar:FindFirstChildOfClass("Humanoid")
-        local dist = myRoot and r and (r.Position - myRoot.Position).Magnitude
-
-        h.Enabled = espOn and r ~= nil and hum ~= nil and hum.Health > 0
-            and dist ~= nil and dist <= 500
-
-        if tag then
-            tag.Enabled = h.Enabled
-            local label = tag:FindFirstChild("Info")
-            if label and dist then
-                label.Text = p.DisplayName .. "\n" .. math.floor(dist) .. " studs"
-            end
-        end
+game:GetService("RunService").RenderStepped:Connect(function()
+    local camera = workspace.CurrentCamera
+    if camera then
+        camera.FieldOfView = fovOn and 120 or 70
     end
 
-    if target and myRoot then
-        local point, visible = cam:WorldToViewportPoint(target.Position)
-        local center = cam.ViewportSize / 2
-
-        aimLine.Visible = lineOn and visible
-        if aimLine.Visible then
-            local from = Vector2.new(center.X, center.Y)
-            local to = Vector2.new(point.X, point.Y)
-            local delta = to - from
-            aimLine.Position = UDim2.fromOffset(from.X, from.Y)
-            aimLine.Size = UDim2.fromOffset(delta.Magnitude, 2)
-            aimLine.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+    local myChar = me.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= me then
+            local char = p.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if espOn and myRoot and root
+            and (root.Position - myRoot.Position).Magnitude <= range then
+                addMark(p)
+                if marks[p] then
+                    marks[p][1].Enabled = true
+                    marks[p][2].Enabled = true
+                    marks[p].label.Text = p.Name .. " | "
+                        .. math.floor((root.Position - myRoot.Position).Magnitude)
+                        .. " studs"
+                end
+            elseif marks[p] then
+                marks[p][1].Enabled = false
+                marks[p][2].Enabled = false
+            end
         end
-
-        if aimOn and visible then
-            local desired = CFrame.lookAt(cam.CFrame.Position, target.Position)
-            cam.CFrame = cam.CFrame:Lerp(desired, math.clamp(dt * 5, 0, 1))
-        end
-    else
-        aimLine.Visible = false
     end
 end)
