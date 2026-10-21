@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local me = Players.LocalPlayer
@@ -45,6 +44,40 @@ local espBtn = makeButton("ESP: ON", 78)
 local fovBtn = makeButton("FOV 120: ON", 116)
 local lineBtn = makeButton("AIM LINE: ON", 154)
 local rangeBtn = makeButton("RANGE: 25", 192)
+
+
+panel.Size = UDim2.fromOffset(220, 270)
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(1, -16, 0, 32)
+closeBtn.Position = UDim2.fromOffset(8, 232)
+closeBtn.BackgroundColor3 = Color3.fromRGB(150, 45, 45)
+closeBtn.Text = "✖ ẨN MENU"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.TextScaled = true
+closeBtn.Parent = panel
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 9)
+
+local reopenBtn = Instance.new("TextButton")
+reopenBtn.Size = UDim2.fromOffset(48, 48)
+reopenBtn.Position = UDim2.new(0, 12, 0.3, 0)
+reopenBtn.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+reopenBtn.Text = "🌐"
+reopenBtn.TextScaled = true
+reopenBtn.Visible = false
+reopenBtn.Parent = gui
+Instance.new("UICorner", reopenBtn).CornerRadius = UDim.new(1, 0)
+
+closeBtn.Activated:Connect(function()
+    panel.Visible = false
+    reopenBtn.Visible = true
+end)
+
+reopenBtn.Activated:Connect(function()
+    panel.Visible = true
+    reopenBtn.Visible = false
+end)
+
 
 local aimOn, espOn, fovOn, lineOn = false, true, true, true
 local range = 25
