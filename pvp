@@ -1,6 +1,8 @@
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
 local me = Players.LocalPlayer
 local pg = me:WaitForChild("PlayerGui")
 
@@ -13,7 +15,7 @@ gui.ResetOnSpawn = false
 gui.Parent = pg
 
 local panel = Instance.new("Frame")
-panel.Size = UDim2.fromOffset(220, 220)
+panel.Size = UDim2.fromOffset(220, 260)
 panel.Position = UDim2.new(0, 15, 0.2, 0)
 panel.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 panel.Active = true
@@ -44,7 +46,8 @@ end
 local espBtn = makeButton("ESP: ON", 42)
 local fovBtn = makeButton("FOV 120: ON", 80)
 local rangeBtn = makeButton("RANGE: 50", 118)
-local hideBtn = makeButton("ẨN MENU", 156)
+local aimBtn = makeButton("AIM: OFF", 156)
+local hideBtn = makeButton("AN MENU", 202)
 
 local reopen = Instance.new("TextButton")
 reopen.Size = UDim2.fromOffset(48, 48)
@@ -56,7 +59,7 @@ reopen.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
 reopen.Parent = gui
 Instance.new("UICorner", reopen).CornerRadius = UDim.new(1, 0)
 
-local espOn, fovOn = true, true
+local espOn, fovOn, aimOn = true, true, false
 local range = 50
 local marks = {}
 
@@ -65,19 +68,19 @@ local function clearMark(p)
         for _, obj in ipairs(marks[p]) do
             obj:Destroy()
         end
+        marks[p] = nil
     end
-    marks[p] = nil
 end
 
 local function addMark(p)
-    if p == me or marks[p] then return end
+    if marks[p] then return end
     local char = p.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
     local h = Instance.new("Highlight")
     h.FillColor = Color3.fromRGB(40, 255, 140)
-    h.OutlineColor = Color3.fromRGB(255, 255, 255)
+    h.OutlineColor = Color3.new(1, 1, 1)
     h.Adornee = char
     h.Parent = gui
 
@@ -96,8 +99,7 @@ local function addMark(p)
     txt.TextScaled = true
     txt.Parent = bill
 
-    marks[p] = {h, bill}
-    marks[p].label = txt
+    marks[p] = {h, bill, label = txt}
 end
 
 espBtn.Activated:Connect(function()
@@ -116,6 +118,11 @@ rangeBtn.Activated:Connect(function()
     rangeBtn.Text = "RANGE: " .. range
 end)
 
+aimBtn.Activated:Connect(function()
+    aimOn = not aimOn
+    aimBtn.Text = aimOn and "AIM: ON" or "AIM: OFF"
+end)
+
 hideBtn.Activated:Connect(function()
     panel.Visible = false
     reopen.Visible = true
@@ -127,6 +134,7 @@ reopen.Activated:Connect(function()
 end)
 
 local dragging, dragStart, startPos
+
 title.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
@@ -137,8 +145,10 @@ title.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-    or input.UserInputType == Enum.UserInputType.Touch) then
+    if dragging and (
+        input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+    ) then
         local delta = input.Position - dragStart
         panel.Position = UDim2.new(
             startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -156,32 +166,70 @@ end)
 
 Players.PlayerRemoving:Connect(clearMark)
 
-game:GetService("RunService").RenderStepped:Connect(function()
+RunService.RenderStepped:Connect(function()
     local camera = workspace.CurrentCamera
-    if camera then
-        camera.FieldOfView = fovOn and 120 or 70
-    end
+    if not camera then return end
+
+    camera.FieldOfView = fovOn and 120 or 70
 
     local myChar = me.Character
     local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    local targetPart
+    local closest = math.huge
+
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= me then
             local char = p.Character
             local root = char and char:FindFirstChild("HumanoidRootPart")
-            if espOn and myRoot and root
-            and (root.Position - myRoot.Position).Magnitude <= range then
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            local torso = char and (
+                char:FindFirstChild("UpperTorso")
+                or char:FindFirstChild("Torso")
+            )
+
+            local valid = myRoot and root and torso
+                and humanoid and humanoid.Health > 0
+                and (root.Position - myRoot.Position).Magnitude <= range
+
+            if espOn and valid then
                 addMark(p)
                 if marks[p] then
                     marks[p][1].Enabled = true
                     marks[p][2].Enabled = true
                     marks[p].label.Text = p.Name .. " | "
-                        .. math.floor((root.Position - myRoot.Position).Magnitude)
-                        .. " studs"
+                        .. math.floor(
+                            (root.Position - myRoot.Position).Magnitude
+                        ) .. " studs"
                 end
             elseif marks[p] then
                 marks[p][1].Enabled = false
                 marks[p][2].Enabled = false
             end
+
+            if aimOn and valid then
+                local pos, visible =
+                    camera:WorldToViewportPoint(torso.Position)
+
+                if visible then
+                    local center = camera.ViewportSize / 2
+                    local dist = (
+                        Vector2.new(pos.X, pos.Y) - center
+                    ).Magnitude
+
+                    if dist < closest then
+                        closest = dist
+                        targetPart = torso
+                    end
+                end
+            end
         end
+    end
+
+    if aimOn and targetPart then
+        local goal = CFrame.lookAt(
+            camera.CFrame.Position,
+            targetPart.Position
+        )
+        camera.CFrame = camera.CFrame:Lerp(goal, 0.18)
     end
 end)
