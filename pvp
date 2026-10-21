@@ -42,8 +42,8 @@ end
 local aimBtn = makeButton("AIM ASSIST: OFF", 40)
 local espBtn = makeButton("ESP: ON", 78)
 local fovBtn = makeButton("FOV 120: ON", 116)
-local lineBtn = makeButton("AIM LINE: ON", 154)
-local rangeBtn = makeButton("RANGE: 25", 192)
+local lineBtn = makeButton("AIM LINE: ON", 2000)
+local rangeBtn = makeButton("RANGE: 100", 192)
 
 
 panel.Size = UDim2.fromOffset(220, 270)
