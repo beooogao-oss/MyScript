@@ -1226,3 +1226,108 @@ end
 
 button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
+
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+local FOV = 120
+local AIM_RANGE = 25
+local enabled = true
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "PrivateAimLine"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local panel = Instance.new("Frame")
+panel.Size = UDim2.fromOffset(210, 145)
+panel.Position = UDim2.new(0, 15, 0.35, 0)
+panel.BackgroundColor3 = Color3.fromRGB(20, 25, 35)
+panel.Parent = gui
+
+Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "FOV 120 + AIM LINE"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextScaled = true
+title.Parent = panel
+
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(1, -16, 0, 32)
+toggle.Position = UDim2.fromOffset(8, 36)
+toggle.Text = "AIM LINE: ON"
+toggle.Parent = panel
+
+local slider = Instance.new("TextButton")
+slider.Size = UDim2.new(1, -16, 0, 32)
+slider.Position = UDim2.fromOffset(8, 75)
+slider.Text = "AIM RANGE: 25"
+slider.Parent = panel
+
+local line = Drawing and Drawing.new and Drawing.new("Line")
+
+toggle.Activated:Connect(function()
+    enabled = not enabled
+    toggle.Text = enabled and "AIM LINE: ON" or "AIM LINE: OFF"
+end)
+
+slider.Activated:Connect(function()
+    AIM_RANGE = AIM_RANGE + 5
+    if AIM_RANGE > 50 then
+        AIM_RANGE = 0
+    end
+    slider.Text = "AIM RANGE: " .. AIM_RANGE
+end)
+
+local function getTarget()
+    local best, bestDistance = nil, math.huge
+    local myCharacter = player.Character
+    local myRoot = myCharacter and myCharacter:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return nil end
+
+    for _, other in ipairs(Players:GetPlayers()) do
+        if other ~= player then
+            local character = other.Character
+            local root = character and character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+            if root and humanoid and humanoid.Health > 0 then
+                local distance = (root.Position - myRoot.Position).Magnitude
+                if distance <= AIM_RANGE and distance < bestDistance then
+                    best = root
+                    bestDistance = distance
+                end
+            end
+        end
+    end
+
+    return best
+end
+
+RunService.RenderStepped:Connect(function()
+    camera = workspace.CurrentCamera
+    if camera then
+        camera.FieldOfView = FOV
+    end
+
+    if not line then return end
+
+    local target = enabled and getTarget()
+    if target then
+        local point, visible = camera:WorldToViewportPoint(target.Position)
+        line.Visible = visible
+        line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+        line.To = Vector2.new(point.X, point.Y)
+        line.Color = Color3.fromRGB(0, 255, 180)
+        line.Thickness = 2
+    else
+        line.Visible = false
+    end
+end)
