@@ -302,3 +302,80 @@ reset.Activated:Connect(function()
     extraCm = 0
     value.Text = "Tầm tăng thêm: 0 cm"
 end)
+
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local me = Players.LocalPlayer
+local gui = me:WaitForChild("PlayerGui"):WaitForChild("SKY_THROW")
+
+local panel = gui:WaitForChild("Frame")
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(32, 32)
+close.Position = UDim2.new(1, -36, 0, 2)
+close.BackgroundTransparency = 1
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextScaled = true
+close.Parent = panel
+
+local reopen = Instance.new("TextButton")
+reopen.Name = "SKY_REOPEN"
+reopen.Size = UDim2.fromOffset(42, 42)
+reopen.Position = UDim2.new(0, 155, 0, 20)
+reopen.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+reopen.Text = "SKY"
+reopen.TextColor3 = Color3.fromRGB(100, 255, 180)
+reopen.TextScaled = true
+reopen.Parent = gui
+Instance.new("UICorner", reopen).CornerRadius = UDim.new(1, 0)
+
+reopen.Visible = false
+
+close.Activated:Connect(function()
+    panel.Visible = false
+    reopen.Visible = true
+end)
+
+reopen.Activated:Connect(function()
+    panel.Visible = true
+    reopen.Visible = false
+end)
+
+local title = panel:FindFirstChild("TextLabel")
+if title then
+    title.Active = true
+    local dragging, startInput, startPosition
+
+    title.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            startInput = input.Position
+            startPosition = panel.Position
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and (
+            input.UserInputType == Enum.UserInputType.Touch
+            or input.UserInputType == Enum.UserInputType.MouseMovement
+        ) then
+            local delta = input.Position - startInput
+            panel.Position = UDim2.new(
+                startPosition.X.Scale,
+                startPosition.X.Offset + delta.X,
+                startPosition.Y.Scale,
+                startPosition.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+end
