@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -232,4 +231,74 @@ RunService.RenderStepped:Connect(function()
         )
         camera.CFrame = camera.CFrame:Lerp(goal, 0.18)
     end
+end)
+
+
+local Players = game:GetService("Players")
+local me = Players.LocalPlayer
+local pg = me:WaitForChild("PlayerGui")
+
+local old = pg:FindFirstChild("SKY_THROW")
+if old then old:Destroy() end
+
+local extraCm = 0
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SKY_THROW"
+gui.ResetOnSpawn = false
+gui.Parent = pg
+
+local panel = Instance.new("Frame")
+panel.Size = UDim2.fromOffset(230, 180)
+panel.Position = UDim2.new(0, 20, 0.3, 0)
+panel.BackgroundColor3 = Color3.fromRGB(20, 38, 31)
+panel.Active = true
+panel.Parent = gui
+Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 14)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 36)
+title.BackgroundTransparency = 1
+title.Text = "SKY • THROW"
+title.TextColor3 = Color3.fromRGB(100, 255, 180)
+title.TextScaled = true
+title.Parent = panel
+
+local value = Instance.new("TextLabel")
+value.Position = UDim2.fromOffset(8, 45)
+value.Size = UDim2.new(1, -16, 0, 35)
+value.BackgroundTransparency = 1
+value.TextColor3 = Color3.new(1, 1, 1)
+value.TextScaled = true
+value.Text = "Tầm tăng thêm: 0 cm"
+value.Parent = panel
+
+local add = Instance.new("TextButton")
+add.Position = UDim2.fromOffset(8, 88)
+add.Size = UDim2.new(1, -16, 0, 36)
+add.BackgroundColor3 = Color3.fromRGB(31, 100, 65)
+add.TextColor3 = Color3.new(1, 1, 1)
+add.TextScaled = true
+add.Text = "+30 CM"
+add.Parent = panel
+Instance.new("UICorner", add).CornerRadius = UDim.new(0, 8)
+
+local reset = Instance.new("TextButton")
+reset.Position = UDim2.fromOffset(8, 132)
+reset.Size = UDim2.new(1, -16, 0, 36)
+reset.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+reset.TextColor3 = Color3.new(1, 1, 1)
+reset.TextScaled = true
+reset.Text = "ĐẶT LẠI"
+reset.Parent = panel
+Instance.new("UICorner", reset).CornerRadius = UDim.new(0, 8)
+
+add.Activated:Connect(function()
+    extraCm = extraCm + 30
+    value.Text = "Tầm tăng thêm: " .. extraCm .. " cm"
+end)
+
+reset.Activated:Connect(function()
+    extraCm = 0
+    value.Text = "Tầm tăng thêm: 0 cm"
 end)
