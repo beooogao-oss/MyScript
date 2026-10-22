@@ -1,0 +1,216 @@
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local espEnabled = false
+local infiniteJump = false
+local aimEnabled = false
+local espObjects = {}
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SKY_MM2"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(245, 300)
+frame.Position = UDim2.new(0.5, -122, 0.35, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 30, 43)
+frame.Active = true
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 0, 42)
+title.BackgroundTransparency = 1
+title.Text = "SKY | MM2"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 21
+title.Parent = frame
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(35, 35)
+close.Position = UDim2.new(1, -38, 0, 3)
+close.Text = "X"
+close.TextSize = 18
+close.Parent = frame
+
+local reopen = Instance.new("TextButton")
+reopen.Size = UDim2.fromOffset(48, 48)
+reopen.Position = UDim2.new(0, 12, 0.5, 0)
+reopen.Text = "SKY"
+reopen.Visible = false
+reopen.Parent = gui
+
+local function makeButton(text, y)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -20, 0, 42)
+    b.Position = UDim2.fromOffset(10, y)
+    b.BackgroundColor3 = Color3.fromRGB(42, 61, 80)
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.TextSize = 15
+    b.Text = text
+    b.Parent = frame
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+    return b
+end
+
+local espButton = makeButton("ESP: OFF", 50)
+local jumpButton = makeButton("Infinite Jump: OFF", 98)
+local aimButton = makeButton("Aim Assist: OFF", 146)
+local clearButton = makeButton("Xóa ESP", 194)
+
+local function removeESP(p)
+    if espObjects[p] then
+        espObjects[p]:Destroy()
+        espObjects[p] = nil
+    end
+
+    local char = p.Character
+    local head = char and char:FindFirstChild("Head")
+    local tag = head and head:FindFirstChild("SKY_Name")
+    if tag then tag:Destroy() end
+end
+
+local function addESP(p)
+    if p == player or not espEnabled then return end
+
+    local char = p.Character
+    if not char then return end
+
+    removeESP(p)
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "SKY_ESP"
+    highlight.Adornee = char
+    highlight.FillTransparency = 0.8
+    highlight.OutlineColor = Color3.fromRGB(0, 170, 255)
+    highlight.Parent = char
+    espObjects[p] = highlight
+
+    local head = char:FindFirstChild("Head")
+    if head then
+        local tag = Instance.new("BillboardGui")
+        tag.Name = "SKY_Name"
+        tag.Size = UDim2.fromOffset(150, 28)
+        tag.StudsOffset = Vector3.new(0, 2.5, 0)
+        tag.AlwaysOnTop = true
+        tag.Parent = head
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Text = p.Name
+        label.Parent = tag
+    end
+end
+
+local function refreshESP()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if espEnabled then
+            addESP(p)
+        else
+            removeESP(p)
+        end
+    end
+end
+
+espButton.Activated:Connect(function()
+    espEnabled = not espEnabled
+    espButton.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+    refreshESP()
+end)
+
+jumpButton.Activated:Connect(function()
+    infiniteJump = not infiniteJump
+    jumpButton.Text = "Infinite Jump: " ..
+        (infiniteJump and "ON" or "OFF")
+end)
+
+aimButton.Activated:Connect(function()
+    aimEnabled = not aimEnabled
+    aimButton.Text = "Aim Assist: " ..
+        (aimEnabled and "ON" or "OFF")
+end)
+
+clearButton.Activated:Connect(function()
+    espEnabled = false
+    espButton.Text = "ESP: OFF"
+    refreshESP()
+end)
+
+UIS.JumpRequest:Connect(function()
+    if not infiniteJump then return end
+    local char = player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+close.Activated:Connect(function()
+    frame.Visible = false
+    reopen.Visible = true
+end)
+
+reopen.Activated:Connect(function()
+    frame.Visible = true
+    reopen.Visible = false
+end)
+
+local dragging = false
+local dragStart, startPos
+
+title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (
+        input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseMovement
+    ) then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+local function setupPlayer(p)
+    p.CharacterAdded:Connect(function()
+        task.wait(1)
+        if espEnabled then addESP(p) end
+    end)
+end
+
+for _, p in ipairs(Players:GetPlayers()) do
+    setupPlayer(p)
+end
+
+Players.PlayerAdded:Connect(setupPlayer)
+
+Players.PlayerRemoving:Connect(function(p)
+    removeESP(p)
+end)
+
+-- Aim Assist là nút giao diện mẫu.
+-- Chưa tự khóa mục tiêu hoặc điều khiển camera.
