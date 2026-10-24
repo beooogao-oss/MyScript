@@ -1,0 +1,129 @@
+
+-- SKY FPV: CHẠM MÀN HÌNH ĐỂ QUAY CAMERA
+-- Dùng khi drone đang bật và camera ở chế độ Scriptable.
+
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local camera = workspace.CurrentCamera
+
+local lookEnabled = true
+local sensitivity = 0.004
+local yaw = 0
+local pitch = 0
+local touchPositions = {}
+
+local function updateCameraLook(delta)
+    yaw = yaw - delta.X * sensitivity
+    pitch = math.clamp(
+        pitch - delta.Y * sensitivity,
+        math.rad(-85),
+        math.rad(85)
+    )
+end
+
+UIS.TouchStarted:Connect(function(input, processed)
+    if processed then return end
+
+    -- Không lấy thao tác chạm trên các nút GUI
+    local pos = input.Position
+    local objects = game:GetService("Players").LocalPlayer
+        :WaitForChild("PlayerGui")
+        :GetGuiObjectsAtPosition(pos.X, pos.Y)
+
+    for _, obj in ipairs(objects) do
+        if obj:IsA("GuiButton") then
+            return
+        end
+    end
+
+    touchPositions[input] = input.Position
+end)
+
+UIS.TouchMoved:Connect(function(input, processed)
+    if not lookEnabled or not touchPositions[input] then
+        return
+    end
+
+    local delta = input.Position - touchPositions[input]
+    touchPositions[input] = input.Position
+    updateCameraLook(delta)
+end)
+
+UIS.TouchEnded:Connect(function(input)
+    touchPositions[input] = nil
+end)
+
+-- Chuột để thử trong Roblox Studio trên máy tính
+local mouseDown = false
+
+UIS.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        mouseDown = true
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        mouseDown = false
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if mouseDown
+        and input.UserInputType == Enum.UserInputType.MouseMovement then
+        updateCameraLook(input.Delta)
+    end
+end)
+
+-- Gọi trong vòng RenderStepped của drone:
+local function applyDroneLook(position)
+    camera = workspace.CurrentCamera
+    if not camera then return end
+
+    camera.CFrame = CFrame.new(position)
+        * CFrame.Angles(0, yaw, 0)
+        * CFrame.Angles(pitch, 0, 0)
+end
+
+-- Ví dụ sử dụng:
+-- applyDroneLook(dronePosition)
+
+
+local gui = game:GetService("Players").LocalPlayer
+    :WaitForChild("PlayerGui"):WaitForChild("SKY_FPV")
+
+local panel = gui:WaitForChild("Frame")
+
+local close = Instance.new("TextButton")
+close.Name = "CloseButton"
+close.Size = UDim2.fromOffset(36, 36)
+close.Position = UDim2.new(1, -38, 0, 0)
+close.BackgroundTransparency = 1
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextScaled = true
+close.Parent = panel
+
+local reopen = Instance.new("TextButton")
+reopen.Name = "ReopenButton"
+reopen.Size = UDim2.fromOffset(48, 48)
+reopen.Position = UDim2.new(0, 15, 0, 55)
+reopen.BackgroundColor3 = Color3.fromRGB(17, 28, 36)
+reopen.Text = "SKY"
+reopen.TextColor3 = Color3.fromRGB(80, 220, 255)
+reopen.TextScaled = true
+reopen.Visible = false
+reopen.Parent = gui
+
+Instance.new("UICorner", reopen).CornerRadius = UDim.new(1, 0)
+
+close.Activated:Connect(function()
+    panel.Visible = false
+    reopen.Visible = true
+end)
+
+reopen.Activated:Connect(function()
+    panel.Visible = true
+    reopen.Visible = false
+end)
