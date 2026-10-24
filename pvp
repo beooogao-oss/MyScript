@@ -634,3 +634,297 @@ RunService.RenderStepped:Connect(function(dt)
         camera.CFrame = camera.CFrame:Lerp(goal, 0.18)
     end
 end)
+
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
+
+local old = pg:FindFirstChild("SKY_FPV")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SKY_FPV"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = pg
+
+local panel = Instance.new("Frame")
+panel.Size = UDim2.fromOffset(255, 330)
+panel.Position = UDim2.new(0, 12, 0.2, 0)
+panel.BackgroundColor3 = Color3.fromRGB(17, 28, 36)
+panel.Active = true
+panel.Parent = gui
+Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 14)
+
+local title = Instance.new("TextButton")
+title.Size = UDim2.new(1, -42, 0, 38)
+title.BackgroundTransparency = 1
+title.Text = "SKY • FPV DRONE"
+title.TextColor3 = Color3.fromRGB(80, 220, 255)
+title.TextScaled = true
+title.Parent = panel
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(38, 36)
+close.Position = UDim2.new(1, -39, 0, 1)
+close.BackgroundTransparency = 1
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextScaled = true
+close.Parent = panel
+
+local function makeButton(text, x, y, w, h)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.fromOffset(w, h)
+    b.Position = UDim2.fromOffset(x, y)
+    b.BackgroundColor3 = Color3.fromRGB(35, 57, 70)
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.TextScaled = true
+    b.Text = text
+    b.Parent = panel
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9)
+    return b
+end
+
+local toggle = makeButton("DRONE: OFF", 8, 44, 239, 34)
+local speedText = Instance.new("TextLabel")
+speedText.Size = UDim2.new(1, -16, 0, 25)
+speedText.Position = UDim2.fromOffset(8, 82)
+speedText.BackgroundTransparency = 1
+speedText.TextColor3 = Color3.new(1, 1, 1)
+speedText.Text = "SPEED: 190"
+speedText.TextScaled = true
+speedText.Parent = panel
+
+local minus = makeButton("-10", 8, 110, 70, 32)
+local plus = makeButton("+10", 177, 110, 70, 32)
+
+local directions = {
+    {"TIẾN", 87, 151, "Forward"},
+    {"LÊN", 87, 190, "Up"},
+    {"LÙI", 87, 229, "Backward"},
+    {"TRÁI", 8, 190, "Left"},
+    {"PHẢI", 166, 190, "Right"},
+    {"XUỐNG", 87, 268, "Down"},
+}
+
+local reopen = Instance.new("TextButton")
+reopen.Name = "Reopen"
+reopen.Size = UDim2.fromOffset(48, 48)
+reopen.Position = UDim2.new(0, 12, 0, 55)
+reopen.BackgroundColor3 = Color3.fromRGB(17, 28, 36)
+reopen.Text = "SKY"
+reopen.TextColor3 = Color3.fromRGB(80, 220, 255)
+reopen.TextScaled = true
+reopen.Visible = false
+reopen.Parent = gui
+Instance.new("UICorner", reopen).CornerRadius = UDim.new(1, 0)
+
+local enabled = false
+local speed = 190
+local held = {}
+local buttons = {}
+
+for _, info in ipairs(directions) do
+    local b = makeButton(info[1], info[2], info[3], 80, 34)
+    buttons[info[4]] = b
+
+    b.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            held[info[4]] = true
+        end
+    end)
+
+    b.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            held[info[4]] = nil
+        end
+    end)
+end
+
+toggle.Activated:Connect(function()
+    enabled = not enabled
+    toggle.Text = enabled and "DRONE: ON" or "DRONE: OFF"
+    if not enabled then
+        table.clear(held)
+    end
+end)
+
+minus.Activated:Connect(function()
+    speed = math.max(10, speed - 10)
+    speedText.Text = "SPEED: " .. speed
+end)
+
+plus.Activated:Connect(function()
+    speed = math.min(190, speed + 10)
+    speedText.Text = "SPEED: " .. speed
+end)
+
+close.Activated:Connect(function()
+    panel.Visible = false
+    reopen.Visible = true
+end)
+
+reopen.Activated:Connect(function()
+    panel.Visible = true
+    reopen.Visible = false
+end)
+
+local dragging = false
+local dragStart
+local startPosition
+
+title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch
+    or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPosition = panel.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (
+        input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseMovement
+    ) then
+        local d = input.Position - dragStart
+        panel.Position = UDim2.new(
+            startPosition.X.Scale,
+            startPosition.X.Offset + d.X,
+            startPosition.Y.Scale,
+            startPosition.Y.Offset + d.Y
+        )
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch
+    or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+local camera = workspace.CurrentCamera
+local savedCameraType
+local savedSubject
+local savedFov
+local yaw = 0
+local pitch = 0
+local roll = 0
+
+local function startDrone()
+    camera = workspace.CurrentCamera
+    if not camera then return end
+
+    savedCameraType = camera.CameraType
+    savedSubject = camera.CameraSubject
+    savedFov = camera.FieldOfView
+
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if root then
+        local look = root.CFrame.LookVector
+        yaw = math.atan2(-look.X, -look.Z)
+        pitch = 0
+        roll = 0
+        camera.CameraType = Enum.CameraType.Scriptable
+    else
+        enabled = false
+        toggle.Text = "DRONE: OFF"
+    end
+end
+
+local function stopDrone()
+    camera = workspace.CurrentCamera
+    if not camera then return end
+
+    camera.CameraType = savedCameraType or Enum.CameraType.Custom
+    camera.FieldOfView = savedFov or 70
+
+    if savedSubject and savedSubject.Parent then
+        camera.CameraSubject = savedSubject
+    end
+end
+
+local function getAxes()
+    local forward = (held.Forward and 1 or 0)
+        - (held.Backward and 1 or 0)
+    local side = (held.Right and 1 or 0)
+        - (held.Left and 1 or 0)
+    local vertical = (held.Up and 1 or 0)
+        - (held.Down and 1 or 0)
+    return forward, side, vertical
+end
+
+local dronePosition
+
+RunService.RenderStepped:Connect(function(dt)
+    camera = workspace.CurrentCamera
+    if not camera then return end
+
+    if enabled then
+        if camera.CameraType ~= Enum.CameraType.Scriptable then
+            startDrone()
+            if not enabled then return end
+        end
+
+        local char = player.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not root then
+            enabled = false
+            toggle.Text = "DRONE: OFF"
+            stopDrone()
+            return
+        end
+
+        if not dronePosition then
+            dronePosition = root.Position + Vector3.new(0, 3, 0)
+        end
+
+        local forward, side, vertical = getAxes()
+        local rotationSpeed = 1.5
+        yaw = yaw - side * rotationSpeed * dt
+        pitch = math.clamp(pitch + forward * 0.35 * dt, -0.8, 0.8)
+
+        local targetRoll = -side * math.rad(30)
+        roll = roll + (targetRoll - roll) * math.min(1, dt * 5)
+
+        local orientation = CFrame.Angles(0, yaw, 0)
+            * CFrame.Angles(pitch, 0, roll)
+
+        local movement = orientation.LookVector * forward
+            + orientation.RightVector * side
+            + Vector3.new(0, vertical, 0)
+
+        if movement.Magnitude > 1 then
+            movement = movement.Unit
+        end
+
+        dronePosition = dronePosition + movement * speed * dt
+        camera.CFrame = CFrame.new(dronePosition) * orientation
+        camera.FieldOfView = 85
+    else
+        dronePosition = nil
+    end
+end)
+
+local previousEnabled = false
+RunService.RenderStepped:Connect(function()
+    if enabled ~= previousEnabled then
+        previousEnabled = enabled
+        if enabled then
+            dronePosition = nil
+            startDrone()
+        else
+            stopDrone()
+            dronePosition = nil
+        end
+    end
+end)
