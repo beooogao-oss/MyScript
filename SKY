@@ -946,3 +946,53 @@ end
 
 button("🦆 Bật vịt vòng tròn",createDucks)
 button("❌ Tắt vịt",removeDucks)
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
+
+local model = Instance.new("Model")
+model.Name = "WoodenBridge"
+model.Parent = workspace
+
+local wood = Color3.fromRGB(145, 101, 65)
+local dark = Color3.fromRGB(90, 58, 35)
+
+local start = root.Position + root.CFrame.LookVector * 8
+start = Vector3.new(start.X, root.Position.Y - 3, start.Z)
+
+local cf = CFrame.lookAt(start, start + root.CFrame.LookVector)
+
+local function part(name, size, offset, color)
+    local p = Instance.new("Part")
+    p.Name = name
+    p.Size = size
+    p.CFrame = cf * CFrame.new(offset)
+    p.Anchored = true
+    p.CanCollide = true
+    p.Material = Enum.Material.WoodPlanks
+    p.Color = color
+    p.Parent = model
+    return p
+end
+
+for i = 0, 19 do
+    local z = -i * 4
+
+    part("WoodFloor", Vector3.new(10, 0.5, 3.9),
+        Vector3.new(0, 0, z), wood)
+
+    for _, x in ipairs({-5, 5}) do
+        part("RailPost", Vector3.new(0.6, 3, 0.6),
+            Vector3.new(x, 1.7, z), dark)
+    end
+end
+
+for _, x in ipairs({-5, 5}) do
+    part("WoodRail", Vector3.new(0.5, 0.5, 80),
+        Vector3.new(x, 3.2, -38), wood)
+end
+
+print("DA TAO XONG CAU GO!")
