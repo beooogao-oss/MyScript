@@ -1,0 +1,178 @@
+
+-- VX SMP FFA | ESP + FOV + TORSO
+-- LocalScript trong StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+local GREEN = Color3.fromRGB(0, 255, 140)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "VX_SMP_FFA"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(250, 230)
+frame.Position = UDim2.new(0.5, -125, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(12, 20, 18)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = GREEN
+stroke.Thickness = 2
+stroke.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 42)
+title.BackgroundTransparency = 1
+title.Text = "VX SMP FFA"
+title.TextColor3 = GREEN
+title.TextSize = 22
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
+
+local function makeButton(name, y)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0.85, 0, 0, 38)
+    b.Position = UDim2.new(0.075, 0, 0, y)
+    b.BackgroundColor3 = Color3.fromRGB(25, 45, 38)
+    b.TextColor3 = GREEN
+    b.TextSize = 14
+    b.Font = Enum.Font.GothamBold
+    b.Text = name .. " : OFF"
+    b.Parent = frame
+
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 8)
+    c.Parent = b
+
+    return b
+end
+
+local espButton = makeButton("ESP", 55)
+local fovButton = makeButton("FOV", 105)
+local torsoButton = makeButton("TORSO", 155)
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(30, 30)
+close.Position = UDim2.new(1, -35, 0, 5)
+close.Text = "X"
+close.TextColor3 = GREEN
+close.BackgroundTransparency = 1
+close.Parent = frame
+
+local espEnabled = false
+local fovEnabled = false
+local torsoEnabled = false
+
+local circle = Drawing and Drawing.new and Drawing.new("Circle")
+
+if circle then
+    circle.Radius = 120
+    circle.Thickness = 2
+    circle.Color = GREEN
+    circle.Filled = false
+end
+
+local function toggle(button, key)
+    local enabled = not _G[key]
+    _G[key] = enabled
+    button.Text = button.Name .. (enabled and " : ON" or " : OFF")
+end
+
+espButton.Name = "ESP"
+fovButton.Name = "FOV"
+torsoButton.Name = "TORSO"
+
+espButton.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    espButton.Text = "ESP : " .. (espEnabled and "ON" or "OFF")
+end)
+
+fovButton.MouseButton1Click:Connect(function()
+    fovEnabled = not fovEnabled
+    fovButton.Text = "FOV : " .. (fovEnabled and "ON" or "OFF")
+end)
+
+torsoButton.MouseButton1Click:Connect(function()
+    torsoEnabled = not torsoEnabled
+    torsoButton.Text = "TORSO : " .. (torsoEnabled and "ON" or "OFF")
+end)
+
+close.MouseButton1Click:Connect(function()
+    frame.Visible = false
+end)
+
+local reopen = Instance.new("TextButton")
+reopen.Size = UDim2.fromOffset(55, 45)
+reopen.Position = UDim2.new(0, 15, 0.5, 0)
+reopen.Text = "VX"
+reopen.TextColor3 = GREEN
+reopen.BackgroundColor3 = Color3.fromRGB(12, 20, 18)
+reopen.Parent = gui
+
+reopen.MouseButton1Click:Connect(function()
+    frame.Visible = true
+end)
+
+-- ESP
+local highlights = {}
+
+local function clearESP(p)
+    if highlights[p] then
+        highlights[p]:Destroy()
+        highlights[p] = nil
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    camera = workspace.CurrentCamera
+
+    if circle then
+        circle.Visible = fovEnabled
+        circle.Position = Vector2.new(
+            camera.ViewportSize.X / 2,
+            camera.ViewportSize.Y / 2
+        )
+    end
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            local character = p.Character
+            local torso = character and (
+                character:FindFirstChild("UpperTorso")
+                or character:FindFirstChild("Torso")
+            )
+
+            if espEnabled and character then
+                if not highlights[p] then
+                    local h = Instance.new("Highlight")
+                    h.FillColor = GREEN
+                    h.OutlineColor = GREEN
+                    h.FillTransparency = 0.8
+                    h.Parent = character
+                    highlights[p] = h
+                end
+            else
+                clearESP(p)
+            end
+
+            if torsoEnabled and torso then
+                -- Đánh dấu vị trí thân bằng Highlight
+                torso.Color = GREEN
+            end
+        end
+    end
+end)
+
+Players.PlayerRemoving:Connect(clearESP)
